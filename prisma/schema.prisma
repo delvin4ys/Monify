@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  name            String?
+  passwordHash    String?
+  /// Mata uang utama untuk ringkasan saldo & KPI: IDR | USD
+  displayCurrency String           @default("IDR")
+  createdAt       DateTime         @default(now())
+  wallets         Wallet[]
+  categories      Category[]
+  transactions    Transaction[]
+  budgets         Budget[]
+  categoryParents CategoryParent[]
+}
+
+/// Induk kategori (preset sistem userId=null, atau buatan pengguna)
+model CategoryParent {
+  id         String     @id @default(cuid())
+  userId     String?
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  kind       String // expense | income | debt
+  sortOrder  Int        @default(0)
+  categories Category[]
+}
+
+model Wallet {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  currency     String
+  balance      Int           @default(0)
+  active       Boolean       @default(true)
+  flag         String
+  logo         String?
+  transactions Transaction[]
+}
+
+model Category {
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  type         String // expense | income | debt
+  debtSubtype  String?
+  icon         String
+  parentId     String?
+  parent       CategoryParent? @relation(fields: [parentId], references: [id], onDelete: SetNull)
+  transactions Transaction[]
+}
+
+/// Budget per kategori daun ATAU per induk kategori (agregat anak)
+/// Bulanan: year + month, periodStart/periodEnd null.
+/// Kustom: periodStart + periodEnd (rentang tanggal bebas).
+model Budget {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  year        Int?
+  month       Int?
+  limitAmount Int
+  targetKind  String // CATEGORY | PARENT
+  targetId    String
+  periodStart DateTime?
+  periodEnd   DateTime?
+}
+
+model Transaction {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletId     String
+  wallet       Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  categoryId   String
+  category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amount       Int
+  type         String // expense | income | debt
+  title        String
+  date         DateTime
+  status       String   @default("success")
+  createdAt    DateTime @default(now())
+  currency     String   @default("IDR")
+  counterparty String?
+  relatedParty String?
+  imageUrl     String?
+}

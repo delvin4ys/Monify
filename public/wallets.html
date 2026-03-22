@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dompet — Monify</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/js/theme-init.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">
+          <div class="sidebar__brand-icon">M</div>
+          <span style="font-weight: 700">Monify</span>
+        </div>
+        <nav class="sidebar__nav" id="sidebar-nav"></nav>
+      </aside>
+      <div class="main">
+        <header class="topbar"><span class="text-muted text-sm">Dompet</span></header>
+        <div class="page">
+          <h1 style="margin: 0; font-size: 1.5rem">Dompet</h1>
+          <p class="text-muted text-sm mt-1">Daftar akun; saldo per dompet dan unggah logo ada di halaman rincian.</p>
+          <a href="/wallets/assets" class="btn btn--primary mt-3" style="display: inline-block">Rincian aset &amp; saldo</a>
+
+          <div class="card mt-4" style="max-width: 28rem">
+            <strong>Tambah dompet</strong>
+            <label class="text-sm text-muted mt-3" style="display: block">Nama</label>
+            <input class="input mt-1" id="w-name" placeholder="BCA, ShopeePay, …" />
+            <label class="text-sm text-muted mt-3" style="display: block">Mata uang</label>
+            <select class="input mt-1" id="w-currency">
+              <option value="IDR">🇮🇩 IDR</option>
+              <option value="USD">🇺🇸 USD</option>
+            </select>
+            <label class="text-sm text-muted mt-3" style="display: block">Saldo awal</label>
+            <input class="input mt-1" id="w-balance" inputmode="numeric" placeholder="0" />
+            <label class="text-sm text-muted mt-3" style="display: block">Logo (opsional)</label>
+            <div class="wallet-logo-row mt-2">
+              <input type="file" id="w-logo-file" accept="image/*" class="visually-hidden" tabindex="-1" />
+              <button type="button" class="btn btn--outline" id="w-logo-file-btn">Pilih gambar</button>
+              <span class="text-muted text-sm" id="w-logo-file-name"></span>
+            </div>
+            <button type="button" class="btn btn--primary mt-4" id="w-add">Simpan dompet</button>
+            <div id="w-err" class="alert alert--error mt-3" style="display: none"></div>
+          </div>
+
+          <div class="wallet-grid mt-4" id="wallet-grid"></div>
+        </div>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav"></nav>
+    <script src="/js/api.js"></script>
+    <script src="/js/format.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/wallets.js"></script>
+  </body>
+</html>

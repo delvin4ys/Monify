@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pengaturan — Monify</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/js/theme-init.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">
+          <div class="sidebar__brand-icon">M</div>
+          <span style="font-weight: 700">Monify</span>
+        </div>
+        <nav class="sidebar__nav" id="sidebar-nav"></nav>
+      </aside>
+      <div class="main">
+        <header class="topbar flex-between">
+          <a href="/dashboard" class="text-sm">← Beranda</a>
+          <span class="text-muted text-sm">Pengaturan</span>
+        </header>
+        <div class="page settings-page">
+          <h1 style="margin: 0; font-size: 1.5rem">Pengaturan</h1>
+          <p class="text-muted text-sm mt-1">Pilih menu untuk mengubah detail.</p>
+
+          <div class="settings-screen mt-4">
+            <a href="/settings/profile" class="settings-row">
+              <span class="settings-row__icon" aria-hidden="true">👤</span>
+              <span class="settings-row__text">
+                <span class="settings-row__title">Profil</span>
+                <span class="settings-row__desc">Nama &amp; email</span>
+              </span>
+              <span class="settings-row__chev">›</span>
+            </a>
+            <a href="/settings/currency" class="settings-row">
+              <span class="settings-row__icon" aria-hidden="true">💱</span>
+              <span class="settings-row__text">
+                <span class="settings-row__title">Mata uang utama</span>
+                <span class="settings-row__desc">IDR atau USD untuk ringkasan</span>
+              </span>
+              <span class="settings-row__chev">›</span>
+            </a>
+            <a href="/settings/appearance" class="settings-row">
+              <span class="settings-row__icon" aria-hidden="true">🌓</span>
+              <span class="settings-row__text">
+                <span class="settings-row__title">Tampilan</span>
+                <span class="settings-row__desc">Mode gelap</span>
+              </span>
+              <span class="settings-row__chev">›</span>
+            </a>
+            <a href="/settings/categories" class="settings-row">
+              <span class="settings-row__icon" aria-hidden="true">🏷️</span>
+              <span class="settings-row__text">
+                <span class="settings-row__title">Kategori &amp; induk</span>
+                <span class="settings-row__desc">Kelola grup pengeluaran &amp; pemasukan</span>
+              </span>
+              <span class="settings-row__chev">›</span>
+            </a>
+          </div>
+
+          <p class="sidebar__label mt-4">Pintasan</p>
+          <div class="settings-grid">
+            <a href="/transactions/new" class="settings-tile">
+              <span class="settings-tile__title">+ Transaksi</span>
+              <span class="settings-tile__desc">Catat baru</span>
+            </a>
+            <a href="/budgets" class="settings-tile">
+              <span class="settings-tile__title">Budget</span>
+              <span class="settings-tile__desc">Anggaran</span>
+            </a>
+            <a href="/wallets" class="settings-tile">
+              <span class="settings-tile__title">Dompet</span>
+              <span class="settings-tile__desc">Kelola akun</span>
+            </a>
+            <a href="/reports" class="settings-tile">
+              <span class="settings-tile__title">Laporan</span>
+              <span class="settings-tile__desc">Grafik</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav"></nav>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/settings-hub.js"></script>
+  </body>
+</html>

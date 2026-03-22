@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Panduan demo — Monify</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/js/theme-init.js"></script>
+  </head>
+  <body>
+    <div class="page" style="max-width: 44rem; margin: 0 auto; padding: 1.5rem 1rem 3rem">
+      <p class="text-muted text-sm"><a href="/login">← Masuk</a></p>
+      <h1 style="font-size: 1.35rem; margin: 0.5rem 0 0">Contoh data demo</h1>
+      <p class="text-muted text-sm mt-1">
+        Jalankan <code style="background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px">npm run db:seed</code>
+        (hentikan <code style="background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px">npm run dev</code> dulu jika SQLite terkunci), lalu masuk dengan akun di bawah.
+      </p>
+
+      <div class="card mt-4">
+        <strong>Akun demo</strong>
+        <p class="text-sm mt-2 mb-0">
+          Email: <code>demo@monify.local</code><br />
+          Password: <code>demo123456</code>
+        </p>
+        <p class="text-muted text-sm mt-2 mb-0">Bisa diubah lewat env <code>DEMO_USER_EMAIL</code> / <code>DEMO_USER_PASSWORD</code>.</p>
+      </div>
+
+      <div class="card mt-4">
+        <strong>Apa yang diisi seed (satu contoh per area)</strong>
+        <table class="data mt-3" style="font-size: 0.9rem">
+          <thead>
+            <tr>
+              <th>Fitur</th>
+              <th>Cek di</th>
+              <th>Contoh</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Multi dompet + logo</td>
+              <td><a href="/wallets">Dompet</a>, <a href="/dashboard">Dashboard</a></td>
+              <td>BCA, BRI, ShopeePay (IDR), USD Cash</td>
+            </tr>
+            <tr>
+              <td>Multi-mata uang (USD)</td>
+              <td><a href="/transactions">Transaksi</a>, dompet USD</td>
+              <td>Transaksi “Kopi (USD…)” di dompet USD Cash</td>
+            </tr>
+            <tr>
+              <td>Kategori + induk sistem</td>
+              <td><a href="/transactions/new">+ Transaksi</a></td>
+              <td>Makan, Transport, Belanja, … (preset ID)</td>
+            </tr>
+            <tr>
+              <td>Induk kategori kustom</td>
+              <td><a href="/settings">Pengaturan</a></td>
+              <td>“Hobi & Proyek (contoh)” + anak “Koleksi & miniatur”</td>
+            </tr>
+            <tr>
+              <td>Hutang: cicilan vs terima pinjaman</td>
+              <td>Transaksi, <a href="/reports">Laporan</a></td>
+              <td>Cicilan ke bank (REPAYMENT) &amp; Terima pinjaman (LOAN)</td>
+            </tr>
+            <tr>
+              <td>Budget bulanan per kategori</td>
+              <td><a href="/budgets">Budget</a></td>
+              <td>Beberapa baris limit untuk c1–c4</td>
+            </tr>
+            <tr>
+              <td>Budget agregat induk</td>
+              <td>Budget</td>
+              <td>Satu baris target induk “Transportasi” (PARENT)</td>
+            </tr>
+            <tr>
+              <td>Budget rentang kustom</td>
+              <td>Budget</td>
+              <td>Baris dengan label tanggal untuk kategori Hobi (c9)</td>
+            </tr>
+            <tr>
+              <td>Lampiran gambar</td>
+              <td>Transaksi / edit</td>
+              <td>“Makan + lampiran bukti” → <code>/uploads/demo-receipt.png</code></td>
+            </tr>
+            <tr>
+              <td>Status pending</td>
+              <td>Transaksi</td>
+              <td>“Listrik PLN (pending)” — tidak mempengaruhi saldo</td>
+            </tr>
+            <tr>
+              <td>Laporan &amp; dashboard</td>
+              <td><a href="/reports">Laporan</a>, Dashboard</td>
+              <td>Pembagian kategori, top pengeluaran bulan ini</td>
+            </tr>
+            <tr>
+              <td>Edit / hapus transaksi</td>
+              <td>Transaksi → Aksi</td>
+              <td>Edit, Hapus (contoh alur)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-muted text-sm mt-4 mb-0">
+        Setelah uji, Anda bisa mendaftar akun sendiri atau mengosongkan data dengan menjalankan seed lagi (data demo user akan di-reset).
+      </p>
+    </div>
+  </body>
+</html>

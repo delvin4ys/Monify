@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit transaksi — Monify</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/js/theme-init.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">
+          <div class="sidebar__brand-icon">M</div>
+          <span style="font-weight: 700">Monify</span>
+        </div>
+        <nav class="sidebar__nav" id="sidebar-nav"></nav>
+      </aside>
+      <div class="main">
+        <header class="topbar flex-between">
+          <a href="/transactions" class="text-sm">← Kembali ke daftar</a>
+          <span class="text-muted text-sm">Edit transaksi</span>
+        </header>
+        <div class="page tx-new-page">
+          <h1 style="margin: 0 0 0.5rem; font-size: 1.5rem">Ubah transaksi</h1>
+          <p class="text-muted text-sm">Sesuaikan dompet, kategori, jumlah, status, atau lampiran.</p>
+
+          <div id="form-err" class="alert alert--error mt-4" style="display: none"></div>
+
+          <div class="tx-type-tabs mt-4" id="tx-kind-tabs">
+            <button type="button" class="btn btn--primary" data-kind="expense">Pengeluaran</button>
+            <button type="button" class="btn btn--outline" data-kind="income">Pemasukan</button>
+            <button type="button" class="btn btn--outline" data-kind="debt">Hutang / Pinjaman</button>
+          </div>
+
+          <div class="card mt-4" style="max-width: 32rem">
+            <label class="text-sm text-muted" style="display: block">Dompet</label>
+            <select class="input mt-1" id="f-wallet"></select>
+
+            <label class="text-sm text-muted mt-4" style="display: block">Jumlah</label>
+            <div class="ccy-field mt-2">
+              <div class="ccy-dropdown" id="ccy-root">
+                <button type="button" class="ccy-dropdown__btn" id="ccy-btn" aria-expanded="false" aria-haspopup="listbox">
+                  <span class="ccy-dropdown__flag" id="ccy-flag">🇮🇩</span>
+                  <span class="ccy-dropdown__label" id="ccy-label">Indonesia</span>
+                  <span class="ccy-dropdown__code" id="ccy-code">IDR</span>
+                  <span class="ccy-dropdown__caret" aria-hidden="true">▾</span>
+                </button>
+                <ul class="ccy-dropdown__menu" id="ccy-menu" role="listbox" hidden>
+                  <li>
+                    <button type="button" class="ccy-dropdown__option" role="option" data-currency="IDR" data-flag="🇮🇩" data-label="Indonesia">
+                      <span class="ccy-dropdown__flag">🇮🇩</span>
+                      <span>Indonesia</span>
+                      <span class="ccy-dropdown__code-inline">IDR</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" class="ccy-dropdown__option" role="option" data-currency="USD" data-flag="🇺🇸" data-label="Amerika Serikat">
+                      <span class="ccy-dropdown__flag">🇺🇸</span>
+                      <span>Amerika Serikat</span>
+                      <span class="ccy-dropdown__code-inline">USD</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <input class="input ccy-field__amount" type="text" id="f-amount" inputmode="decimal" placeholder="0" autocomplete="off" />
+            </div>
+
+            <label class="text-sm text-muted mt-4" style="display: block">Status</label>
+            <select class="input mt-1" id="f-status">
+              <option value="success">Berhasil (mempengaruhi saldo)</option>
+              <option value="pending">Tertunda / rencana (belum mempengaruhi saldo)</option>
+            </select>
+
+            <label class="text-sm text-muted mt-4" style="display: block">Kategori</label>
+            <select class="input mt-1" id="f-cat"></select>
+
+            <label class="text-sm text-muted mt-4" style="display: block">Nama / catatan</label>
+            <input class="input mt-1" type="text" id="f-title" />
+
+            <label class="text-sm text-muted mt-4" style="display: block">Tanggal transaksi</label>
+            <input class="input mt-1" type="date" id="f-date" />
+
+            <div id="debt-extra" style="display: none">
+              <label class="text-sm text-muted mt-4" style="display: block">Pihak (peminjam / pemberi pinjaman)</label>
+              <input class="input mt-1" type="text" id="f-counterparty" />
+              <label class="text-sm text-muted mt-4" style="display: block">Terkait (opsional)</label>
+              <input class="input mt-1" type="text" id="f-related" />
+            </div>
+
+            <label class="text-sm text-muted mt-4" style="display: block">Lampiran (opsional)</label>
+            <div id="img-preview" class="mt-2 mb-2"></div>
+            <div class="tx-attach-row">
+              <input type="file" id="f-file" accept="image/*" class="visually-hidden" tabindex="-1" />
+              <button type="button" class="tx-attach-btn" id="f-file-trigger" title="Ganti gambar" aria-label="Ganti gambar">
+                <svg class="tx-attach-btn__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+                </svg>
+                <span class="tx-attach-btn__text">Lampiran</span>
+              </button>
+              <span class="text-muted text-sm" id="f-file-name"></span>
+            </div>
+
+            <div class="mt-6" style="display: flex; gap: 0.75rem">
+              <a href="/transactions" class="btn btn--outline" style="flex: 1; text-align: center">Batal</a>
+              <button type="button" class="btn btn--primary" style="flex: 1" id="f-save">Simpan perubahan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav"></nav>
+    <script src="/js/api.js"></script>
+    <script src="/js/format.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/transaction-edit.js"></script>
+  </body>
+</html>

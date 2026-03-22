@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Budget — Monify</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/js/theme-init.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">
+          <div class="sidebar__brand-icon">M</div>
+          <span style="font-weight: 700">Monify</span>
+        </div>
+        <nav class="sidebar__nav" id="sidebar-nav"></nav>
+      </aside>
+      <div class="main">
+        <header class="topbar"><span class="text-muted text-sm">Budget</span></header>
+        <div class="page">
+          <div class="flex-between" style="flex-wrap: wrap; gap: 1rem; align-items: center">
+            <div>
+              <h1 style="margin: 0; font-size: 1.5rem">Budget</h1>
+              <p class="text-muted text-sm mt-1">
+                Anggaran dihitung dalam <strong>IDR</strong> (sama dengan nilai transaksi pengeluaran). Bulanan atau rentang kustom.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap">
+              <label class="text-sm text-muted">Lihat bulan</label>
+              <input type="month" class="input" id="view-month" style="width: auto; min-width: 10rem" />
+              <button type="button" class="btn btn--primary" id="btn-open-budget">+ Buat anggaran</button>
+            </div>
+          </div>
+
+          <div class="card mt-4" id="budget-summary-card" style="display: none">
+            <div class="budget-ring-wrap">
+              <div class="budget-ring" id="budget-ring" style="--p: 0deg">
+                <div class="budget-ring__hole">
+                  <span class="text-muted text-sm">Terpakai</span>
+                  <strong id="ring-pct">0%</strong>
+                </div>
+              </div>
+              <div>
+                <p class="text-muted text-sm mb-0">Total alokasi</p>
+                <div style="font-size: 1.35rem; font-weight: 800" id="sum-limit">—</div>
+                <p class="text-muted text-sm mt-3 mb-0">Total terpakai</p>
+                <div style="font-size: 1.15rem; font-weight: 700" id="sum-spent">—</div>
+                <p class="text-muted text-sm mt-3 mb-0">Sisa gabungan</p>
+                <div style="font-size: 1.15rem; font-weight: 700" id="sum-remain">—</div>
+                <p class="text-muted text-sm mt-3 mb-0">Saran per hari (sisa ÷ hari tersisa)</p>
+                <div style="font-size: 1.15rem; font-weight: 700" id="sum-daily">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="budget-list" class="mt-4" style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr))"></div>
+        </div>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav"></nav>
+
+    <div id="modal-budget" class="modal-overlay" aria-hidden="true" role="presentation">
+      <div class="modal" style="max-width: 22rem" role="dialog" aria-modal="true" aria-labelledby="budget-modal-title">
+        <h2 id="budget-modal-title" style="margin-top: 0">Budget baru</h2>
+        <div id="budget-err" class="alert alert--error" style="display: none"></div>
+        <label class="text-sm text-muted">Target</label>
+        <select class="input mt-1" id="b-target-kind">
+          <option value="CATEGORY">Kategori (daun)</option>
+          <option value="PARENT">Induk kategori (agregat)</option>
+        </select>
+        <label class="text-sm text-muted mt-3" style="display: block">Pilih</label>
+        <select class="input mt-1" id="b-target-id"></select>
+        <label class="text-sm text-muted mt-3" style="display: block">Periode</label>
+        <select class="input mt-1" id="b-period-mode">
+          <option value="monthly">Bulan kalender (satu bulan penuh)</option>
+          <option value="custom">Rentang tanggal kustom</option>
+        </select>
+        <div id="b-month-hint" class="text-muted text-sm mt-2">Memakai bulan dari &quot;Lihat bulan&quot; di atas.</div>
+        <div id="b-range-wrap" style="display: none">
+          <label class="text-sm text-muted mt-3" style="display: block">Mulai</label>
+          <input class="input mt-1" type="date" id="b-p-start" />
+          <label class="text-sm text-muted mt-3" style="display: block">Selesai</label>
+          <input class="input mt-1" type="date" id="b-p-end" />
+        </div>
+        <label class="text-sm text-muted mt-3" style="display: block">Limit (IDR)</label>
+        <input class="input mt-1" type="text" id="b-limit" inputmode="numeric" placeholder="0" />
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem">
+          <button type="button" class="btn btn--outline" style="flex: 1" id="b-cancel">Batal</button>
+          <button type="button" class="btn btn--primary" style="flex: 1" id="b-save">Simpan</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/format.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/budgets.js?v=5"></script>
+  </body>
+</html>

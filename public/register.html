@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Daftar — Monify</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/js/theme-init.js"></script>
+  </head>
+  <body style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 1rem">
+    <div class="auth-page">
+      <div style="text-align: center; margin-bottom: 1.5rem">
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem">
+          <div class="sidebar__brand-icon">M</div>
+          <span style="font-size: 1.25rem; font-weight: 700">Monify</span>
+        </div>
+      </div>
+      <div class="auth-card">
+        <h1 style="font-size: 1.25rem; margin: 0">Buat akun</h1>
+        <p class="text-muted mt-1">Gratis untuk memulai pencatatan harian.</p>
+        <div id="err" class="alert alert--error mt-4" style="display: none"></div>
+        <form id="form" class="mt-4">
+          <label class="text-sm text-muted">Nama</label>
+          <input class="input mt-1" type="text" name="name" autocomplete="name" />
+          <label class="text-sm text-muted mt-4" style="display: block; margin-top: 1rem">Email</label>
+          <input class="input mt-1" type="email" name="email" required autocomplete="email" />
+          <label class="text-sm text-muted mt-4" style="display: block; margin-top: 1rem">Password (min. 8)</label>
+          <input class="input mt-1" type="password" name="password" required minlength="8" autocomplete="new-password" />
+          <button type="submit" class="btn btn--primary" style="width: 100%; margin-top: 1.25rem">Daftar</button>
+        </form>
+        <p class="text-center text-muted mt-4" style="font-size: 0.9rem">
+          Sudah punya akun? <a href="/login">Masuk</a>
+        </p>
+      </div>
+    </div>
+    <script src="/js/auth.js"></script>
+    <script>
+      MonifyAuth.redirectIfAuthed();
+      document.getElementById("form").onsubmit = function (e) {
+        e.preventDefault();
+        var err = document.getElementById("err");
+        err.style.display = "none";
+        var fd = new FormData(e.target);
+        fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: fd.get("name"),
+            email: fd.get("email"),
+            password: fd.get("password"),
+          }),
+        })
+          .then(function (r) {
+            return r.json().then(function (j) {
+              return { ok: r.ok, j: j };
+            });
+          })
+          .then(function (x) {
+            if (!x.ok) {
+              err.textContent = x.j.error || "Gagal mendaftar";
+              err.style.display = "block";
+              return;
+            }
+            return fetch("/api/auth/login", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: fd.get("email"),
+                password: fd.get("password"),
+              }),
+            }).then(function (r2) {
+              if (r2.ok) window.location.href = "/dashboard";
+              else {
+                err.textContent = "Akun dibuat. Silakan masuk.";
+                err.style.display = "block";
+              }
+            });
+          })
+          .catch(function () {
+            err.textContent = "Terjadi kesalahan.";
+            err.style.display = "block";
+          });
+      };
+    </script>
+  </body>
+</html>

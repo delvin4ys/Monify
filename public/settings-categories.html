@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kategori — Monify</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/js/theme-init.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">
+          <div class="sidebar__brand-icon">M</div>
+          <span style="font-weight: 700">Monify</span>
+        </div>
+        <nav class="sidebar__nav" id="sidebar-nav"></nav>
+      </aside>
+      <div class="main">
+        <header class="topbar flex-between">
+          <a href="/settings" class="text-sm">← Pengaturan</a>
+        </header>
+        <div class="page" style="max-width: 36rem">
+          <h1 style="margin: 0; font-size: 1.35rem">Kategori &amp; induk</h1>
+          <p class="text-muted text-sm mt-1">Preset bahasa Indonesia sudah tersedia; tambahkan induk sendiri di sini.</p>
+
+          <div class="card mt-4">
+            <strong>Induk kategori kustom</strong>
+            <div class="mt-3" style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+              <select class="input" id="np-kind" style="flex: 1; min-width: 8rem">
+                <option value="expense">Pengeluaran</option>
+                <option value="income">Pemasukan</option>
+                <option value="debt">Hutang / Pinjaman</option>
+              </select>
+              <input class="input" id="np-name" placeholder="Nama induk" style="flex: 2; min-width: 10rem" />
+              <button type="button" class="btn btn--primary" id="np-add">Tambah</button>
+            </div>
+            <ul id="parent-list" class="mt-3 text-sm" style="padding-left: 1.1rem"></ul>
+          </div>
+
+          <div class="card mt-4">
+            <strong>Kategori transaksi</strong>
+            <p class="text-muted text-sm mt-1">Pilih induk, jenis, ikon (emoji/kata), dan subtipe jika hutang.</p>
+            <label class="text-sm text-muted">Jenis</label>
+            <select class="input mt-1" id="nc-type">
+              <option value="expense">Pengeluaran</option>
+              <option value="income">Pemasukan</option>
+              <option value="debt">Hutang / Pinjaman</option>
+            </select>
+            <label class="text-sm text-muted mt-3" style="display: block">Induk kategori</label>
+            <select class="input mt-1" id="nc-parent"></select>
+            <label class="text-sm text-muted mt-3" style="display: block">Nama kategori</label>
+            <input class="input mt-1" id="nc-name" placeholder="Mis. Kopi harian" />
+            <label class="text-sm text-muted mt-3" style="display: block">Ikon / logo (emoji atau teks)</label>
+            <input class="input mt-1" id="nc-icon" placeholder="☕ atau coffee" />
+            <div id="nc-debt-wrap" style="display: none">
+              <label class="text-sm text-muted mt-3" style="display: block">Subtipe hutang</label>
+              <select class="input mt-1" id="nc-debt-sub">
+                <option value="DEBT">Hutang</option>
+                <option value="DEBT_COLLECTION">Penagihan piutang</option>
+                <option value="LOAN">Pinjaman</option>
+                <option value="REPAYMENT">Pelunasan</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn--primary mt-4" id="nc-add">Simpan kategori</button>
+            <div id="nc-err" class="alert alert--error mt-3" style="display: none"></div>
+            <div id="cat-list" class="mt-4 text-sm"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav"></nav>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/settings-categories.js"></script>
+  </body>
+</html>

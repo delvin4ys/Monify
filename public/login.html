@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Masuk — Monify</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/js/theme-init.js"></script>
+  </head>
+  <body style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 1rem">
+    <div class="auth-page">
+      <div style="text-align: center; margin-bottom: 1.5rem">
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem">
+          <div class="sidebar__brand-icon">M</div>
+          <span style="font-size: 1.25rem; font-weight: 700">Monify</span>
+        </div>
+      </div>
+      <div class="auth-card">
+        <h1 style="font-size: 1.25rem; margin: 0">Masuk</h1>
+        <p class="text-muted mt-1">Lanjutkan pencatatan keuangan Anda.</p>
+        <div id="err" class="alert alert--error mt-4" style="display: none"></div>
+        <form id="form" class="mt-4">
+          <label class="text-sm text-muted">Email</label>
+          <input class="input mt-1" type="email" name="email" required autocomplete="email" />
+          <label class="text-sm text-muted mt-4" style="display: block; margin-top: 1rem">Password</label>
+          <input class="input mt-1" type="password" name="password" required autocomplete="current-password" />
+          <button type="submit" class="btn btn--primary" style="width: 100%; margin-top: 1.25rem">Masuk</button>
+        </form>
+        <p class="text-center text-muted mt-4" style="font-size: 0.9rem">
+          Belum punya akun? <a href="/register">Daftar</a>
+        </p>
+        <p class="text-center text-muted mt-2" style="font-size: 0.85rem">
+          <a href="/demo">Panduan contoh data demo</a>
+        </p>
+        <p class="text-center text-muted mt-2" style="font-size: 0.75rem">
+          Demo: <code>demo@monify.local</code> / <code>demo123456</code>
+        </p>
+      </div>
+    </div>
+    <script src="/js/auth.js"></script>
+    <script>
+      MonifyAuth.redirectIfAuthed();
+      document.getElementById("form").onsubmit = function (e) {
+        e.preventDefault();
+        var err = document.getElementById("err");
+        err.style.display = "none";
+        var fd = new FormData(e.target);
+        fetch("/api/auth/login", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: fd.get("email"),
+            password: fd.get("password"),
+          }),
+        })
+          .then(function (r) {
+            return r.json().then(function (j) {
+              return { ok: r.ok, j: j };
+            });
+          })
+          .then(function (x) {
+            if (!x.ok) {
+              err.textContent = x.j.error || "Gagal masuk";
+              err.style.display = "block";
+              return;
+            }
+            window.location.href = "/dashboard";
+          })
+          .catch(function () {
+            err.textContent = "Terjadi kesalahan.";
+            err.style.display = "block";
+          });
+      };
+    </script>
+  </body>
+</html>

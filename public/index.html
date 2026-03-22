@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Monify</title>
+    <script src="/js/auth.js"></script>
+    <script>
+      fetch("/api/auth/me", { credentials: "include" }).then(function (r) {
+        window.location.href = r.ok ? "/dashboard" : "/login";
+      });
+    </script>
+  </head>
+  <body>
+    <p style="font-family: system-ui; padding: 2rem">Memuat…</p>
+  </body>
+</html>

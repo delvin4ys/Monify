@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     return y + "-" + String(m).padStart(2, "0");
   }
 
-  /** Chip berurutan: 24 bulan sebelum bulan lalu → Bulan lalu → Bulan ini → 12 bulan ke depan */
+  /** Chip berurutan sesuai request Point 10 */
   function buildChipList() {
     var now = new Date();
     var y = now.getFullYear();
@@ -50,18 +50,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     var items = [];
     var cursor = lastKey;
     for (var i = 0; i < 24; i++) {
-      cursor = addMonths(cursor, -1);
-      items.push({ key: cursor, label: ymLabel(cursor) });
+        cursor = addMonths(cursor, -1);
+        items.unshift({ key: cursor, label: ymLabel(cursor) });
     }
-    items.reverse();
 
-    items.push({ key: "lastMonth", label: "Bulan lalu (" + ymLabel(lastKey) + ")" });
-    items.push({ key: "thisMonth", label: "Bulan ini (" + ymLabel(thisKey) + ")" });
-
-    for (var j = 1; j <= 12; j++) {
-      var fk = addMonths(thisKey, j);
-      items.push({ key: fk, label: ymLabel(fk) });
-    }
+    items.push({ key: "lastMonth", label: "Bulan lalu" });
+    items.push({ key: "thisMonth", label: "Bulan ini" });
+    items.push({ key: "future", label: "Bulan di masa depan" });
 
     return items;
   }
@@ -124,11 +119,35 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (!b) return;
       period = b.getAttribute("data-period");
       paintChips();
-      scrollMonthStripToEnd();
+      
+      // Auto target position so active chip is visible nicely 
+      // but without forcing extreme scroll unless needed
+      var activeEl = el.querySelector(".is-active");
+      if (activeEl) {
+         el.scrollLeft = activeEl.offsetLeft - el.clientWidth / 2 + activeEl.clientWidth / 2;
+      }
+      
       load();
     };
+
+    el.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        el.scrollLeft -= 50; 
+      } else {
+        el.scrollLeft += 50;
+      }
+    });
+
     enableDragScroll(el);
-    scrollMonthStripToEnd();
+    setTimeout(function() {
+      var activeEl = el.querySelector(".is-active");
+      if (activeEl) {
+         el.scrollLeft = activeEl.offsetLeft - el.clientWidth / 2 + activeEl.clientWidth / 2;
+      } else {
+         scrollMonthStripToEnd();
+      }
+    }, 50);
   }
 
   function fetchMonthsAndPaint(thenLoad) {
@@ -137,16 +156,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   function renderBalances() {
-    var totalPreferred = 0;
-    wallets.forEach(function (w) {
-      if (w.currency === displayCurrency) totalPreferred += w.balance;
-    });
-    document.getElementById("balance-row").innerHTML =
-      '<div class="balance-pill balance-pill--total"><span>Total (' +
-      displayCurrency +
-      ")</span><strong>" +
-      (displayCurrency === "USD" ? formatUSDHtml(totalPreferred) : formatIDRHtml(totalPreferred)) +
-      '</strong></div><a href="/wallets/assets" class="balance-pill balance-pill--link">Rincian aset per dompet →</a>';
+    // Legacy UI element removed per iteration 2 user feedback.
   }
 
   function groupByDate(list) {
@@ -325,7 +335,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 (t.walletName || "—") +
                 "</td>" +
                 "<td>" +
-                t.date +
+                formatDate(t.date, displayCurrency) +
                 "</td>" +
                 '<td style="text-align:right" class="amount-money-cell">' +
                 sign +
@@ -353,7 +363,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             .join("");
           return (
             '<tr class="tx-date-row"><td colspan="7"><div class="tx-date-head"><strong>' +
-            g.date +
+            formatDate(g.date, displayCurrency) +
             "</strong>" +
             totalBadge +
             "</div></td></tr>" +
@@ -438,7 +448,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Fill wallet dropdown
     var pool = wallets.filter(function (w) { return w.active && w.currency === ccy; });
     payWalletEl.innerHTML = pool.map(function (w) {
-      return '<option value="' + w.id + '">' + w.name + " (" + w.currency + ")</option>";
+      return '<option value="' + w.id + '">' + w.name + '</option>';
     }).join("");
     payWalletEl.value = walletId;
 

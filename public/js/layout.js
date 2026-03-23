@@ -15,7 +15,7 @@
     users:
       '<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
     logout:
-      '<svg class="sidebar__logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>',
+      '<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>',
   };
 
   const NAV = [
@@ -48,20 +48,62 @@
           "</span></a>";
       });
       html +=
-        '<p class="sidebar__label mt-4 sidebar__label--spaced">Akun</p>' +
-        '<button type="button" class="sidebar__logout" id="sidebar-logout">' +
+        '<div style="margin-top: 2.5rem;">' +
+        '<button type="button" class="sidebar__link" id="sidebar-logout" style="width: 100%; text-align: left; background-color: transparent; border: none; cursor: pointer; font-family: inherit; transition: all 0.2s;">' +
         SVG.logout +
-        "<span>Keluar</span></button>";
+        "<span>Keluar</span></button></div>";
 
       navEl.innerHTML = html;
       var logoutBtn = document.getElementById("sidebar-logout");
       if (logoutBtn) {
         logoutBtn.onclick = function () {
-          fetch("/api/auth/logout", { method: "POST", credentials: "include" }).then(function () {
-            window.location.href = "/login";
-          });
+          if (confirm("Apakah Anda yakin ingin keluar dari akun ini?")) {
+            if (confirm("Langkah ini akan mengakhiri sesi Anda. Lanjutkan proses Keluar?")) {
+              fetch("/api/auth/logout", { method: "POST", credentials: "include" }).then(function () {
+                window.location.href = "/login";
+              });
+            }
+          }
         };
       }
+
+      fetch("/api/auth/me", { credentials: "include" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (u) {
+          if (!u) return;
+          var topbar = document.querySelector(".topbar");
+          if (topbar && !document.getElementById("topbar-profile")) {
+            var name = (u.user && u.user.name) ? u.user.name : "User";
+            var email = (u.user && u.user.email) ? u.user.email : "";
+            var init = name.substring(0, 1).toUpperCase();
+            var html = '<div id="topbar-profile" style="display:flex;align-items:center;gap:0.75rem;margin-left:auto;">' +
+                       '<div style="text-align:right;line-height:1.2"><div style="font-weight:600;font-size:0.85rem;color:var(--text)">' + name + '</div><div style="font-size:0.7rem" class="text-muted">' + email + '</div></div>' +
+                       '<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg, var(--brand), #064e3b);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;box-shadow:0 2px 5px rgba(0,0,0,0.1)">' + init + '</div>' +
+                       '</div>';
+            var wrap = document.createElement("div");
+            wrap.style.display = "flex";
+            wrap.style.alignItems = "center";
+            wrap.style.flex = "1";
+            wrap.style.justifyContent = "flex-end";
+            wrap.innerHTML = html;
+            topbar.appendChild(wrap);
+            
+            // Check if topbar needs help grouping left items
+            var children = Array.from(topbar.children);
+            if (children.length > 2) {
+               var leftGroup = document.createElement("div");
+               leftGroup.style.display = "flex";
+               leftGroup.style.alignItems = "center";
+               leftGroup.style.gap = "0.75rem";
+               for (var i = 0; i < children.length - 1; i++) {
+                 leftGroup.appendChild(children[i]);
+               }
+               topbar.insertBefore(leftGroup, topbar.firstChild);
+            }
+          }
+        })
+        .catch(function () {});
+
 
       fetch("/api/admin/me", { credentials: "include" })
         .then(function (r) {

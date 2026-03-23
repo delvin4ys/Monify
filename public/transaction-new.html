@@ -38,21 +38,10 @@
             <select class="input mt-1" id="f-wallet"></select>
 
             <label class="text-sm text-muted mt-4" style="display: block">Nominal</label>
-            <div class="ccy-field mt-2">
-              <div class="ccy-dropdown ccy-dropdown--flags-only">
-                <button type="button" class="ccy-dropdown__btn" id="wallet-ccy-pill" disabled aria-label="Mata uang mengikuti dompet">
-                  <span class="ccy-dropdown__flag" id="wallet-ccy-flag">
-                    <svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg" width="24" height="16" aria-hidden="true">
-                      <rect width="24" height="8" fill="#D7263D"></rect>
-                      <rect y="8" width="24" height="8" fill="#FFFFFF"></rect>
-                    </svg>
-                  </span>
-                  <span class="ccy-dropdown__code" id="wallet-ccy-code" style="display:none">IDR</span>
-                </button>
-              </div>
-              <input class="input ccy-field__amount" type="text" id="f-amount" inputmode="numeric" placeholder="Rp 0" autocomplete="off" />
+            <div class="mt-2">
+              <input class="input" type="text" id="f-amount" inputmode="numeric" placeholder="0" autocomplete="off" />
             </div>
-            <p class="text-muted text-sm mt-1">Mata uang otomatis mengikuti dompet yang dipilih.</p>
+            <p class="text-muted text-sm mt-1" id="f-amount-hint">Mata uang transaksi mengikuti pengaturan utama Anda.</p>
 
             <label class="text-sm text-muted mt-4" style="display: block">Status</label>
             <select class="input mt-1" id="f-status">

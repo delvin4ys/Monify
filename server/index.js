@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const session = require("express-session");
+const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
 
@@ -53,6 +54,11 @@ app.use(
     secret: process.env.AUTH_SECRET || "ubah-auth-secret-di-env",
     resave: false,
     saveUninitialized: false,
+    store: new PrismaSessionStore(prisma, {
+      checkPeriod: 2 * 60 * 1000,
+      dbRecordIdIsSessionId: true,
+      dbRecordIdFunction: undefined,
+    }),
     cookie: {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -280,7 +286,8 @@ app.post("/api/transactions", requireAuth, async (req, res) => {
     const amount = Number(req.body.amount);
     const categoryId = req.body.categoryId;
     const walletId = req.body.walletId;
-    const currency = req.body.currency === "USD" ? "USD" : "IDR";
+    const u = await prisma.user.findUnique({where:{id:userId}});
+    const currency = u.displayCurrency || "IDR";
     const counterparty =
       typeof req.body.counterparty === "string" ? req.body.counterparty.trim() : null;
     const relatedParty = typeof req.body.relatedParty === "string" ? req.body.relatedParty.trim() : null;
@@ -546,8 +553,8 @@ app.patch("/api/transactions/:id", requireAuth, async (req, res) => {
     const amount = req.body.amount !== undefined ? Number(req.body.amount) : oldT.amount;
     const categoryId = typeof req.body.categoryId === "string" ? req.body.categoryId : oldT.categoryId;
     const walletId = typeof req.body.walletId === "string" ? req.body.walletId : oldT.walletId;
-    const currency =
-      req.body.currency === "USD" ? "USD" : req.body.currency === "IDR" ? "IDR" : oldT.currency;
+    const u = await prisma.user.findUnique({where:{id:userId}});
+    const currency = u.displayCurrency || "IDR";
     const counterparty =
       req.body.counterparty !== undefined
         ? typeof req.body.counterparty === "string"
@@ -714,7 +721,8 @@ app.post("/api/wallets", requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
     const name = typeof req.body.name === "string" ? req.body.name.trim() : "";
-    const currency = req.body.currency === "USD" ? "USD" : "IDR";
+    const u = await prisma.user.findUnique({where:{id:userId}});
+    const currency = u.displayCurrency || "IDR";
     const flag = typeof req.body.flag === "string" ? req.body.flag : currency === "USD" ? "🇺🇸" : "🇮🇩";
     const logo = typeof req.body.logo === "string" ? req.body.logo.trim() : null;
     const balance = Number(req.body.balance);
@@ -752,6 +760,21 @@ app.patch("/api/wallets/:id", requireAuth, async (req, res) => {
     res.json({ wallet: walletToJson(w) });
   } catch (e) {
     res.status(500).json({ error: e.message || "Gagal memperbarui dompet." });
+  }
+});
+
+app.delete("/api/wallets/:id", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const id = req.params.id;
+    const w = await prisma.wallet.findFirst({ where: { id, userId } });
+    if (!w) {
+      return res.status(404).json({ error: "Dompet tidak ditemukan." });
+    }
+    await prisma.wallet.delete({ where: { id } });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message || "Gagal menghapus dompet." });
   }
 });
 
@@ -1009,6 +1032,29 @@ app.post("/api/budgets", requireAuth, async (req, res) => {
     res.status(201).json({ id: b.id });
   } catch (e) {
     res.status(500).json({ error: e.message || "Gagal menyimpan budget." });
+  }
+});
+
+app.patch("/api/budgets/:id", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const id = req.params.id;
+    const b = await prisma.budget.findFirst({ where: { id, userId } });
+    if (!b) {
+      return res.status(404).json({ error: "Tidak ditemukan." });
+    }
+    const data = {};
+    if (req.body.limitAmount != null) {
+      const limit = Number(req.body.limitAmount);
+      if (!Number.isFinite(limit) || limit <= 0) {
+        return res.status(400).json({ error: "Limit harus lebih dari 0." });
+      }
+      data.limitAmount = limit;
+    }
+    const updated = await prisma.budget.update({ where: { id }, data });
+    res.json({ ok: true, id: updated.id });
+  } catch (e) {
+    res.status(500).json({ error: e.message || "Gagal memperbarui budget." });
   }
 });
 

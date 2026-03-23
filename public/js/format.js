@@ -30,4 +30,19 @@
   window.formatUSDHtml = function (cents) {
     return '<span class="amount-money amount-money--usd">' + formatUSD(cents) + "</span>";
   };
+
+  /** Memformat tanggal sesuai resolusi poin 9: IDR=DD/MM/YYYY, USD=MM/DD/YYYY */
+  window.formatDate = function (dateObj, currency) {
+    if (!dateObj) return "";
+    var d = new Date(dateObj);
+    if (isNaN(d.getTime())) return "";
+    var dd = String(d.getDate()).padStart(2, "0");
+    var mm = String(d.getMonth() + 1).padStart(2, "0");
+    var yyyy = d.getFullYear();
+    
+    if (currency === "USD") {
+      return mm + "/" + dd + "/" + yyyy;
+    }
+    return dd + "/" + mm + "/" + yyyy;
+  };
 })();

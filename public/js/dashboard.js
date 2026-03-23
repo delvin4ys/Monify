@@ -51,6 +51,35 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     }
 
+    var walletEyeBtn = document.getElementById("kpi-wallet-eye");
+    var walletEyeShowIcon = document.getElementById("kpi-wallet-eye-show");
+    var walletEyeHideIcon = document.getElementById("kpi-wallet-eye-hide");
+    var walletHidden = false;
+
+    function syncWalletVisibility() {
+      var els = document.querySelectorAll(".wallet-tile-bal");
+      els.forEach(function (el) {
+        if (walletHidden) {
+          el.innerHTML = "••••••";
+        } else {
+          el.innerHTML = el.getAttribute("data-val");
+        }
+      });
+      if (walletEyeBtn) {
+        walletEyeBtn.setAttribute("aria-pressed", walletHidden ? "true" : "false");
+        walletEyeBtn.setAttribute("aria-label", walletHidden ? "Tampilkan saldo dompet" : "Sembunyikan saldo dompet");
+      }
+      if (walletEyeShowIcon) walletEyeShowIcon.style.display = walletHidden ? "none" : "";
+      if (walletEyeHideIcon) walletEyeHideIcon.style.display = walletHidden ? "" : "none";
+    }
+
+    if (walletEyeBtn) {
+      walletEyeBtn.addEventListener("click", function () {
+        walletHidden = !walletHidden;
+        syncWalletVisibility();
+      });
+    }
+
     document.getElementById("welcome-name").textContent =
       (me.user && me.user.name ? me.user.name : "Pengguna").split(" ")[0];
 
@@ -168,27 +197,53 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
 
       var wallets = await MonifyApi.fetchJson("/api/wallets");
+      var wList = wallets.wallets || [];
       var wg = document.getElementById("wallet-grid");
-      wg.innerHTML = (wallets.wallets || [])
-        .map(function (w) {
-          var bal = w.currency === "IDR" ? formatIDRHtml(w.balance) : formatUSDHtml(w.balance);
-          var logo = w.logo ? '<span style="font-size:1.25rem">' + w.logo + "</span> " : "";
-          return (
-            '<div class="wallet-tile"><div class="flex-between"><span>' +
-            logo +
-            w.flag +
-            '</span><span class="text-sm">' +
-            (w.active ? "Aktif" : "Off") +
-            '</span></div><div class="text-muted mt-1">' +
-            w.name +
-            " · " +
-            w.currency +
-            "</div><div><strong>" +
-            bal +
-            "</strong></div></div>"
-          );
-        })
-        .join("");
+      var eyeBtn = document.getElementById("kpi-wallet-eye");
+      if (wList.length === 0) {
+        if (eyeBtn) eyeBtn.style.display = "none";
+        wg.style.display = "none";
+        var emptyEl = document.getElementById("wallet-empty-state");
+        if (!emptyEl) {
+          emptyEl = document.createElement("div");
+          emptyEl.id = "wallet-empty-state";
+          emptyEl.style.cssText = "text-align: center; padding: 2.5rem 0;";
+          emptyEl.innerHTML = '<div class="text-muted" style="font-size: 0.85rem; margin: 1.2rem 0;">Tambahkan dompetmu untuk memulai transaksi</div><a href="/wallets" class="btn btn--primary" style="display: inline-block; color: #fff;">+ Dompet</a>';
+          wg.parentNode.appendChild(emptyEl);
+        }
+        emptyEl.style.display = "block";
+      } else {
+        if (eyeBtn) eyeBtn.style.display = "flex";
+        wg.style.display = "";
+        var emptyEl = document.getElementById("wallet-empty-state");
+        if (emptyEl) emptyEl.style.display = "none";
+        wg.innerHTML = wList
+          .map(function (w, i) {
+            var bal = w.currency === "IDR" ? formatIDRHtml(w.balance) : formatUSDHtml(w.balance);
+            var bg = 'var(--card)';
+            var logoHtml = "";
+            if (w.logo && w.logo.startsWith("/")) {
+              logoHtml = '<img src="' + w.logo + '" style="max-width:24px; max-height:24px; object-fit:contain;" />';
+            } else if (w.logo) {
+              logoHtml = '<span style="font-size:1.25rem; line-height:1;">' + w.logo + '</span>';
+            } else {
+              logoHtml = '<span style="font-size:1.25rem; line-height:1; opacity:0.5;">—</span>';
+            }
+            return (
+              '<div class="card wallet-tile" style="background:' + bg + '; border: 1px solid var(--border); padding: 1.25rem; display: flex; flex-direction: column; min-height: 140px; box-shadow: var(--shadow);">' +
+                '<div style="background: var(--bg); border: 1px solid var(--border); width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: auto;">' + logoHtml + '</div>' +
+                '<div style="margin-top: 1.25rem;">' +
+                  '<div style="font-weight: 600; font-size: 0.95rem; color: var(--text);">' + w.name + '</div>' +
+                  '<div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;"><strong><span class="wallet-tile-bal" data-val=\'' + bal + '\'>' +
+                  (walletHidden ? "••••••" : bal) +
+                  "</span></strong></div>" +
+                '</div>' +
+              '</div>'
+            );
+          })
+          .join("");
+        syncWalletVisibility();
+      }
 
       var today = new Date();
       var monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -224,21 +279,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       document.getElementById("recent-tx").innerHTML = rows
         .map(function (t) {
           var sign = t.direction === "in" ? "+" : "−";
+          var icon = t.categoryIcon || "🏷️";
           return (
-            "<tr><td>" +
-            (t.title || "") +
-            '<br><span class="text-muted text-sm">' +
-            (t.categoryName || "—") +
-            "</span></td><td>" +
-            t.date +
-            '</td><td style="text-align:right" class="amount-money-cell">' +
-            sign +
-            fmtTx(t) +
-            '</td><td><span class="badge ' +
-            (t.status === "success" ? "badge--ok" : "badge--pending") +
-            '">' +
-            (t.status === "success" ? "Berhasil" : "Pending") +
-            "</span></td></tr>"
+            '<div style="display:flex;align-items:center;padding:0.5rem 1.25rem;border-bottom:1px solid var(--border);gap:0.75rem">' +
+            '<div style="width:34px;height:34px;border-radius:50%;background:#ecfdf5;border:1px solid rgba(6,95,70,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem">' + icon + '</div>' +
+            '<div style="min-width:0;flex:1">' +
+            '<div style="font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.title || "") + '</div>' +
+            '<div class="text-muted" style="font-size:0.75rem">' + (t.categoryName || "—") + ' · ' + formatDate(t.date, ccy) + '</div>' +
+            '</div>' +
+            '<div style="text-align:right;flex-shrink:0">' +
+            '<div class="amount-money-cell" style="font-size:0.85rem">' + sign + fmtTx(t) + '</div>' +
+            '<span class="badge ' + (t.status === "success" ? "badge--ok" : "badge--pending") + '" style="font-size:0.65rem">' +
+            (t.status === "success" ? "Berhasil" : "Pending") + '</span>' +
+            '</div></div>'
           );
         })
         .join("");

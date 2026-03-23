@@ -72,8 +72,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   var today = new Date();
-  var first = new Date(today.getFullYear(), today.getMonth(), 1);
-  document.getElementById("rep-from").value = first.toISOString().slice(0, 10);
+  document.getElementById("rep-from").value = today.toISOString().slice(0, 10);
   document.getElementById("rep-to").value = today.toISOString().slice(0, 10);
   document.getElementById("rep-load").onclick = loadReport;
 

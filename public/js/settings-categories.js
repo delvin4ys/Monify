@@ -80,9 +80,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.getElementById("cat-list").innerHTML = categories
       .map(function (c) {
+        // Only show icon if it looks like an emoji (not a text name like 'alert-circle')
+        var iconDisplay = "";
+        if (c.icon && /^[^a-zA-Z0-9]/.test(c.icon) && c.icon.length <= 4) {
+          iconDisplay = c.icon + " ";
+        }
         return (
           '<div class="flex-between mt-2" style="border-bottom:1px solid var(--border);padding-bottom:0.5rem"><span>' +
-          (c.icon ? c.icon + " " : "") +
+          iconDisplay +
           c.name +
           ' <span class="text-muted">(' +
           c.type +

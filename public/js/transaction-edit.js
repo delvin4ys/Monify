@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
     sel.innerHTML = pool
       .map(function (w) {
-        return '<option value="' + w.id + '">' + w.name + " (" + w.currency + ")</option>";
+        return '<option value="' + w.id + '">' + w.name + '</option>';
       })
       .join("");
     sel.value = tx.walletId;

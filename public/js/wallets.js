@@ -1,65 +1,10 @@
 document.addEventListener("DOMContentLoaded", async function () {
-  await MonifyAuth.requireAuth();
+  var me = await MonifyAuth.requireAuth();
+  var currency = (me.user && me.user.displayCurrency) || "IDR";
   MonifyLayout.renderSidebar(document.getElementById("sidebar-nav"), "wallets");
   MonifyLayout.renderMobileNav(document.getElementById("mobile-nav"), "wallets");
 
-  var currency = document.getElementById("w-currency") ? document.getElementById("w-currency").value : "IDR";
-  var menu = document.getElementById("w-ccy-menu");
-  var ccyBtn = document.getElementById("w-ccy-btn");
   var balInput = document.getElementById("w-balance");
-
-  function flagSvgHtml(ccy) {
-    if (ccy === "USD") {
-      return (
-        '<svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg" width="24" height="16" role="img" aria-label="Amerika Serikat">' +
-        '<rect x="0" y="0" width="24" height="1.230769" fill="#B22234"></rect>' +
-        '<rect x="0" y="1.230769" width="24" height="1.230769" fill="#FFFFFF"></rect>' +
-        '<rect x="0" y="2.461538" width="24" height="1.230769" fill="#B22234"></rect>' +
-        '<rect x="0" y="3.692307" width="24" height="1.230769" fill="#FFFFFF"></rect>' +
-        '<rect x="0" y="4.923076" width="24" height="1.230769" fill="#B22234"></rect>' +
-        '<rect x="0" y="6.153845" width="24" height="1.230769" fill="#FFFFFF"></rect>' +
-        '<rect x="0" y="7.384614" width="24" height="1.230769" fill="#B22234"></rect>' +
-        '<rect x="0" y="8.615383" width="24" height="1.230769" fill="#FFFFFF"></rect>' +
-        '<rect x="0" y="9.846152" width="24" height="1.230769" fill="#B22234"></rect>' +
-        '<rect x="0" y="11.076921" width="24" height="1.230769" fill="#FFFFFF"></rect>' +
-        '<rect x="0" y="12.30769" width="24" height="1.230769" fill="#B22234"></rect>' +
-        '<rect x="0" y="13.538459" width="24" height="1.230769" fill="#FFFFFF"></rect>' +
-        '<rect x="0" y="14.769228" width="24" height="1.230769" fill="#B22234"></rect>' +
-        '<rect x="0" y="0" width="12" height="7.7" fill="#3C3B6E"></rect>' +
-        '<circle cx="1.7" cy="1.6" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="4.2" cy="1.6" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="6.7" cy="1.6" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="9.2" cy="1.6" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="2.2" cy="3.2" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="4.7" cy="3.2" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="7.2" cy="3.2" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="9.7" cy="3.2" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="1.7" cy="4.8" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="4.2" cy="4.8" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="6.7" cy="4.8" r="0.35" fill="#FFFFFF"></circle>' +
-        '<circle cx="9.2" cy="4.8" r="0.35" fill="#FFFFFF"></circle>' +
-        "</svg>"
-      );
-    }
-
-    return (
-      '<svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg" width="24" height="16" role="img" aria-label="Indonesia">' +
-      '<rect width="24" height="8" fill="#D7263D"></rect>' +
-      '<rect y="8" width="24" height="8" fill="#FFFFFF"></rect>' +
-      "</svg>"
-    );
-  }
-
-  function syncCcyUi() {
-    if (!menu) return;
-    var opt = menu.querySelector('[data-currency="' + currency + '"]');
-    if (!opt) return;
-    var flagEl = document.getElementById("w-ccy-flag");
-    if (flagEl) flagEl.innerHTML = flagSvgHtml(currency);
-    document.getElementById("w-ccy-label").textContent = opt.getAttribute("data-label") || "";
-    var hidden = document.getElementById("w-currency");
-    if (hidden) hidden.value = currency;
-  }
 
   function formatIntGroups(value, locale) {
     if (!value) return "";
@@ -113,55 +58,79 @@ document.addEventListener("DOMContentLoaded", async function () {
     formatBalanceInput();
   }
 
-  function closeCcyMenu() {
-    if (!menu) return;
-    menu.setAttribute("hidden", "");
-    if (ccyBtn) ccyBtn.setAttribute("aria-expanded", "false");
-  }
-
-  function toggleCcyMenu() {
-    if (!menu) return;
-    var open = menu.hasAttribute("hidden");
-    if (open) {
-      menu.removeAttribute("hidden");
-      if (ccyBtn) ccyBtn.setAttribute("aria-expanded", "true");
-    } else {
-      closeCcyMenu();
-    }
-  }
-
-  if (ccyBtn) {
-    ccyBtn.onclick = function (e) {
-      e.stopPropagation();
-      toggleCcyMenu();
-    };
-  }
-
-  if (menu) {
-    menu.onclick = function (e) {
-      var btn = e.target.closest("[data-currency]");
-      if (!btn) return;
-      e.preventDefault();
-      e.stopPropagation();
-      currency = btn.getAttribute("data-currency");
-      syncCcyUi();
-      syncBalanceInputUi();
-      closeCcyMenu();
-    };
-  }
-
-  document.addEventListener("click", function (e) {
-    var root = e.target.closest("#w-ccy-root");
-    if (root) return;
-    closeCcyMenu();
-  });
-
-  syncCcyUi();
   syncBalanceInputUi();
 
   if (balInput) {
     balInput.addEventListener("input", formatBalanceInput);
   }
+
+  var editingWalletId = null;
+
+  function cancelEdit() {
+    editingWalletId = null;
+    document.getElementById("w-form-title").textContent = "Tambah dompet";
+    document.getElementById("w-add").textContent = "Simpan dompet";
+    document.getElementById("w-cancel").style.display = "none";
+    document.getElementById("w-name").value = "";
+    var balInp = document.getElementById("w-balance");
+    if (balInp) {
+      balInp.value = "";
+      var evt = document.createEvent("HTMLEvents");
+      evt.initEvent("input", false, true);
+      balInp.dispatchEvent(evt);
+    }
+    document.getElementById("w-logo-file").value = "";
+    document.getElementById("w-logo-file-name").textContent = "";
+    document.getElementById("w-err").style.display = "none";
+  }
+
+  var cancelBtn = document.getElementById("w-cancel");
+  if (cancelBtn) cancelBtn.addEventListener("click", cancelEdit);
+
+  document.getElementById("wallet-grid").addEventListener("click", async function (e) {
+    var btnDel = e.target.closest(".btn-wallet-del");
+    if (btnDel) {
+      var id = btnDel.getAttribute("data-id");
+      if (confirm("Hapus dompet ini beserta seluruh transaksinya?")) {
+        try {
+          await MonifyApi.fetchJson("/api/wallets/" + id, { method: "DELETE" });
+          if (editingWalletId === id) cancelEdit();
+          await render();
+        } catch (err) {
+          alert(err.message || "Gagal menghapus dompet.");
+        }
+      }
+      return;
+    }
+
+    var btnEdit = e.target.closest(".btn-wallet-edit");
+    if (btnEdit) {
+      var id = btnEdit.getAttribute("data-id");
+      try {
+        var walletsData = await MonifyApi.fetchJson("/api/wallets");
+        var w = (walletsData.wallets || []).find(function (x) { return x.id === id; });
+        if (w) {
+          editingWalletId = w.id;
+          document.getElementById("w-form-title").textContent = "Edit dompet";
+          document.getElementById("w-add").textContent = "Simpan Perubahan";
+          document.getElementById("w-cancel").style.display = "inline-block";
+          document.getElementById("w-name").value = w.name;
+          var balInp = document.getElementById("w-balance");
+          if (balInp) {
+            balInp.value = w.balance;
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("input", false, true);
+            balInp.dispatchEvent(evt);
+          }
+          document.getElementById("w-logo-file-name").textContent = "";
+          document.getElementById("w-name").focus();
+          window.scrollTo(0, 0);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  });
 
   document.getElementById("w-logo-file-btn").onclick = function () {
     document.getElementById("w-logo-file").click();
@@ -183,32 +152,47 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function render() {
     var wallets = await MonifyApi.fetchJson("/api/wallets");
-    document.getElementById("wallet-grid").innerHTML = (wallets.wallets || [])
-      .map(function (w) {
-        return (
-          '<div class="card wallet-tile wallet-tile--compact"><div class="wallet-tile__row">' +
-          logoHtml(w) +
-          '<div class="wallet-tile__body"><strong>' +
-          w.name +
-          '</strong><div class="text-muted text-sm mt-1">' +
-          w.flag +
-          " " +
-          w.currency +
-          " · " +
-          (w.active ? "Aktif" : "Nonaktif") +
-          "</div></div></div></div>"
-        );
-      })
-      .join("");
+    var wList = wallets.wallets || [];
+    var totalBal = 0;
+    var listHtml = wList.map(function (w, i) {
+      totalBal += w.balance;
+      var bg = 'var(--card)';
+      var balHtml = currency === "USD" ? formatUSDHtml(w.balance) : formatIDRHtml(w.balance);
+      return (
+        '<div class="card wallet-tile" style="background:' + bg + '; border: 1px solid var(--border); padding: 1.25rem; display: flex; flex-direction: column; min-height: 140px; box-shadow: var(--shadow); position: relative;">' +
+        '<div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: auto; gap: 1rem;">' +
+        '<div style="background: var(--bg); border: 1px solid var(--border); width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' + logoHtml(w) + '</div>' +
+        '<div style="display: flex; gap: 0.25rem; flex-shrink: 0;">' +
+        '<button type="button" class="btn-wallet-edit" data-id="' + w.id + '" title="Edit dompet">&#x270E;</button>' +
+        '<button type="button" class="btn-wallet-del" data-id="' + w.id + '" title="Hapus dompet">&#x1F5D1;</button>' +
+        '</div>' +
+        '</div>' +
+        '<div style="margin-top: 1.25rem;">' +
+        '<div style="font-weight: 600; font-size: 0.95rem; color: var(--text);">' + w.name + '</div>' +
+        '<div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;"><strong>' + balHtml + '</strong></div>' +
+        '</div>' +
+        '</div>'
+      );
+    }).join("");
+
+    var fmtTotal = currency === "USD" ? formatUSDHtml(totalBal) : formatIDRHtml(totalBal);
+    var totalHtml =
+      '<div class="card wallet-tile" style="background: var(--brand-light); border: 1px solid rgba(5, 150, 105, 0.2); padding: 1.25rem; display: flex; flex-direction: column; min-height: 140px; box-shadow: var(--shadow);">' +
+      '<div style="background: white; border: 1px solid rgba(5, 150, 105, 0.2); width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: auto;"><span class="wallet-tile__emoji">🌍</span></div>' +
+      '<div style="margin-top: 1.25rem;">' +
+      '<div style="font-weight: 600; font-size: 0.95rem; color: var(--text);">Total</div>' +
+      '<div style="font-size: 0.85rem; color: var(--brand); margin-top: 0.25rem;"><strong>' + fmtTotal + '</strong></div>' +
+      '</div>' +
+      '</div>';
+
+    document.getElementById("wallet-grid").innerHTML = totalHtml + listHtml;
   }
 
   document.getElementById("w-add").onclick = async function () {
     var err = document.getElementById("w-err");
     err.style.display = "none";
     var name = document.getElementById("w-name").value.trim();
-    var currencyRaw = document.getElementById("w-currency").value;
-    var selectedCurrency = currencyRaw === "USD" ? "USD" : "IDR";
-    var balance = parseBalanceForSubmit(selectedCurrency);
+    var balance = parseBalanceForSubmit(currency);
     if (!name) {
       err.textContent = "Isi nama dompet.";
       err.style.display = "block";
@@ -234,19 +218,28 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     try {
-      await MonifyApi.fetchJson("/api/wallets", {
-        method: "POST",
-        body: JSON.stringify({
-          name: name,
-          logo: logo,
-          currency: selectedCurrency,
-          balance: balance,
-        }),
-      });
-      document.getElementById("w-name").value = "";
-      document.getElementById("w-balance").value = "";
-      document.getElementById("w-logo-file").value = "";
-      document.getElementById("w-logo-file-name").textContent = "";
+      if (editingWalletId) {
+        var payload = { name: name, balance: balance };
+        if (logo) payload.logo = logo;
+        await MonifyApi.fetchJson("/api/wallets/" + editingWalletId, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+        cancelEdit();
+      } else {
+        await MonifyApi.fetchJson("/api/wallets", {
+          method: "POST",
+          body: JSON.stringify({
+            name: name,
+            logo: logo,
+            balance: balance,
+          }),
+        });
+        document.getElementById("w-name").value = "";
+        document.getElementById("w-balance").value = "";
+        document.getElementById("w-logo-file").value = "";
+        document.getElementById("w-logo-file-name").textContent = "";
+      }
       await render();
     } catch (e) {
       err.textContent = e.message || "Gagal";

@@ -24,58 +24,61 @@ document.addEventListener("DOMContentLoaded", async function () {
     errEl.style.display = "none";
     var res = await MonifyApi.fetchJson("/api/wallets");
     var list = res.wallets || [];
-    var byCcy = {};
-    list.forEach(function (w) {
-      if (!byCcy[w.currency]) byCcy[w.currency] = { sum: 0, items: [] };
-      byCcy[w.currency].sum += w.balance;
-      byCcy[w.currency].items.push(w);
-    });
+    var me = await MonifyAuth.requireAuth();
+    var currency = (me.user && me.user.displayCurrency) || "IDR";
 
     var html = "";
-    ["IDR", "USD"].forEach(function (ccy) {
-      if (!byCcy[ccy]) return;
-      var g = byCcy[ccy];
-      var totalHtml =
-        ccy === "USD"
-          ? '<p class="asset-summary__total">' + formatUSDHtml(g.sum) + "</p>"
-          : '<p class="asset-summary__total">' + formatIDRHtml(g.sum) + "</p>";
-      html +=
-        '<div class="asset-summary card"><div class="flex-between"><strong>' +
-        (ccy === "USD" ? "🇺🇸 Total USD" : "🇮🇩 Total IDR") +
-        "</strong></div>" +
-        totalHtml +
-        "</div>";
+    var totalBal = 0;
+    
+    list.forEach(function (w) {
+      if (w.balance > 0) totalBal += w.balance;
+    });
 
-      g.items.forEach(function (w) {
-        html +=
-          '<div class="asset-card card" data-id="' +
-          w.id +
-          '">' +
-          '<div class="asset-card__head">' +
-          logoBlock(w) +
-          '<div class="asset-card__meta"><div class="asset-card__name">' +
-          w.name +
-          '</div><div class="text-muted text-sm">' +
-          w.flag +
-          " " +
-          w.currency +
-          " · " +
-          (w.active ? "Aktif" : "Nonaktif") +
-          "</div></div></div>" +
-          '<div class="asset-card__bal mt-3">' +
-          formatBal(w) +
-          "</div>" +
-          '<div class="asset-card__upload mt-3">' +
-          '<input type="file" accept="image/*" class="visually-hidden" id="up-' +
-          w.id +
-          '" data-wid="' +
-          w.id +
-          '" />' +
-          '<button type="button" class="btn btn--outline btn--sm" data-trigger="' +
-          w.id +
-          '">Unggah logo</button>' +
-          "</div></div>";
-      });
+    // VIZ RENDER
+    var vizEl = document.getElementById("assets-viz");
+    if (vizEl) {
+      var vizHtml = '<div class="card"><h2 style="font-size:1.1rem;margin-bottom:1rem">Distribusi Aset</h2>';
+      if (totalBal > 0) {
+        vizHtml += '<div class="report-cat-list">';
+        var sortedList = list.slice().sort(function(a, b) { return b.balance - a.balance; });
+        sortedList.forEach(function (w) {
+          if (w.balance <= 0) return;
+          var pct = (w.balance / totalBal) * 100;
+          vizHtml += '<div class="report-cat-row mt-2">' + 
+            '<div class="flex-between text-sm"><span>' + w.name + '</span><strong>' + pct.toFixed(1) + '%</strong></div>' +
+            '<div class="report-cat-bar"><div style="width:' + pct + '%"></div></div>' +
+            '<div class="text-muted text-sm mt-1">' + formatBal(w) + '</div>' +
+            '</div>';
+        });
+        vizHtml += '</div>';
+      } else {
+        vizHtml += '<p class="text-muted text-sm">Belum ada aset dengan saldo positif.</p>';
+      }
+      vizHtml += '</div>';
+      vizEl.innerHTML = vizHtml;
+    }
+
+    // LIST RENDER
+    var gSum = 0;
+    list.forEach(function (w) {
+      gSum += w.balance;
+    });
+
+    var totalHtml = currency === "USD" ? formatUSDHtml(gSum) : formatIDRHtml(gSum);
+    html +=
+      '<div class="asset-summary card"><div class="flex-between text-muted"><strong>Total Aset</strong></div>' +
+      '<p class="asset-summary__total mt-1">' + totalHtml + "</p></div>";
+
+    list.forEach(function (w) {
+      html +=
+        '<div class="asset-card card" data-id="' + w.id + '">' +
+        '<div class="asset-card__head">' + logoBlock(w) +
+        '<div class="asset-card__meta"><div class="asset-card__name">' + w.name + '</div></div></div>' +
+        '<div class="asset-card__bal mt-3">' + formatBal(w) + "</div>" +
+        '<div class="asset-card__upload mt-3">' +
+        '<input type="file" accept="image/*" class="visually-hidden" id="up-' + w.id + '" data-wid="' + w.id + '" />' +
+        '<button type="button" class="btn btn--outline btn--sm" data-trigger="' + w.id + '">Unggah logo</button>' +
+        "</div></div>";
     });
 
     root.innerHTML = html || '<p class="text-muted">Belum ada dompet.</p>';

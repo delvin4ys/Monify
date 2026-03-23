@@ -258,8 +258,11 @@ app.get("/api/transactions", requireAuth, async (req, res) => {
       const d = getWalletDelta(t.category, t.amount);
       return Object.assign(base, {
         categoryName: t.category.name,
+        categoryIcon: t.category.icon,
+        debtSubtype: t.category.debtSubtype || null,
         walletName: t.wallet.name,
         walletFlag: t.wallet.flag,
+        walletLogo: t.wallet.logo || null,
         direction: d >= 0 ? "in" : "out",
       });
     });
@@ -344,6 +347,7 @@ app.post("/api/transactions", requireAuth, async (req, res) => {
             counterparty,
             relatedParty,
             imageUrl: imageUrl || null,
+            remainingAmount: (category.type === "debt" && (category.debtSubtype === "DEBT" || category.debtSubtype === "LOAN")) ? amount : null,
           },
         });
       });
@@ -362,6 +366,7 @@ app.post("/api/transactions", requireAuth, async (req, res) => {
           counterparty,
           relatedParty,
           imageUrl: imageUrl || null,
+          remainingAmount: (category.type === "debt" && (category.debtSubtype === "DEBT" || category.debtSubtype === "LOAN")) ? amount : null,
         },
       });
     }
@@ -424,6 +429,103 @@ app.get("/api/transactions/:id", requireAuth, async (req, res) => {
     });
   } catch (e) {
     res.status(500).json({ error: e.message || "Gagal memuat." });
+  }
+});
+
+// ——— Payment for DEBT/LOAN ———
+app.post("/api/transactions/:id/payment", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const parentTx = await prisma.transaction.findFirst({
+      where: { id: req.params.id, userId },
+      include: { category: true, wallet: true },
+    });
+    if (!parentTx) {
+      return res.status(404).json({ error: "Transaksi tidak ditemukan." });
+    }
+
+    const ds = parentTx.category.debtSubtype;
+    if (ds !== "DEBT" && ds !== "LOAN") {
+      return res.status(400).json({ error: "Hanya transaksi DEBT atau LOAN yang bisa dibayar." });
+    }
+    if (parentTx.paidOff) {
+      return res.status(400).json({ error: "Transaksi sudah lunas." });
+    }
+
+    const payAmount = Number(req.body.amount);
+    const dateStr = typeof req.body.date === "string" ? req.body.date.trim() : new Date().toISOString().slice(0, 10);
+    const walletId = typeof req.body.walletId === "string" ? req.body.walletId : parentTx.walletId;
+
+    if (!Number.isFinite(payAmount) || payAmount <= 0) {
+      return res.status(400).json({ error: "Jumlah pembayaran tidak valid." });
+    }
+
+    const remaining = parentTx.remainingAmount != null ? parentTx.remainingAmount : parentTx.amount;
+    if (payAmount > remaining) {
+      return res.status(400).json({ error: "Jumlah melebihi sisa hutang/pinjaman (sisa: " + remaining + ")." });
+    }
+
+    const wallet = await prisma.wallet.findFirst({ where: { id: walletId, userId } });
+    if (!wallet) {
+      return res.status(400).json({ error: "Dompet tidak ditemukan." });
+    }
+
+    // Determine child category: DEBT→REPAYMENT, LOAN→DEBT_COLLECTION
+    const childSubtype = ds === "DEBT" ? "REPAYMENT" : "DEBT_COLLECTION";
+    const childCategory = await prisma.category.findFirst({
+      where: { userId, type: "debt", debtSubtype: childSubtype },
+    });
+    if (!childCategory) {
+      return res.status(400).json({ error: "Kategori " + childSubtype + " tidak ditemukan." });
+    }
+
+    const date = new Date(dateStr + "T12:00:00.000Z");
+    const newRemaining = remaining - payAmount;
+    const isPaidOff = newRemaining === 0;
+
+    // Build child title with suffix
+    const childSuffix = childSubtype === "REPAYMENT" ? " ke " : " dari ";
+    const childTitle = childCategory.name + childSuffix + (parentTx.counterparty || "");
+
+    const childDelta = getWalletDelta(childCategory, payAmount);
+    const newBal = wallet.balance + childDelta;
+    if (newBal < 0) {
+      return res.status(400).json({ error: "Saldo dompet tidak mencukupi." });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: newBal },
+      });
+      await tx.transaction.create({
+        data: {
+          userId,
+          walletId: wallet.id,
+          categoryId: childCategory.id,
+          amount: payAmount,
+          type: "debt",
+          title: childTitle,
+          date,
+          status: "success",
+          currency: parentTx.currency,
+          counterparty: parentTx.counterparty,
+          parentTransactionId: parentTx.id,
+        },
+      });
+      await tx.transaction.update({
+        where: { id: parentTx.id },
+        data: {
+          remainingAmount: newRemaining,
+          paidOff: isPaidOff,
+        },
+      });
+    });
+
+    res.json({ ok: true, remainingAmount: newRemaining, paidOff: isPaidOff });
+  } catch (e) {
+    const msg = e.message || "Gagal membayar.";
+    res.status(msg.includes("Saldo") ? 400 : 500).json({ error: msg });
   }
 });
 

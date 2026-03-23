@@ -37,45 +37,36 @@
             <label class="text-sm text-muted" style="display: block">Dompet</label>
             <select class="input mt-1" id="f-wallet"></select>
 
-            <label class="text-sm text-muted mt-4" style="display: block">Jumlah</label>
+            <label class="text-sm text-muted mt-4" style="display: block">Nominal</label>
             <div class="ccy-field mt-2">
-              <div class="ccy-dropdown" id="ccy-root">
-                <button type="button" class="ccy-dropdown__btn" id="ccy-btn" aria-expanded="false" aria-haspopup="listbox">
-                  <span class="ccy-dropdown__flag" id="ccy-flag">🇮🇩</span>
-                  <span class="ccy-dropdown__label" id="ccy-label">Indonesia</span>
-                  <span class="ccy-dropdown__code" id="ccy-code">IDR</span>
-                  <span class="ccy-dropdown__caret" aria-hidden="true">▾</span>
+              <div class="ccy-dropdown ccy-dropdown--flags-only">
+                <button type="button" class="ccy-dropdown__btn" id="wallet-ccy-pill" disabled aria-label="Mata uang mengikuti dompet">
+                  <span class="ccy-dropdown__flag" id="wallet-ccy-flag">
+                    <svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg" width="24" height="16" aria-hidden="true">
+                      <rect width="24" height="8" fill="#D7263D"></rect>
+                      <rect y="8" width="24" height="8" fill="#FFFFFF"></rect>
+                    </svg>
+                  </span>
+                  <span class="ccy-dropdown__code" id="wallet-ccy-code" style="display:none">IDR</span>
                 </button>
-                <ul class="ccy-dropdown__menu" id="ccy-menu" role="listbox" hidden>
-                  <li>
-                    <button type="button" class="ccy-dropdown__option" role="option" data-currency="IDR" data-flag="🇮🇩" data-label="Indonesia">
-                      <span class="ccy-dropdown__flag">🇮🇩</span>
-                      <span>Indonesia</span>
-                      <span class="ccy-dropdown__code-inline">IDR</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button type="button" class="ccy-dropdown__option" role="option" data-currency="USD" data-flag="🇺🇸" data-label="Amerika Serikat">
-                      <span class="ccy-dropdown__flag">🇺🇸</span>
-                      <span>Amerika Serikat</span>
-                      <span class="ccy-dropdown__code-inline">USD</span>
-                    </button>
-                  </li>
-                </ul>
               </div>
-              <input class="input ccy-field__amount" type="text" id="f-amount" inputmode="decimal" placeholder="0" autocomplete="off" />
+              <input class="input ccy-field__amount" type="text" id="f-amount" inputmode="numeric" placeholder="Rp 0" autocomplete="off" />
             </div>
+            <p class="text-muted text-sm mt-1">Mata uang otomatis mengikuti dompet yang dipilih.</p>
 
             <label class="text-sm text-muted mt-4" style="display: block">Status</label>
             <select class="input mt-1" id="f-status">
-              <option value="success">Berhasil (mempengaruhi saldo)</option>
-              <option value="pending">Tertunda / rencana (belum mempengaruhi saldo)</option>
+              <option value="success">Berhasil (transaksi sudah menarik/mengubah saldo)</option>
+              <option value="pending">Pending (transaksi belum menarik uang secara sempurna)</option>
             </select>
 
             <label class="text-sm text-muted mt-4" style="display: block">Kategori</label>
             <input type="hidden" id="f-cat" value="" />
             <div class="mt-2" id="cat-pick-row">
-              <span class="text-muted text-sm" id="cat-label">Belum dipilih</span>
+              <div class="tx-cat-pill is-empty" id="cat-pill">
+                <span class="tx-cat-pill__icon" id="cat-pill-icon">🏷️</span>
+                <span class="tx-cat-pill__text" id="cat-label">Belum dipilih</span>
+              </div>
             </div>
             <a href="#" class="btn btn--outline mt-2" id="cat-pick-link" style="display: inline-block">Pilih kategori</a>
 
@@ -88,9 +79,11 @@
             <div id="debt-extra" style="display: none">
               <label class="text-sm text-muted mt-4" style="display: block">Pihak (peminjam / pemberi pinjaman)</label>
               <input class="input mt-1" type="text" id="f-counterparty" placeholder="Nama orang atau lembaga" />
+            </div>
 
-              <label class="text-sm text-muted mt-4" style="display: block">Terkait (opsional)</label>
-              <input class="input mt-1" type="text" id="f-related" placeholder="Siapa yang terlibat" />
+            <div id="related-party-extra">
+              <label class="text-sm text-muted mt-4" style="display: block">Pihak berkaitan (opsional)</label>
+              <input class="input mt-1" type="text" id="f-related" placeholder="Nama orang/pihak yang berkaitan" />
             </div>
 
             <div class="mt-4">

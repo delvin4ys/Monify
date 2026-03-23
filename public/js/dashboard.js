@@ -6,6 +6,51 @@ document.addEventListener("DOMContentLoaded", async function () {
     MonifyLayout.renderSidebar(document.getElementById("sidebar-nav"), "dashboard");
     MonifyLayout.renderMobileNav(document.getElementById("mobile-nav"), "dashboard");
 
+    var kpiBalanceEl = document.getElementById("kpi-balance");
+    var kpiEyeBtn = document.getElementById("kpi-balance-eye");
+    var kpiEyeShowIcon = document.getElementById("kpi-balance-eye-show");
+    var kpiEyeHideIcon = document.getElementById("kpi-balance-eye-hide");
+
+    var balanceHidden = false;
+
+    function maskBalanceHtml() {
+      return (
+        '<span class="amount-money kpi-balance-masked ' +
+        (ccy === "USD" ? "amount-money--usd" : "amount-money--idr") +
+        '">••••••</span>'
+      );
+    }
+
+    function syncBalanceVisibility() {
+      if (!kpiBalanceEl) return;
+
+      if (balanceHidden) {
+        kpiBalanceEl.innerHTML = maskBalanceHtml();
+        if (kpiEyeBtn) {
+          kpiEyeBtn.setAttribute("aria-pressed", "true");
+          kpiEyeBtn.setAttribute("aria-label", "Tampilkan saldo");
+        }
+        if (kpiEyeShowIcon) kpiEyeShowIcon.style.display = "none";
+        if (kpiEyeHideIcon) kpiEyeHideIcon.style.display = "";
+      } else {
+        var raw = kpiBalanceEl.dataset.rawValue;
+        kpiBalanceEl.innerHTML = raw ? raw : "—";
+        if (kpiEyeBtn) {
+          kpiEyeBtn.setAttribute("aria-pressed", "false");
+          kpiEyeBtn.setAttribute("aria-label", "Sembunyikan saldo");
+        }
+        if (kpiEyeShowIcon) kpiEyeShowIcon.style.display = "";
+        if (kpiEyeHideIcon) kpiEyeHideIcon.style.display = "none";
+      }
+    }
+
+    if (kpiEyeBtn) {
+      kpiEyeBtn.addEventListener("click", function () {
+        balanceHidden = !balanceHidden;
+        syncBalanceVisibility();
+      });
+    }
+
     document.getElementById("welcome-name").textContent =
       (me.user && me.user.name ? me.user.name : "Pengguna").split(" ")[0];
 
@@ -43,7 +88,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       var summary = await MonifyApi.fetchJson("/api/summary?currency=" + encodeURIComponent(ccy));
       var balHtml =
         ccy === "USD" ? formatUSDHtml(summary.balance) : formatIDRHtml(summary.balance);
-      document.getElementById("kpi-balance").innerHTML = balHtml;
+      kpiBalanceEl = document.getElementById("kpi-balance");
+      if (kpiBalanceEl) {
+        kpiBalanceEl.dataset.rawValue = balHtml;
+      }
+      syncBalanceVisibility();
       document.getElementById("kpi-balance-delta").textContent = fmtPct(summary.balanceDeltaPct) + "%";
       document.getElementById("kpi-expense").innerHTML =
         ccy === "USD" ? formatUSDHtml(summary.expensesMonth) : formatIDRHtml(summary.expensesMonth);
@@ -63,6 +112,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (max < 1) max = 1;
       var chartEl = document.getElementById("chart-bars");
       chartEl.innerHTML = "";
+      var chartTipEl = document.createElement("div");
+      chartTipEl.className = "chart-bars__tip";
+      chartTipEl.setAttribute("role", "tooltip");
+      chartTipEl.setAttribute("aria-hidden", "true");
+      chartEl.appendChild(chartTipEl);
+
       var chartH = 180;
       data.forEach(function (d, i) {
         var col = document.createElement("div");
@@ -73,6 +128,40 @@ document.addEventListener("DOMContentLoaded", async function () {
         var lab = document.createElement("span");
         lab.className = "chart-bars__label";
         lab.textContent = d.month;
+
+        bar.tabIndex = 0; // Allow keyboard focus to show tooltip.
+
+        var fmt = ccy === "USD" ? formatUSDHtml(d.amount) : formatIDRHtml(d.amount);
+
+        function showTip() {
+          chartTipEl.innerHTML =
+            '<div class="chart-bars__tip-month">' +
+            (d.month || "") +
+            "</div><div class=\"chart-bars__tip-value\">" +
+            fmt +
+            "</div>";
+
+          var chartRect = chartEl.getBoundingClientRect();
+          var barRect = bar.getBoundingClientRect();
+          var x = barRect.left - chartRect.left + barRect.width / 2;
+          var y = barRect.top - chartRect.top;
+
+          chartTipEl.style.left = x + "px";
+          chartTipEl.style.top = y + "px";
+          chartTipEl.classList.add("is-open");
+          chartTipEl.setAttribute("aria-hidden", "false");
+        }
+
+        function hideTip() {
+          chartTipEl.classList.remove("is-open");
+          chartTipEl.setAttribute("aria-hidden", "true");
+        }
+
+        bar.addEventListener("mouseenter", showTip);
+        bar.addEventListener("mouseleave", hideTip);
+        bar.addEventListener("focus", showTip);
+        bar.addEventListener("blur", hideTip);
+
         col.appendChild(bar);
         col.appendChild(lab);
         chartEl.appendChild(col);

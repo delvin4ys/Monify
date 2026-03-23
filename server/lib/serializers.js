@@ -46,6 +46,9 @@ function transactionToJson(t) {
     counterparty: t.counterparty || null,
     relatedParty: t.relatedParty || null,
     imageUrl: t.imageUrl || null,
+    parentTransactionId: t.parentTransactionId || null,
+    remainingAmount: t.remainingAmount != null ? t.remainingAmount : null,
+    paidOff: !!t.paidOff,
   };
 }
 

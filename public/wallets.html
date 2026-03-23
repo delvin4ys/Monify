@@ -27,13 +27,88 @@
             <strong>Tambah dompet</strong>
             <label class="text-sm text-muted mt-3" style="display: block">Nama</label>
             <input class="input mt-1" id="w-name" placeholder="BCA, ShopeePay, …" />
-            <label class="text-sm text-muted mt-3" style="display: block">Mata uang</label>
-            <select class="input mt-1" id="w-currency">
-              <option value="IDR">🇮🇩 IDR</option>
-              <option value="USD">🇺🇸 USD</option>
-            </select>
             <label class="text-sm text-muted mt-3" style="display: block">Saldo awal</label>
-            <input class="input mt-1" id="w-balance" inputmode="numeric" placeholder="0" />
+            <div class="ccy-field mt-1">
+              <div class="ccy-dropdown ccy-dropdown--flags-only" id="w-ccy-root">
+                <button type="button" class="ccy-dropdown__btn" id="w-ccy-btn" aria-expanded="false" aria-haspopup="listbox">
+                  <span class="ccy-dropdown__flag" id="w-ccy-flag" aria-hidden="true">
+                    <svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg" width="24" height="16" role="img" aria-label="Indonesia">
+                      <rect width="24" height="8" fill="#D7263D"></rect>
+                      <rect y="8" width="24" height="8" fill="#FFFFFF"></rect>
+                    </svg>
+                  </span>
+                  <span class="ccy-dropdown__label" id="w-ccy-label">Indonesia</span>
+                  <span class="ccy-dropdown__caret" aria-hidden="true">▾</span>
+                </button>
+                <ul class="ccy-dropdown__menu" id="w-ccy-menu" role="listbox" hidden>
+                  <li>
+                    <button
+                      type="button"
+                      class="ccy-dropdown__option"
+                      role="option"
+                      data-currency="IDR"
+                      data-flag="IDR"
+                      data-label="Indonesia"
+                    >
+                      <span class="ccy-dropdown__flag" aria-hidden="true">
+                        <svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg" width="24" height="16" role="img" aria-label="Indonesia">
+                          <rect width="24" height="8" fill="#D7263D"></rect>
+                          <rect y="8" width="24" height="8" fill="#FFFFFF"></rect>
+                        </svg>
+                      </span>
+                      <span>Indonesia</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      class="ccy-dropdown__option"
+                      role="option"
+                      data-currency="USD"
+                      data-flag="USD"
+                      data-label="Amerika Serikat"
+                    >
+                      <span class="ccy-dropdown__flag" aria-hidden="true">
+                        <svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg" width="24" height="16" role="img" aria-label="Amerika Serikat">
+                          <!-- Stripes -->
+                          <rect x="0" y="0" width="24" height="1.230769" fill="#B22234"></rect>
+                          <rect x="0" y="1.230769" width="24" height="1.230769" fill="#FFFFFF"></rect>
+                          <rect x="0" y="2.461538" width="24" height="1.230769" fill="#B22234"></rect>
+                          <rect x="0" y="3.692307" width="24" height="1.230769" fill="#FFFFFF"></rect>
+                          <rect x="0" y="4.923076" width="24" height="1.230769" fill="#B22234"></rect>
+                          <rect x="0" y="6.153845" width="24" height="1.230769" fill="#FFFFFF"></rect>
+                          <rect x="0" y="7.384614" width="24" height="1.230769" fill="#B22234"></rect>
+                          <rect x="0" y="8.615383" width="24" height="1.230769" fill="#FFFFFF"></rect>
+                          <rect x="0" y="9.846152" width="24" height="1.230769" fill="#B22234"></rect>
+                          <rect x="0" y="11.076921" width="24" height="1.230769" fill="#FFFFFF"></rect>
+                          <rect x="0" y="12.30769" width="24" height="1.230769" fill="#B22234"></rect>
+                          <rect x="0" y="13.538459" width="24" height="1.230769" fill="#FFFFFF"></rect>
+                          <rect x="0" y="14.769228" width="24" height="1.230769" fill="#B22234"></rect>
+                          <!-- Canton -->
+                          <rect x="0" y="0" width="12" height="7.7" fill="#3C3B6E"></rect>
+                          <!-- Simple stars -->
+                          <circle cx="1.7" cy="1.6" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="4.2" cy="1.6" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="6.7" cy="1.6" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="9.2" cy="1.6" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="2.2" cy="3.2" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="4.7" cy="3.2" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="7.2" cy="3.2" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="9.7" cy="3.2" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="1.7" cy="4.8" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="4.2" cy="4.8" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="6.7" cy="4.8" r="0.35" fill="#FFFFFF"></circle>
+                          <circle cx="9.2" cy="4.8" r="0.35" fill="#FFFFFF"></circle>
+                        </svg>
+                      </span>
+                      <span>Amerika Serikat</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <input class="input ccy-field__amount" id="w-balance" inputmode="numeric" placeholder="0" />
+              <input type="hidden" id="w-currency" value="IDR" />
+            </div>
             <label class="text-sm text-muted mt-3" style="display: block">Logo (opsional)</label>
             <div class="wallet-logo-row mt-2">
               <input type="file" id="w-logo-file" accept="image/*" class="visually-hidden" tabindex="-1" />

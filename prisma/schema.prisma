@@ -76,21 +76,27 @@ model Budget {
 }
 
 model Transaction {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  walletId     String
-  wallet       Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  categoryId   String
-  category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  amount       Int
-  type         String // expense | income | debt
-  title        String
-  date         DateTime
-  status       String   @default("success")
-  createdAt    DateTime @default(now())
-  currency     String   @default("IDR")
-  counterparty String?
-  relatedParty String?
-  imageUrl     String?
+  id                    String   @id @default(cuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletId              String
+  wallet                Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  categoryId            String
+  category              Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amount                Int
+  type                  String // expense | income | debt
+  title                 String
+  date                  DateTime
+  status                String   @default("success")
+  createdAt             DateTime @default(now())
+  currency              String   @default("IDR")
+  counterparty          String?
+  relatedParty          String?
+  imageUrl              String?
+  /// ID transaksi induk (DEBT/LOAN) untuk pembayaran (REPAYMENT/DEBT_COLLECTION)
+  parentTransactionId   String?
+  /// Sisa yang belum dibayar (hanya untuk DEBT/LOAN)
+  remainingAmount       Int?
+  /// Apakah hutang/pinjaman sudah lunas
+  paidOff               Boolean  @default(false)
 }

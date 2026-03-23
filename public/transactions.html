@@ -42,6 +42,8 @@
               <thead>
                 <tr>
                   <th>Aktivitas</th>
+                  <th>Kategori</th>
+                  <th>Wallet</th>
                   <th>Tanggal</th>
                   <th style="text-align: right">Jumlah</th>
                   <th>Status</th>
@@ -54,6 +56,32 @@
         </div>
       </div>
     </div>
+
+    <!-- Payment modal -->
+    <div class="payment-overlay" id="payment-overlay">
+      <div class="payment-modal">
+        <h3 id="pay-modal-title">Bayar Hutang</h3>
+        <div id="pay-err" class="alert alert--error" style="display: none"></div>
+
+        <label class="text-sm text-muted" style="display: block">Jumlah pembayaran</label>
+        <input class="input mt-1" type="text" id="pay-amount" inputmode="numeric" placeholder="Rp 0" autocomplete="off" />
+        <p class="text-muted text-sm mt-1" id="pay-remaining-hint"></p>
+
+        <label class="text-sm text-muted mt-4" style="display: block">Tanggal pembayaran</label>
+        <input class="input mt-1" type="date" id="pay-date" />
+
+        <label class="text-sm text-muted mt-4" style="display: block">Dompet</label>
+        <select class="input mt-1" id="pay-wallet"></select>
+
+        <input type="hidden" id="pay-tx-id" />
+
+        <div class="mt-4" style="display: flex; gap: 0.75rem">
+          <button type="button" class="btn btn--outline" style="flex: 1" id="pay-cancel">Batal</button>
+          <button type="button" class="btn btn--primary" style="flex: 1" id="pay-save">Bayar</button>
+        </div>
+      </div>
+    </div>
+
     <nav class="mobile-nav" id="mobile-nav"></nav>
     <script src="/js/api.js"></script>
     <script src="/js/format.js"></script>

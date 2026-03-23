@@ -16,56 +16,58 @@ document.addEventListener("DOMContentLoaded", async function () {
   categories = resC.categories || [];
 
   document.getElementById("f-date").value = new Date().toISOString().slice(0, 10);
+  var amountInput = document.getElementById("f-amount");
+  var walletSelect = document.getElementById("f-wallet");
+  var catPill = document.getElementById("cat-pill");
+  var catPillIcon = document.getElementById("cat-pill-icon");
 
-  var menu = document.getElementById("ccy-menu");
-  var ccyBtn = document.getElementById("ccy-btn");
-
-  function syncCcyUi() {
-    var opt = menu.querySelector('[data-currency="' + currency + '"]');
-    if (!opt) return;
-    document.getElementById("ccy-flag").textContent = opt.getAttribute("data-flag") || "";
-    document.getElementById("ccy-label").textContent = opt.getAttribute("data-label") || "";
-    document.getElementById("ccy-code").textContent = currency;
-  }
-
-  function closeCcyMenu() {
-    menu.setAttribute("hidden", "");
-    ccyBtn.setAttribute("aria-expanded", "false");
-  }
-
-  function toggleCcyMenu() {
-    var open = menu.hasAttribute("hidden");
-    if (open) {
-      menu.removeAttribute("hidden");
-      ccyBtn.setAttribute("aria-expanded", "true");
-    } else {
-      closeCcyMenu();
+  function flagSvgHtml(ccy) {
+    if (ccy === "USD") {
+      return '<svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg" width="24" height="16"><rect x="0" y="0" width="24" height="1.230769" fill="#B22234"></rect><rect x="0" y="1.230769" width="24" height="1.230769" fill="#FFFFFF"></rect><rect x="0" y="2.461538" width="24" height="1.230769" fill="#B22234"></rect><rect x="0" y="3.692307" width="24" height="1.230769" fill="#FFFFFF"></rect><rect x="0" y="4.923076" width="24" height="1.230769" fill="#B22234"></rect><rect x="0" y="6.153845" width="24" height="1.230769" fill="#FFFFFF"></rect><rect x="0" y="7.384614" width="24" height="1.230769" fill="#B22234"></rect><rect x="0" y="8.615383" width="24" height="1.230769" fill="#FFFFFF"></rect><rect x="0" y="9.846152" width="24" height="1.230769" fill="#B22234"></rect><rect x="0" y="11.076921" width="24" height="1.230769" fill="#FFFFFF"></rect><rect x="0" y="12.30769" width="24" height="1.230769" fill="#B22234"></rect><rect x="0" y="13.538459" width="24" height="1.230769" fill="#FFFFFF"></rect><rect x="0" y="14.769228" width="24" height="1.230769" fill="#B22234"></rect><rect x="0" y="0" width="12" height="7.7" fill="#3C3B6E"></rect><circle cx="1.7" cy="1.6" r="0.35" fill="#FFFFFF"></circle><circle cx="4.2" cy="1.6" r="0.35" fill="#FFFFFF"></circle><circle cx="6.7" cy="1.6" r="0.35" fill="#FFFFFF"></circle><circle cx="9.2" cy="1.6" r="0.35" fill="#FFFFFF"></circle><circle cx="2.2" cy="3.2" r="0.35" fill="#FFFFFF"></circle><circle cx="4.7" cy="3.2" r="0.35" fill="#FFFFFF"></circle><circle cx="7.2" cy="3.2" r="0.35" fill="#FFFFFF"></circle><circle cx="9.7" cy="3.2" r="0.35" fill="#FFFFFF"></circle><circle cx="1.7" cy="4.8" r="0.35" fill="#FFFFFF"></circle><circle cx="4.2" cy="4.8" r="0.35" fill="#FFFFFF"></circle><circle cx="6.7" cy="4.8" r="0.35" fill="#FFFFFF"></circle><circle cx="9.2" cy="4.8" r="0.35" fill="#FFFFFF"></circle></svg>';
     }
+    return '<svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg" width="24" height="16"><rect width="24" height="8" fill="#D7263D"></rect><rect y="8" width="24" height="8" fill="#FFFFFF"></rect></svg>';
   }
 
-  ccyBtn.onclick = function (e) {
-    e.stopPropagation();
-    toggleCcyMenu();
-  };
+  function syncWalletCurrencyPill() {
+    var selected = wallets.find(function (w) {
+      return w.id === walletSelect.value;
+    });
+    currency = selected && selected.currency === "USD" ? "USD" : "IDR";
+    document.getElementById("wallet-ccy-flag").innerHTML = flagSvgHtml(currency);
+    document.getElementById("wallet-ccy-code").textContent = currency;
+    amountInput.placeholder = currency === "USD" ? "$ 0.00" : "Rp 0";
+    amountInput.inputMode = currency === "USD" ? "decimal" : "numeric";
+    formatAmountInput();
+  }
 
-  menu.onclick = function (e) {
-    var btn = e.target.closest("[data-currency]");
-    if (!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    currency = btn.getAttribute("data-currency");
-    syncCcyUi();
-    closeCcyMenu();
-    fillWallets();
-    syncCategoryLink();
-  };
-
-  document.addEventListener("click", function (e) {
-    if (e.target.closest("#ccy-root")) return;
-    closeCcyMenu();
-  });
-
-  syncCcyUi();
+  function formatAmountInput() {
+    var raw = amountInput.value || "";
+    if (!raw) return;
+    if (currency === "IDR") {
+      var digits = raw.replace(/\D/g, "");
+      amountInput.value = digits
+        ? new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(Number(digits))
+        : "";
+      return;
+    }
+    var clean = raw.replace(/[^\d.]/g, "");
+    var firstDot = clean.indexOf(".");
+    var intRaw = "";
+    var decRaw = "";
+    if (firstDot === -1) {
+      intRaw = clean.replace(/\D/g, "");
+    } else {
+      intRaw = clean.slice(0, firstDot).replace(/\D/g, "");
+      decRaw = clean
+        .slice(firstDot + 1)
+        .replace(/\D/g, "")
+        .slice(0, 2);
+    }
+    var intFmt = intRaw
+      ? new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Number(intRaw))
+      : "";
+    amountInput.value = decRaw ? intFmt + "." + decRaw : intFmt;
+  }
 
   function categoryPickUrl() {
     return (
@@ -94,7 +96,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       selectedCatName = o.name || "—";
       document.getElementById("f-cat").value = selectedCatId;
       document.getElementById("cat-label").textContent = selectedCatName;
-      document.getElementById("cat-label").classList.remove("text-muted");
+      var catObj = categories.find(function (c) {
+        return c.id === selectedCatId;
+      });
+      catPillIcon.textContent = (catObj && catObj.icon) || "🏷️";
+      catPill.classList.remove("is-empty");
     } catch (e) {}
   }
 
@@ -105,23 +111,23 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   function fillWallets() {
-    var sel = document.getElementById("f-wallet");
     var pool = wallets.filter(function (w) {
-      return w.currency === currency && w.active;
+      return w.active;
     });
-    sel.innerHTML = pool
+    walletSelect.innerHTML = pool
       .map(function (w) {
         return '<option value="' + w.id + '">' + w.name + " (" + w.currency + ")</option>";
       })
       .join("");
     if (!pool.length) {
-      sel.innerHTML = '<option value="">— Tidak ada dompet untuk mata uang ini —</option>';
+      walletSelect.innerHTML = '<option value="">— Tidak ada dompet aktif —</option>';
       return;
     }
     var bca = pool.find(function (w) {
       return /bca/i.test(w.name);
     });
-    sel.value = (bca || pool[0]).id;
+    walletSelect.value = (bca || pool[0]).id;
+    syncWalletCurrencyPill();
   }
 
   function clearCategoryIfInvalid() {
@@ -134,12 +140,17 @@ document.addEventListener("DOMContentLoaded", async function () {
       selectedCatName = "";
       document.getElementById("f-cat").value = "";
       document.getElementById("cat-label").textContent = "Belum dipilih";
-      document.getElementById("cat-label").classList.add("text-muted");
+      catPillIcon.textContent = "🏷️";
+      catPill.classList.add("is-empty");
     }
   }
 
   function syncDebtUi() {
     document.getElementById("debt-extra").style.display = kind === "debt" ? "block" : "none";
+  }
+
+  function syncRelatedPartyUi() {
+    document.getElementById("related-party-extra").style.display = kind !== "debt" ? "block" : "none";
   }
 
   document.getElementById("tx-kind-tabs").onclick = function (e) {
@@ -153,6 +164,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     clearCategoryIfInvalid();
     syncCategoryLink();
     syncDebtUi();
+    syncRelatedPartyUi();
   };
 
   document.getElementById("f-file-trigger").onclick = function () {
@@ -164,9 +176,16 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("f-file-name").textContent = f ? f.name : "";
   };
 
+  walletSelect.onchange = function () {
+    syncWalletCurrencyPill();
+    syncCategoryLink();
+  };
+  amountInput.oninput = formatAmountInput;
+
   fillWallets();
   syncCategoryLink();
   syncDebtUi();
+  syncRelatedPartyUi();
   applyStoredCategory();
 
   document.getElementById("f-save").onclick = async function () {
@@ -186,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (currency === "IDR") {
       amount = Number(String(raw).replace(/\D/g, ""));
     } else {
-      var n = parseFloat(String(raw).replace(/,/g, "."));
+      var n = parseFloat(String(raw).replace(/,/g, ""));
       amount = Number.isFinite(n) ? Math.round(n * 100) : 0;
     }
 
@@ -220,18 +239,28 @@ document.addEventListener("DOMContentLoaded", async function () {
       imageUrl = ud.url;
     }
 
+    var finalTitle = title;
+    if (kind === "debt" && counterparty) {
+      var selectedCat = categories.find(function (c) { return c.id === catId; });
+      var ds = selectedCat && selectedCat.debtSubtype;
+      var suffix = (ds === "REPAYMENT") ? " ke " : " dari ";
+      finalTitle = title + suffix + counterparty;
+    } else if (kind !== "debt" && relatedParty) {
+      finalTitle = title + " dengan " + relatedParty;
+    }
+
     try {
       await MonifyApi.fetchJson("/api/transactions", {
         method: "POST",
         body: JSON.stringify({
-          title: title,
+          title: finalTitle,
           amount: amount,
           categoryId: catId,
           walletId: walletId,
           currency: currency,
           date: date,
           counterparty: kind === "debt" ? counterparty : null,
-          relatedParty: relatedParty || null,
+          relatedParty: kind !== "debt" ? (relatedParty || null) : null,
           imageUrl: imageUrl,
           status: status,
         }),

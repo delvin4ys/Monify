@@ -43,7 +43,7 @@
                 <button type="button" class="ccy-dropdown__btn" id="ccy-btn" aria-expanded="false" aria-haspopup="listbox">
                   <span class="ccy-dropdown__flag" id="ccy-flag">🇮🇩</span>
                   <span class="ccy-dropdown__label" id="ccy-label">Indonesia</span>
-                  <span class="ccy-dropdown__code" id="ccy-code">IDR</span>
+                  <span class="ccy-dropdown__code" id="ccy-code" style="display:none">IDR</span>
                   <span class="ccy-dropdown__caret" aria-hidden="true">▾</span>
                 </button>
                 <ul class="ccy-dropdown__menu" id="ccy-menu" role="listbox" hidden>
@@ -68,8 +68,8 @@
 
             <label class="text-sm text-muted mt-4" style="display: block">Status</label>
             <select class="input mt-1" id="f-status">
-              <option value="success">Berhasil (mempengaruhi saldo)</option>
-              <option value="pending">Tertunda / rencana (belum mempengaruhi saldo)</option>
+              <option value="success">Berhasil (transaksi sudah menarik/mengubah saldo)</option>
+              <option value="pending">Pending (transaksi belum menarik uang secara sempurna)</option>
             </select>
 
             <label class="text-sm text-muted mt-4" style="display: block">Kategori</label>
@@ -84,7 +84,10 @@
             <div id="debt-extra" style="display: none">
               <label class="text-sm text-muted mt-4" style="display: block">Pihak (peminjam / pemberi pinjaman)</label>
               <input class="input mt-1" type="text" id="f-counterparty" />
-              <label class="text-sm text-muted mt-4" style="display: block">Terkait (opsional)</label>
+            </div>
+
+            <div id="related-party-extra">
+              <label class="text-sm text-muted mt-4" style="display: block">Pihak berkaitan (opsional)</label>
               <input class="input mt-1" type="text" id="f-related" />
             </div>
 

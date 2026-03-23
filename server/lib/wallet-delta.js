@@ -10,14 +10,14 @@ function getWalletDelta(category, amount) {
   if (t === "debt") {
     const ds = category.debtSubtype || "DEBT";
     switch (ds) {
-      case "LOAN":
-        return amount;
-      case "REPAYMENT":
-        return -amount;
-      case "DEBT_COLLECTION":
-        return amount;
       case "DEBT":
-        return -amount;
+        return amount;           // User meminjam uang → uang masuk
+      case "LOAN":
+        return -amount;          // User meminjamkan uang → uang keluar
+      case "REPAYMENT":
+        return -amount;          // User bayar hutang → uang keluar
+      case "DEBT_COLLECTION":
+        return amount;           // Pihak peminjam bayar balik → uang masuk
       default:
         return -amount;
     }

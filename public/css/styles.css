@@ -285,6 +285,7 @@ table.data td {
   gap: 4px;
   height: 200px;
   padding: 0.5rem 0;
+  position: relative;
 }
 .chart-bars__col {
   flex: 1;
@@ -300,16 +301,73 @@ table.data td {
   width: 100%;
   max-width: 36px;
   border-radius: 6px 6px 0 0;
-  background: #a7f3d0;
+  background: linear-gradient(180deg, #34d399 0%, #a7f3d0 100%);
   min-height: 4px;
   transition: background 0.2s;
 }
 .chart-bars__bar.is-hi {
-  background: var(--brand);
+  background: linear-gradient(180deg, var(--brand) 0%, #a7f3d0 100%);
 }
 .chart-bars__label {
   font-size: 0.65rem;
   color: var(--muted);
+}
+
+.kpi-eye-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.kpi-eye-btn:hover {
+  background: #f0fdf4;
+  border-color: #6ee7b7;
+  color: #0f766e;
+}
+[data-theme="dark"] .kpi-eye-btn:hover {
+  background: #0b2a22;
+  border-color: #064e3b;
+  color: #6ee7b7;
+}
+
+.kpi-balance-masked {
+  letter-spacing: 0.12em;
+}
+
+.chart-bars__tip {
+  position: absolute;
+  z-index: 10;
+  padding: 0.35rem 0.55rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.96);
+  color: #ffffff;
+  font-size: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+  transform: translate(-50%, -8px);
+  opacity: 0;
+  transition: opacity 0.08s ease-in-out;
+  pointer-events: none;
+}
+.chart-bars__tip.is-open {
+  opacity: 1;
+}
+.chart-bars__tip-month {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.7rem;
+  margin-bottom: 0.15rem;
+  text-align: center;
+}
+.chart-bars__tip-value {
+  font-weight: 700;
+  text-align: center;
 }
 
 .modal-overlay {
@@ -494,10 +552,45 @@ table.data td {
   border-color: #6ee7b7;
   background: linear-gradient(135deg, #ecfdf5, #fff);
 }
+
+/* Total IDR: besarkan isi (label + nilai) */
+.balance-pill--total span {
+  font-size: 0.75rem;
+}
+.balance-pill--total strong {
+  font-size: 1.05rem;
+}
 .tx-date-row td {
-  background: #f8fafc;
+  background: #eef2ff;
   border-bottom: none;
   padding-top: 1rem;
+}
+.tx-date-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.tx-date-total {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.tx-date-total.is-up {
+  background: #dcfce7;
+  color: #166534;
+}
+.tx-date-total.is-down {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.tx-date-total.is-mix {
+  background: #e2e8f0;
+  color: #334155;
 }
 .tx-thumb {
   max-width: 120px;
@@ -533,6 +626,27 @@ table.data td {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+.tx-cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid #86efac;
+  background: #f0fdf4;
+  color: #14532d;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.tx-cat-pill__icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+.tx-cat-pill.is-empty {
+  border-color: var(--border);
+  background: #f8fafc;
+  color: var(--muted);
 }
 
 /* Budget ring chart sederhana */
@@ -633,15 +747,286 @@ table.data td {
 
 .tx-actions .tx-del {
   border: none;
-  background: none;
-  padding: 0;
+  background: transparent;
   cursor: pointer;
-  color: var(--danger);
-  font: inherit;
-  text-decoration: underline;
 }
-.tx-actions .tx-del:hover {
-  opacity: 0.85;
+.tx-actions {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+.tx-line {
+  min-width: 0;
+}
+
+/* Transactions list: layout mengikuti sketsa (ikon kategori + wallet di kiri, teks vertikal di kanan). */
+.tx-activity {
+  display: flex;
+  align-items: center;
+  gap: 3.5rem;
+  min-width: 0;
+}
+.tx-activity-icons {
+  --tx-cat-size: 40px;
+  /* Target: wallet lebih kecil dan bertabrakan (overlap) di tenggara kategori. */
+  --tx-overlap: calc(var(--tx-cat-size) * 0.3);
+  --tx-wallet-size: calc(var(--tx-cat-size) * 0.55);
+  position: relative;
+  width: var(--tx-cat-size);
+  height: calc(var(--tx-cat-size) + (var(--tx-wallet-size) - var(--tx-overlap)));
+  flex-shrink: 0;
+  overflow: visible;
+}
+.tx-iconbox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.tx-iconbox--cat {
+  width: var(--tx-cat-size);
+  height: var(--tx-cat-size);
+  border-radius: 16px;
+  z-index: 1;
+  background: #ecfdf5;
+  border-color: rgba(6, 95, 70, 0.25);
+  color: #047857;
+  font-size: 1rem;
+}
+.tx-iconbox--wallet {
+  width: var(--tx-wallet-size);
+  height: var(--tx-wallet-size);
+  border-radius: 14px;
+  top: calc(var(--tx-cat-size) - var(--tx-overlap));
+  left: calc(var(--tx-cat-size) - var(--tx-overlap));
+  z-index: 2; /* wallet menimpa kategori */
+  background: #ffffff;
+  color: var(--text);
+  font-size: 0.9rem;
+  border-color: rgba(148, 163, 184, 0.75);
+}
+.tx-iconbox--type {
+  background: #e0f2fe;
+  border-color: rgba(14, 116, 144, 0.25);
+  color: #0e7490;
+  font-size: 0.85rem;
+}
+.tx-wallet-logo-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: block;
+}
+.tx-activity-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start; /* sejajarkan title dan icon lampiran */
+  width: 100%;
+}
+.tx-activity-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+/* Ikon lampiran (tanpa teks) sejajar bawah judul, rata kiri terhadap lebar kolom Aktivitas. */
+.tx-activity-row--note {
+  width: 100%;
+  justify-content: flex-start;
+}
+.tx-activity-row--attach {
+  width: 100%;
+  justify-content: flex-start;
+}
+.tx-activity-catname {
+  font-weight: 650;
+  font-size: 0.9rem;
+}
+.tx-activity-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.25;
+  text-align: left;
+}
+.tx-activity-typelabel {
+  font-weight: 650;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.tx-activity-walletname {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.tx-activity-attach-text {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Kolom baru: Kategori dan Wallet */
+.tx-kategori-col {
+  min-width: 10rem;
+}
+.tx-kategori-name {
+  font-weight: 650;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.tx-kategori-type {
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.tx-wallet-col {
+  min-width: 8rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Grid "Jenis transaksi" dan "Wallet" */
+.tx-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+.tx-meta-cell {
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 12px;
+  padding: 0.35rem 0.55rem;
+  min-width: 0;
+}
+.tx-meta-header {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+.tx-meta-value {
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tx-wallet-logo-img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  display: block;
+}
+.tx-wallet-logo-emoji {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.tx-wallet-logo-emoji--empty {
+  opacity: 0.45;
+}
+.tx-meta-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+.tx-meta-icon--cat {
+  background: #ecfdf5;
+  border-color: rgba(6, 95, 70, 0.25);
+  color: #047857;
+  font-size: 0.8rem;
+}
+.tx-meta-icon--wallet {
+  background: #f8fafc;
+  color: var(--text);
+}
+.tx-meta-icon--type {
+  background: #e0f2fe;
+  border-color: rgba(14, 116, 144, 0.25);
+  color: #0e7490;
+}
+.tx-attach-ind {
+  background: #ffffff;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.tx-attach-ind svg {
+  width: 10px;
+  height: 10px;
+}
+.tx-text {
+  min-width: 0;
+}
+.tx-title {
+  font-weight: 650;
+  font-size: 0.9rem;
+}
+.tx-subline {
+  margin-top: 0.15rem;
+}
+.tx-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+.tx-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.tx-meta-text {
+  line-height: 1.25;
+}
+.tx-meta-spacer {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.tx-meta-type {
+  font-weight: 600;
+}
+.tx-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #334155;
+  text-decoration: none;
+}
+.tx-icon-btn svg {
+  width: 15px;
+  height: 15px;
+}
+.tx-icon-btn--edit:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+.tx-icon-btn--delete:hover {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 /* Saldo & nominal — penekanan konsisten */
@@ -957,6 +1342,86 @@ table.data td {
   background: #064e3b;
   color: #a7f3d0;
 }
+[data-theme="dark"] .tx-date-row td {
+  background: #1e293b;
+}
+[data-theme="dark"] .tx-date-total.is-up {
+  background: #14532d;
+  color: #bbf7d0;
+}
+[data-theme="dark"] .tx-date-total.is-down {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+[data-theme="dark"] .tx-date-total.is-mix {
+  background: #334155;
+  color: #cbd5e1;
+}
+[data-theme="dark"] .tx-cat-pill {
+  border-color: #166534;
+  background: #052e16;
+  color: #bbf7d0;
+}
+[data-theme="dark"] .tx-cat-pill.is-empty {
+  border-color: #334155;
+  background: #0f172a;
+  color: #94a3b8;
+}
+[data-theme="dark"] .tx-icon-btn {
+  background: #0f172a;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+[data-theme="dark"] .tx-icon-btn--edit:hover {
+  background: #172554;
+  border-color: #1d4ed8;
+  color: #93c5fd;
+}
+[data-theme="dark"] .tx-icon-btn--delete:hover {
+  background: #450a0a;
+  border-color: #b91c1c;
+  color: #fecaca;
+}
+[data-theme="dark"] .tx-meta-icon {
+  background: #0f172a;
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .tx-meta-icon--cat {
+  background: #052e16;
+  border-color: #166534;
+  color: #bbf7d0;
+}
+
+[data-theme="dark"] .tx-iconbox {
+  background: #0f172a;
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .tx-iconbox--cat {
+  background: #052e16;
+  border-color: #166534;
+  color: #bbf7d0;
+}
+[data-theme="dark"] .tx-iconbox--wallet {
+  background: #0f172a;
+  color: #cbd5e1;
+}
+[data-theme="dark"] .tx-iconbox--type {
+  background: #0b2a3f;
+  border-color: rgba(14, 116, 144, 0.6);
+  color: #67e8f9;
+}
+
+[data-theme="dark"] .tx-meta-cell {
+  background: #0f172a;
+  border-color: var(--border);
+}
+[data-theme="dark"] .tx-attach-ind {
+  background: #0f172a;
+  border-color: var(--border);
+  color: var(--muted);
+}
 [data-theme="dark"] .alert--error {
   background: #450a0a;
   color: #fecaca;
@@ -1062,6 +1527,21 @@ table.data td {
   color: var(--muted);
   margin-left: 0.15rem;
 }
+
+.ccy-dropdown__flag {
+  font-size: 1.15rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+}
+
+.ccy-dropdown__flag svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 .ccy-dropdown__menu {
   position: absolute;
   top: calc(100% + 4px);
@@ -1102,6 +1582,21 @@ table.data td {
   font-weight: 700;
   font-size: 0.85rem;
   color: #64748b;
+}
+
+/* Variation: tampilkan hanya bendera (untuk dropdown di halaman Dompet). */
+.ccy-dropdown--flags-only .ccy-dropdown__code,
+.ccy-dropdown--flags-only .ccy-dropdown__code-inline {
+  display: none;
+}
+
+/* Flag-only: beri background kontras pada area tombol dropdown (bukan pada gambar flag/SVG). */
+.ccy-dropdown--flags-only .ccy-dropdown__btn {
+  background: #e5e7eb; /* lebih abu daripada putih */
+}
+
+[data-theme="dark"] .ccy-dropdown--flags-only .ccy-dropdown__btn {
+  background: #1f2937; /* dark gray */
 }
 .ccy-field__amount {
   border: none !important;
@@ -1214,4 +1709,68 @@ table.data td {
   margin-left: 0.5rem;
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+/* Debt tracking: remaining balance */
+.tx-remaining {
+  color: #b45309;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 0.1rem 0.45rem;
+  display: inline-block;
+}
+.tx-remaining--done {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+/* Paid-off row */
+.tx-row--paid-off > td {
+  opacity: 0.45;
+}
+.tx-row--paid-off .tx-icon-btn,
+.tx-row--paid-off .tx-del {
+  opacity: 1;
+}
+
+/* Update (payment) button */
+.tx-icon-btn--update:hover {
+  border-color: #fbbf24;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+/* Payment modal */
+.payment-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10100;
+  padding: 1rem;
+}
+.payment-overlay.is-open {
+  display: flex;
+}
+.payment-modal {
+  background: var(--card);
+  border-radius: 16px;
+  max-width: 400px;
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+.payment-modal h3 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+}
+.payment-modal .input {
+  width: 100%;
+  box-sizing: border-box;
 }

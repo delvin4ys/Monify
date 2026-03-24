@@ -26,8 +26,12 @@ const publicDir = path.join(__dirname, "..", "public");
 const storageUploadDir = path.join(__dirname, "..", "storage", "uploads");
 const PORT = Number(process.env.PORT) || 3000;
 
-if (!fs.existsSync(storageUploadDir)) {
-  fs.mkdirSync(storageUploadDir, { recursive: true });
+try {
+  if (!fs.existsSync(storageUploadDir)) {
+    fs.mkdirSync(storageUploadDir, { recursive: true });
+  }
+} catch (e) {
+  console.warn("Gagal membuat folder storage (mungkin read-only):", e.message);
 }
 
 const upload = multer({
@@ -1174,6 +1178,8 @@ app.use((err, req, res, next) => {
 const server = app.listen(PORT, () => {
   console.log(`Monify: http://localhost:${PORT}`);
 });
+
+module.exports = app;
 
 function shutdown(signal) {
   console.log(signal + ": shutting down…");

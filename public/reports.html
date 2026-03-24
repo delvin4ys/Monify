@@ -66,10 +66,28 @@
 
           <div class="card mt-4">
             <div class="flex-between">
-              <strong>Tren pemasukan (12 bulan)</strong>
-              <span class="text-muted text-sm">Estimasi dari arus masuk dompet (mata uang utama)</span>
+              <strong>Ringkasan Arus Kas (12 bulan terakhir)</strong>
+              <span class="text-muted text-sm">Estimasi pergerakan arus kas (mata uang utama)</span>
             </div>
             <div class="chart-bars mt-4" id="chart-bars"></div>
+            
+            <div class="mt-4" style="display: flex; justify-content: space-around; align-items: flex-start; border-top: 1px solid var(--border); padding-top: 1rem; text-align: center;">
+              <div style="flex: 1; padding: 0 0.5rem;">
+                <p class="text-muted text-sm mb-0">Rata-rata Pemasukan</p>
+                <div class="report-kpi-val mt-1" id="chart-avg-inc" style="font-size:1.1rem; color:#059669; font-weight:600">—</div>
+                <p class="text-muted mt-1" style="font-size:0.75rem;">per bulan</p>
+              </div>
+              <div style="flex: 1; padding: 0 0.5rem; border-left: 1px solid var(--border); border-right: 1px solid var(--border);">
+                <p class="text-muted text-sm mb-0">Rata-rata Pengeluaran</p>
+                <div class="report-kpi-val mt-1" id="chart-avg-exp" style="font-size:1.1rem; color:#dc2626; font-weight:600">—</div>
+                <p class="text-muted mt-1" style="font-size:0.75rem;">per bulan</p>
+              </div>
+              <div style="flex: 1; padding: 0 0.5rem;">
+                <p class="text-muted text-sm mb-0">Pengeluaran Tertinggi</p>
+                <div class="report-kpi-val mt-1" id="chart-max-exp" style="font-size:1.1rem; font-weight:700">—</div>
+                <p class="text-muted mt-1" id="chart-max-exp-mo" style="font-size:0.75rem;">—</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

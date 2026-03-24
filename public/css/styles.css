@@ -289,6 +289,7 @@ table.data th {
 table.data td {
   padding: 0.75rem 1rem;
   border-top: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 
 .badge {
@@ -327,19 +328,46 @@ table.data td {
   gap: 4px;
   min-width: 0;
   height: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.chart-bars__col:hover .chart-bars__wrap {
+  opacity: 0.8;
+}
+
+.chart-bars__wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
 }
 
 .chart-bars__bar {
+  flex: 1;
   width: 100%;
-  max-width: 36px;
-  border-radius: 6px 6px 0 0;
-  background: linear-gradient(180deg, #34d399 0%, #a7f3d0 100%);
+  max-width: 16px;
+  border-radius: 4px 4px 0 0;
   min-height: 4px;
-  transition: background 0.2s;
+  transition: background 0.2s, opacity 0.2s;
 }
 
-.chart-bars__bar.is-hi {
+.chart-bars__bar--inc {
+  background: linear-gradient(180deg, #34d399 0%, #a7f3d0 100%);
+}
+
+.chart-bars__col.is-hi .chart-bars__bar--inc {
   background: linear-gradient(180deg, var(--brand) 0%, #a7f3d0 100%);
+}
+
+.chart-bars__bar--exp {
+  background: linear-gradient(180deg, #f87171 0%, #fecaca 100%);
+}
+
+.chart-bars__col.is-hi .chart-bars__bar--exp {
+  background: linear-gradient(180deg, var(--danger) 0%, #fecaca 100%);
 }
 
 .chart-bars__label {
@@ -522,8 +550,39 @@ table.data td {
 .flex-between {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
   gap: 0.5rem;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--brand);
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-back:hover {
+  background: #047857;
+  text-decoration: none;
+  color: white;
+}
+
+.btn-back svg {
+  width: 18px;
+  height: 18px;
+  stroke: white;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .btn-wallet-edit,
@@ -933,9 +992,15 @@ table.data td {
 }
 
 .tx-actions {
-  display: flex;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tx-actions-inner {
+  display: inline-flex;
   gap: 0.45rem;
   align-items: center;
+  justify-content: center;
 }
 
 .tx-line {
@@ -2173,3 +2238,115 @@ table.data td {
 [data-theme="dark"] .cat-pick-card--child {
   background: var(--card);
 }
+
+/* Category Tree View (Dotted Connectors) */
+.cat-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cat-tree-node {
+  display: flex;
+  flex-direction: column;
+}
+
+.cat-tree-parent {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.cat-tree-parent:hover {
+  background: rgba(0,0,0,0.02);
+}
+
+.cat-tree-parent-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-light);
+  border-radius: 50%;
+  font-size: 1.4rem;
+  z-index: 2;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.cat-tree-parent-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.cat-tree-children {
+  margin-left: 21px; /* Center of 44px icon is 22px. -1px for line width */
+  border-left: 1.5px dotted #cbd5e1;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.cat-tree-child {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0 0.65rem 1.75rem;
+  position: relative;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.2s;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.cat-tree-child:hover {
+  background: rgba(5, 150, 105, 0.05);
+}
+
+.cat-tree-child:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1.75rem;
+  border-top: 1.5px dotted #cbd5e1;
+}
+
+.cat-tree-child-icon {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 1.1rem;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.cat-tree-child-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+/* Specific colors for icons based on index to match the "colorful" aesthetic in the image */
+.cat-tree-child:nth-child(7n+1) .cat-tree-child-icon { background-color: #fef9c3; color: #854d0e; }
+.cat-tree-child:nth-child(7n+2) .cat-tree-child-icon { background-color: #dcfce7; color: #166534; }
+.cat-tree-child:nth-child(7n+3) .cat-tree-child-icon { background-color: #ccfbf1; color: #115e59; }
+.cat-tree-child:nth-child(7n+4) .cat-tree-child-icon { background-color: #ffedd5; color: #9a3412; }
+.cat-tree-child:nth-child(7n+5) .cat-tree-child-icon { background-color: #dbeafe; color: #1e40af; }
+.cat-tree-child:nth-child(7n+6) .cat-tree-child-icon { background-color: #e0e7ff; color: #3730a3; }
+.cat-tree-child:nth-child(7n+7) .cat-tree-child-icon { background-color: #f1f5f9; color: #475569; }

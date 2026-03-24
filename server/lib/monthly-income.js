@@ -28,15 +28,18 @@ async function getMonthlyIncomeSeries(userId, currency = "IDR") {
       include: { category: true },
     });
 
-    let amount = 0;
+    let income = 0;
+    let expense = 0;
     for (const t of txs) {
       const delta = getWalletDelta(t.category, t.amount);
-      if (delta > 0) amount += delta;
+      if (delta > 0) income += delta;
+      else if (delta < 0) expense += Math.abs(delta);
     }
 
     points.push({
       month: MONTH_LABELS[m],
-      amount,
+      amount: income,
+      expense,
     });
   }
 

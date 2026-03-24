@@ -83,8 +83,12 @@
         <option value="CATEGORY">Kategori</option>
         <option value="PARENT">Induk kategori</option>
       </select>
-      <label class="text-sm text-muted mt-3" style="display: block">Pilih</label>
-      <select class="input mt-1" id="b-target-id"></select>
+      <label class="text-sm text-muted mt-3" style="display: block">Pilih Target</label>
+      <button type="button" class="input mt-1" id="btn-select-target" style="text-align: left; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+        <span id="target-display">Pilih kategori atau induk...</span>
+        <span style="font-size: 0.8rem; opacity: 0.5;">➔</span>
+      </button>
+      <input type="hidden" id="b-target-id" />
       <label class="text-sm text-muted mt-3" style="display: block">Periode</label>
       <select class="input mt-1" id="b-period-mode">
         <option value="" disabled selected>— Pilih periode —</option>

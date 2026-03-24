@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   var kind = params.get("kind") || "expense";
   if (kind !== "income" && kind !== "debt") kind = "expense";
   var currency = params.get("currency") === "USD" ? "USD" : "IDR";
+  var allowParent = params.get("allowParent") === "true";
   var ret = params.get("return") || "/transactions/new";
 
   document.getElementById("cat-back").href = ret;
@@ -44,60 +45,57 @@ document.addEventListener("DOMContentLoaded", async function () {
     return ic;
   }
 
-  function cardHtml(c, isChild) {
-    var cls = "cat-pick-card" + (isChild ? " cat-pick-card--child" : "");
-    return (
-      '<button type="button" class="' +
-      cls +
-      '" data-id="' +
-      c.id +
-      '" data-name="' +
-      c.name.replace(/"/g, "&quot;") +
-      '">' +
-      '<span class="cat-pick-card__icon">' +
-      iconOrFallback(c.icon) +
-      "</span>" +
-      '<span class="cat-pick-card__name">' +
-      c.name +
-      "</span></button>"
-    );
-  }
-
-  var html = "";
+  var html = '<div class="cat-tree">';
   parentsForKind.forEach(function (p) {
-    var children = byParent[p.id];
-    if (!children || !children.length) return;
-    html += '<div class="cat-group">';
-    html +=
-      '<div class="cat-group__parent"><span class="cat-group__parent-label">' +
-      (p.isSystem ? "Preset" : "Induk") +
-      '</span><span class="cat-group__parent-name">' +
-      p.name +
-      "</span></div>";
-    html += '<div class="cat-group__children">';
-    children
-      .sort(function (a, b) {
-        return a.name.localeCompare(b.name);
-      })
-      .forEach(function (c) {
-        html += cardHtml(c, true);
-      });
-    html += "</div></div>";
+    var children = byParent[p.id] || [];
+    
+    html += '<div class="cat-tree-node">';
+    
+    // Parent Card
+    html += '<div class="cat-tree-parent" data-id="' + p.id + '" data-name="' + p.name.replace(/"/g, "&quot;") + '" data-type="PARENT">';
+    html += '  <div class="cat-tree-parent-icon">' + iconOrFallback(p.icon || "📂") + '</div>';
+    html += '  <div class="cat-tree-parent-name">' + p.name + '</div>';
+    html += '</div>';
+
+    // Children list
+    if (children.length > 0) {
+      html += '<div class="cat-tree-children">';
+      children
+        .sort(function (a, b) {
+          return a.name.localeCompare(b.name);
+        })
+        .forEach(function (c) {
+          html += '<button type="button" class="cat-tree-child" data-id="' + c.id + '" data-name="' + c.name.replace(/"/g, "&quot;") + '" data-type="CATEGORY">';
+          html += '  <div class="cat-tree-child-icon">' + iconOrFallback(c.icon) + '</div>';
+          html += '  <div class="cat-tree-child-name">' + c.name + '</div>';
+          html += '</button>';
+        });
+      html += '</div>';
+    }
+    
+    html += '</div>';
   });
 
   var orphans = byParent["_none"] || [];
   if (orphans.length) {
-    html += '<div class="cat-group">';
-    html +=
-      '<div class="cat-group__parent"><span class="cat-group__parent-label">Lainnya</span><span class="cat-group__parent-name">Tanpa induk</span></div>';
-    html += '<div class="cat-group__children">';
+    html += '<div class="cat-tree-node">';
+    html += '  <div class="cat-tree-parent">';
+    html += '    <div class="cat-tree-parent-icon">📦</div>';
+    html += '    <div class="cat-tree-parent-name">Tanpa induk</div>';
+    html += '  </div>';
+    html += '  <div class="cat-tree-children">';
     orphans.forEach(function (c) {
-      html += cardHtml(c, true);
+      html += '<button type="button" class="cat-tree-child" data-id="' + c.id + '" data-name="' + c.name.replace(/"/g, "&quot;") + '" data-type="CATEGORY">';
+      html += '  <div class="cat-tree-child-icon">' + iconOrFallback(c.icon) + '</div>';
+      html += '  <div class="cat-tree-child-name">' + c.name + '</div>';
+      html += '</button>';
     });
-    html += "</div></div>";
+    html += '  </div>';
+    html += '</div>';
   }
+  html += '</div>';
 
-  if (!html) {
+  if (parentsForKind.length === 0 && orphans.length === 0) {
     html =
       '<p class="text-muted">Belum ada kategori untuk jenis ini. Buat di <a href="/settings">Pengaturan</a>.</p>';
   }
@@ -105,14 +103,29 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("cat-tree").innerHTML = html;
 
   document.getElementById("cat-tree").onclick = function (e) {
-    var b = e.target.closest(".cat-pick-card");
-    if (!b) return;
-    var id = b.getAttribute("data-id");
-    var name = b.getAttribute("data-name");
-    sessionStorage.setItem(
-      "monifyTxCategory",
-      JSON.stringify({ id: id, name: name, type: kind })
-    );
-    window.location.href = ret;
+    var b = e.target.closest(".cat-tree-child");
+    if (b) {
+      var id = b.getAttribute("data-id");
+      var name = b.getAttribute("data-name");
+      sessionStorage.setItem(
+        "monifyTxCategory",
+        JSON.stringify({ id: id, name: name, type: kind, targetKind: "CATEGORY" })
+      );
+      window.location.href = ret;
+      return;
+    }
+
+    if (allowParent) {
+      var p = e.target.closest(".cat-tree-parent");
+      if (p && p.getAttribute("data-id")) {
+        var pid = p.getAttribute("data-id");
+        var pname = p.getAttribute("data-name");
+        sessionStorage.setItem(
+          "monifyTxCategory",
+          JSON.stringify({ id: pid, name: pname, type: kind, targetKind: "PARENT" })
+        );
+        window.location.href = ret;
+      }
+    }
   };
 });

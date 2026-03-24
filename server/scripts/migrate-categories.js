@@ -1,7 +1,6 @@
-const { prisma } = require("./prisma");
-const { ensureSystemParents, findSystemParentByName } = require("./system-parents");
+const { prisma } = require("../lib/prisma");
+const { ensureSystemParents, findSystemParentByName } = require("../lib/system-parents");
 
-/** Kategori awal: hanya Debt-related categories */
 const CATEGORY_TEMPLATE = [
   // Pengeluaran
   { name: "Listrik & Air", type: "expense", icon: "⚡", parentName: "Tagihan & Utilitas" },
@@ -42,25 +41,38 @@ const CATEGORY_TEMPLATE = [
   { name: "Pelunasan", type: "debt", debtSubtype: "REPAYMENT", icon: "💳", parentName: "Pelunasan" },
 ];
 
-async function createDefaultWalletsAndCategories(userId) {
+async function migrate() {
+  console.log("Starting category migration (FULL)...");
+  
   await ensureSystemParents();
+  const users = await prisma.user.findMany();
+  console.log(`Found ${users.length} users.`);
 
-  await prisma.$transaction(async (tx) => {
+  for (const user of users) {
+    console.log(`Migrating for user: ${user.email}`);
+    const existing = await prisma.category.findMany({ where: { userId: user.id } });
+    const existingNames = new Set(existing.map(c => c.name.toLowerCase()));
 
-    for (const c of CATEGORY_TEMPLATE) {
-      const parent = await findSystemParentByName(c.parentName, c.type === "debt" ? "debt" : c.type === "income" ? "income" : "expense");
-      await tx.category.create({
-        data: {
-          userId,
-          name: c.name,
-          type: c.type,
-          icon: c.icon,
-          debtSubtype: c.debtSubtype || null,
-          parentId: parent ? parent.id : null,
-        },
-      });
+    for (const t of CATEGORY_TEMPLATE) {
+      if (!existingNames.has(t.name.toLowerCase())) {
+        const parent = await findSystemParentByName(t.parentName, t.type === "debt" ? "debt" : t.type === "income" ? "income" : "expense");
+        if (parent) {
+          await prisma.category.create({
+            data: {
+              userId: user.id,
+              name: t.name,
+              type: t.type,
+              icon: t.icon,
+              debtSubtype: t.debtSubtype || null,
+              parentId: parent.id,
+            }
+          });
+          console.log(`  + Created: ${t.name}`);
+        }
+      }
     }
-  });
+  }
+  console.log("Migration finished.");
 }
 
-module.exports = { createDefaultWalletsAndCategories };
+migrate().catch(console.error).finally(() => prisma.$disconnect());

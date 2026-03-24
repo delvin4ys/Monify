@@ -35,31 +35,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   function fillTargetSelect() {
-    var kindEl = document.getElementById("b-target-kind");
-    var sel = document.getElementById("b-target-id");
-    if (!kindEl || !sel) return;
-    var kind = kindEl.value;
-    if (kind === "CATEGORY") {
-      if (!cats.length) {
-        sel.innerHTML = '<option value="">— Buat kategori pengeluaran dulu (Pengaturan → Kategori) —</option>';
-        return;
-      }
-      sel.innerHTML = cats
-        .map(function (c) {
-          return '<option value="' + c.id + '">' + c.name + (c.parentName ? " (" + c.parentName + ")" : "") + "</option>";
-        })
-        .join("");
-    } else {
-      if (!parents.length) {
-        sel.innerHTML = '<option value="">— Tidak ada induk pengeluaran —</option>';
-        return;
-      }
-      sel.innerHTML = parents
-        .map(function (p) {
-          return '<option value="' + p.id + '">' + p.name + (p.isSystem ? " (preset)" : "") + "</option>";
-        })
-        .join("");
-    }
+    // This is now replaced by the dynamic selection button
   }
 
   function syncPeriodMode() {
@@ -101,14 +77,19 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (editData) {
       if (kindEl) { kindEl.value = editData.targetKind || "CATEGORY"; kindEl.disabled = true; }
-      fillTargetSelect();
+      // Display target name
+      var display = document.getElementById("target-display");
+      if (display) display.textContent = editData.categoryName || "Target terpilih";
       if (targetIdEl) { targetIdEl.value = editData.targetId || ""; targetIdEl.disabled = true; }
       if (modeEl) { modeEl.value = editData.periodStart ? "custom" : "monthly"; modeEl.disabled = true; }
+      var btnSelect = document.getElementById("btn-select-target");
+      if (btnSelect) btnSelect.disabled = true;
     } else {
       if (kindEl) { kindEl.disabled = false; }
       if (targetIdEl) { targetIdEl.disabled = false; }
       if (modeEl) { modeEl.value = ""; modeEl.disabled = false; }
-      fillTargetSelect();
+      var btnSelect = document.getElementById("btn-select-target");
+      if (btnSelect) btnSelect.disabled = false;
     }
 
     var d0 = new Date();
@@ -337,7 +318,26 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   var bTargetKind = document.getElementById("b-target-kind");
   if (bTargetKind) {
-    bTargetKind.addEventListener("change", fillTargetSelect);
+    bTargetKind.addEventListener("change", function() {
+      // Clear selection when kind changes
+      document.getElementById("target-display").textContent = "Pilih kategori atau induk...";
+      document.getElementById("b-target-id").value = "";
+    });
+  }
+
+  var btnSelect = document.getElementById("btn-select-target");
+  if (btnSelect) {
+    btnSelect.onclick = function() {
+      var state = {
+        kind: document.getElementById("b-target-kind").value,
+        limit: document.getElementById("b-limit").value,
+        period: document.getElementById("b-period-mode").value,
+        start: document.getElementById("b-p-start").value,
+        end: document.getElementById("b-p-end").value
+      };
+      sessionStorage.setItem("monifyBudgetFormState", JSON.stringify(state));
+      window.location.href = "/transactions/category?kind=expense&allowParent=true&return=/budgets";
+    };
   }
 
   var bPeriodMode = document.getElementById("b-period-mode");
@@ -418,6 +418,30 @@ document.addEventListener("DOMContentLoaded", async function () {
   try {
     await loadMeta();
     await refresh();
+
+    // Re-open modal if returning from category selection
+    var catSel = sessionStorage.getItem("monifyTxCategory");
+    var formState = sessionStorage.getItem("monifyBudgetFormState");
+    if (catSel && formState) {
+      var sel = JSON.parse(catSel);
+      var fs = JSON.parse(formState);
+      sessionStorage.removeItem("monifyTxCategory");
+      sessionStorage.removeItem("monifyBudgetFormState");
+
+      // Small delay to ensure modal logic initializes
+      setTimeout(function() {
+        openModal();
+        document.getElementById("b-target-kind").value = fs.kind;
+        document.getElementById("b-limit").value = fs.limit;
+        document.getElementById("b-period-mode").value = fs.period;
+        document.getElementById("b-p-start").value = fs.start;
+        document.getElementById("b-p-end").value = fs.end;
+        
+        document.getElementById("b-target-id").value = sel.id;
+        document.getElementById("target-display").textContent = sel.name;
+        syncPeriodMode();
+      }, 100);
+    }
   } catch (e) {
     console.error(e);
     var list = document.getElementById("budget-list");

@@ -346,7 +346,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 '">' +
                 (t.status === "success" ? "Berhasil" : "Pending") +
                 "</span></td>" +
-                '<td class="tx-actions">' +
+                '<td class="tx-actions"><div class="tx-actions-inner">' +
                 updateBtnHtml +
                 '<a href="/transactions/edit?id=' +
                 t.id +
@@ -357,7 +357,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 t.id +
                 '" title="Hapus transaksi" aria-label="Hapus transaksi">' +
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>' +
-                "</button></td></tr>"
+                "</button></div></td></tr>"
               );
             })
             .join("");

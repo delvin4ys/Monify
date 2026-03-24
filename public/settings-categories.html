@@ -18,7 +18,9 @@
       </aside>
       <div class="main">
         <header class="topbar flex-between">
-          <a href="/settings" class="text-sm">← Pengaturan</a>
+          <a href="/settings" class="btn-back" title="Kembali ke Pengaturan">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </a>
         </header>
         <div class="page" style="max-width: 36rem">
           <h1 style="margin: 0; font-size: 1.35rem">Kategori &amp; induk</h1>
@@ -35,12 +37,9 @@
               <input class="input" id="np-name" placeholder="Nama induk" style="flex: 2; min-width: 10rem" />
               <button type="button" class="btn btn--primary" id="np-add">Tambah</button>
             </div>
-            <ul id="parent-list" class="mt-3 text-sm" style="padding-left: 1.1rem"></ul>
-          </div>
-
           <div class="card mt-4">
-            <strong>Kategori transaksi</strong>
-            <p class="text-muted text-sm mt-1">Pilih induk, jenis, ikon (emoji/kata), dan subtipe jika hutang.</p>
+            <strong>Tambah Kategori</strong>
+            <p class="text-muted text-sm mt-1">Pilih induk, jenis, ikon, dan subtipe jika hutang.</p>
             <label class="text-sm text-muted mt-3" style="display: block">Jenis</label>
             <select class="input mt-1" id="nc-type">
               <option value="expense">Pengeluaran</option>
@@ -64,7 +63,14 @@
             </div>
             <button type="button" class="btn btn--primary mt-4" id="nc-add">Simpan kategori</button>
             <div id="nc-err" class="alert alert--error mt-3" style="display: none"></div>
-            <div id="cat-list" class="mt-4 text-sm"></div>
+          </div>
+
+          <div class="card mt-4">
+            <strong>Daftar Kategori & Induk</strong>
+            <p class="text-muted text-sm mt-1">Hierarki kategori Anda. Klik ikon silang (×) untuk menghapus.</p>
+            <div id="cat-tree-container" class="mt-4">
+               <p class="text-muted">Memuat...</p>
+            </div>
           </div>
         </div>
       </div>

@@ -78,27 +78,102 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   var inc = await MonifyApi.fetchJson("/api/monthly-income?currency=" + encodeURIComponent(ccy));
   var data = inc.data || [];
-  var max = Math.max.apply(
-    null,
-    data.map(function (d) {
-      return d.amount;
-    })
-  );
-  if (max < 1) max = 1;
+  var max = 1;
+  var totInc = 0;
+  var totExp = 0;
+  var maxExpVal = 0;
+  var maxExpMo = "—";
+  data.forEach(function(d) {
+    if (d.amount > max) max = d.amount;
+    if (d.expense > max) max = d.expense;
+    totInc += d.amount || 0;
+    totExp += d.expense || 0;
+    if ((d.expense || 0) > maxExpVal) {
+      maxExpVal = d.expense || 0;
+      maxExpMo = d.month;
+    }
+  });
+
+  var avgInc = totInc / 12;
+  var avgExp = totExp / 12;
+  document.getElementById("chart-avg-inc").innerHTML = isUsd ? formatUSDHtml(avgInc) : formatIDRHtml(avgInc);
+  document.getElementById("chart-avg-exp").innerHTML = isUsd ? formatUSDHtml(avgExp) : formatIDRHtml(avgExp);
+  
+  document.getElementById("chart-max-exp").innerHTML = isUsd ? formatUSDHtml(maxExpVal) : formatIDRHtml(maxExpVal);
+  document.getElementById("chart-max-exp-mo").textContent = "pada bulan " + maxExpMo;
+
   var chartH = 180;
   var chartEl = document.getElementById("chart-bars");
   chartEl.innerHTML = "";
+  
+  var tipEl = document.createElement("div");
+  tipEl.className = "chart-bars__tip";
+  chartEl.appendChild(tipEl);
+
+  function showTip(d, colEl) {
+    var rect = colEl.getBoundingClientRect();
+    var cref = chartEl.getBoundingClientRect();
+    var left = rect.left - cref.left + rect.width / 2;
+    var top = rect.top - cref.top;
+    
+    var tot = d.amount + d.expense;
+    var pctInc = tot > 0 ? Math.round((d.amount / tot) * 100) : 0;
+    var pctExp = tot > 0 ? Math.round((d.expense / tot) * 100) : 0;
+    
+    var incHTML = isUsd ? formatUSDHtml(d.amount) : formatIDRHtml(d.amount);
+    var expHTML = isUsd ? formatUSDHtml(d.expense) : formatIDRHtml(d.expense);
+
+    tipEl.innerHTML = 
+      '<div class="chart-bars__tip-month">' + d.month + '</div>' +
+      '<div style="display:flex; gap:16px; align-items:flex-end;">' +
+        '<div style="text-align:center;">' +
+          '<div style="color:#a7f3d0; font-size:0.7rem; margin-bottom:2px;">Pemasukan (' + pctInc + '%)</div>' +
+          '<div>' + incHTML + '</div>' +
+        '</div>' +
+        '<div style="text-align:center;">' +
+          '<div style="color:#fecaca; font-size:0.7rem; margin-bottom:2px;">Pengeluaran (' + pctExp + '%)</div>' +
+          '<div>' + expHTML + '</div>' +
+        '</div>' +
+      '</div>';
+      
+    tipEl.style.left = left + "px";
+    tipEl.style.top = (top - 10) + "px";
+    tipEl.classList.add("is-open");
+  }
+
+  function hideTip() {
+    tipEl.classList.remove("is-open");
+  }
+
   data.forEach(function (d, i) {
+    var isHi = i === data.length - 1 ? " is-hi" : "";
     var col = document.createElement("div");
-    col.className = "chart-bars__col";
-    var bar = document.createElement("div");
-    bar.className = "chart-bars__bar" + (i === data.length - 1 ? " is-hi" : "");
-    bar.style.height = Math.max(4, (d.amount / max) * chartH) + "px";
+    col.className = "chart-bars__col" + isHi;
+    
+    var wrap = document.createElement("div");
+    wrap.className = "chart-bars__wrap";
+    
+    var expBar = document.createElement("div");
+    expBar.className = "chart-bars__bar chart-bars__bar--exp";
+    expBar.style.height = Math.max(4, (d.expense / max) * chartH) + "px";
+    
+    var incBar = document.createElement("div");
+    incBar.className = "chart-bars__bar chart-bars__bar--inc";
+    incBar.style.height = Math.max(4, (d.amount / max) * chartH) + "px";
+
+    wrap.appendChild(expBar);
+    wrap.appendChild(incBar);
+    
     var lab = document.createElement("span");
     lab.className = "chart-bars__label";
     lab.textContent = d.month;
-    col.appendChild(bar);
+    
+    col.appendChild(wrap);
     col.appendChild(lab);
+    
+    col.onmouseenter = function() { showTip(d, col); };
+    col.onmouseleave = hideTip;
+    
     chartEl.appendChild(col);
   });
 

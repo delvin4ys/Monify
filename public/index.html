@@ -7,9 +7,7 @@
     <script src="/js/theme-init.js"></script>
     <script src="/js/auth.js"></script>
     <script>
-      fetch("/api/auth/me", { credentials: "include" }).then(function (r) {
-        window.location.href = r.ok ? "/dashboard" : "/login";
-      });
+      window.location.href = "/login";
     </script>
   </head>
   <body>

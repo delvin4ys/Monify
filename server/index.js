@@ -1135,7 +1135,7 @@ function sendPage(name) {
   return (req, res) => res.sendFile(path.join(publicDir, name));
 }
 
-app.get("/", sendPage("index.html"));
+app.get("/", (req, res) => res.redirect("/login"));
 app.get("/demo", sendPage("demo.html"));
 app.get("/login", sendPage("login.html"));
 app.get("/register", sendPage("register.html"));

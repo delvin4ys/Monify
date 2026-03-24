@@ -38,8 +38,10 @@ async function getReportData(userId, fromStr, toStr) {
         currency: cur,
         expenseTotal: 0,
         incomeTotal: 0,
+        debtTotal: 0, // USER REQUIREMENT: Separate liability/debt
         expenseByCategory: {},
         incomeByCategory: {},
+        debtByCategory: {},
       };
     }
     const b = byCurrency[cur];
@@ -53,13 +55,9 @@ async function getReportData(userId, fromStr, toStr) {
       b.incomeTotal += t.amount;
       addToMap(b.incomeByCategory, cat, t.amount);
     } else if (cat.type === "debt") {
-      if (d < 0) {
-        b.expenseTotal += t.amount;
-        addToMap(b.expenseByCategory, cat, t.amount);
-      } else {
-        b.incomeTotal += t.amount;
-        addToMap(b.incomeByCategory, cat, t.amount);
-      }
+      // USER REQUIREMENT: Debt is not income or expense.
+      b.debtTotal += t.amount;
+      addToMap(b.debtByCategory, cat, t.amount);
     }
   }
 
@@ -68,15 +66,19 @@ async function getReportData(userId, fromStr, toStr) {
     const x = byCurrency[cur];
     const expArr = Object.values(x.expenseByCategory).sort((a, b) => b.amount - a.amount);
     const incArr = Object.values(x.incomeByCategory).sort((a, b) => b.amount - a.amount);
+    const debtArr = Object.values(x.debtByCategory).sort((a, b) => b.amount - a.amount);
     const expenseTotal = x.expenseTotal;
     const incomeTotal = x.incomeTotal;
+    const debtTotal = x.debtTotal;
     currencies[cur] = {
       currency: cur,
       expenseTotal,
       incomeTotal,
-      net: incomeTotal - expenseTotal,
+      debtTotal,
+      net: incomeTotal - expenseTotal, // Net remains real income - consumptive expense
       expenseByCategory: expArr,
       incomeByCategory: incArr,
+      debtByCategory: debtArr,
     };
   }
 

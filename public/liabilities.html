@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hutang & Piutang — Monify</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/js/theme-init.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__brand-icon">M</div>
+        <span style="font-weight: 700">Monify</span>
+      </div>
+      <nav class="sidebar__nav" id="sidebar-nav"></nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <span class="text-muted text-sm">Hutang & Piutang</span>
+      </header>
+      <div class="page">
+        <div class="flex-between" style="align-items: flex-end; margin-bottom: 2rem;">
+          <div>
+            <h1 style="margin: 0; font-size: 1.5rem">Manajemen Liabilitas</h1>
+            <p class="text-muted text-sm mt-1">Pantau sisa hutang dan piutang Anda di sini.</p>
+          </div>
+          <a href="/transactions/new" class="btn btn--primary">+ Transaksi Baru</a>
+        </div>
+
+        <div id="liab-err" class="alert alert--error mb-4" style="display: none"></div>
+
+        <section class="mb-5">
+          <div class="flex-between mb-4" style="align-items: center">
+            <h2 style="font-size: 1.1rem; margin: 0">Hutang Saya (Uang yang saya pinjam)</h2>
+            <span class="badge badge--error" id="total-debts-val">Rp 0</span>
+          </div>
+          <div id="debts-list" class="grid-liabilities">
+            <div class="text-muted p-4 text-center">Memuat data...</div>
+          </div>
+        </section>
+
+        <section>
+          <div class="flex-between mb-4" style="align-items: center">
+            <h2 style="font-size: 1.1rem; margin: 0">Piutang Saya (Uang yang saya pinjamkan)</h2>
+            <span class="badge badge--ok" id="total-loans-val">Rp 0</span>
+          </div>
+          <div id="loans-list" class="grid-liabilities">
+            <div class="text-muted p-4 text-center">Memuat data...</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav"></nav>
+
+  <!-- Modal Pembayaran (Reusable from other pages or new implementation) -->
+  <div id="pay-modal" class="modal" style="display:none">
+    <div class="modal__content" style="max-width: 400px">
+      <h3>Bayar / Cicil</h3>
+      <p class="text-muted text-sm" id="pay-title-hint"></p>
+      
+      <div class="mt-4">
+        <label class="label">Jumlah Pembayaran</label>
+        <input type="text" class="input" id="pay-amount" placeholder="Rp 0" />
+      </div>
+
+      <div class="mt-3">
+        <label class="label">Dompet</label>
+        <select class="input" id="pay-wallet"></select>
+      </div>
+
+      <div class="mt-3">
+        <label class="label">Tanggal</label>
+        <input type="date" class="input" id="pay-date" />
+      </div>
+
+      <div id="pay-err" class="alert alert--error mt-3" style="display:none; font-size:0.8rem"></div>
+
+      <div class="flex-end gap-2 mt-4">
+        <button type="button" class="btn btn--outline" id="pay-cancel">Batal</button>
+        <button type="button" class="btn btn--primary" id="pay-confirm">Konfirmasi</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/format.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/liabilities.js"></script>
+</body>
+</html>

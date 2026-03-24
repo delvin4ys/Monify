@@ -28,12 +28,9 @@ function getWalletDelta(category, amount) {
 /** Apakah transaksi dihitung sebagai "pengeluaran" untuk budget (kategori pengeluaran). */
 function countsAsBudgetSpend(category) {
   if (!category) return false;
-  if (category.type === "expense") return true;
-  if (category.type === "debt") {
-    const ds = category.debtSubtype || "DEBT";
-    return ds === "REPAYMENT" || ds === "DEBT";
-  }
-  return false;
+  // USER REQUIREMENT: Only actual expenses count as budget spend.
+  // Debt repayments and loans no longer count towards consumptive budgets.
+  return category.type === "expense";
 }
 
 /** Tampilan tanda di UI: + inflow, − outflow */

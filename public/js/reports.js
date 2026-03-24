@@ -55,16 +55,20 @@ document.addEventListener("DOMContentLoaded", async function () {
           '<p class="text-muted text-sm">Tidak ada data ' + (isUsd ? "USD" : "IDR") + " dalam rentang ini.</p>";
         document.getElementById("rep-inc-cat").innerHTML =
           '<p class="text-muted text-sm">Tidak ada data ' + (isUsd ? "USD" : "IDR") + " dalam rentang ini.</p>";
+        document.getElementById("rep-debt-cat").innerHTML =
+          '<p class="text-muted text-sm">Tidak ada data ' + (isUsd ? "USD" : "IDR") + " dalam rentang ini.</p>";
         return;
       }
 
       document.getElementById("rep-kpi-main").style.display = "grid";
       document.getElementById("rep-exp").innerHTML = isUsd ? formatUSDHtml(block.expenseTotal) : formatIDRHtml(block.expenseTotal);
       document.getElementById("rep-inc").innerHTML = isUsd ? formatUSDHtml(block.incomeTotal) : formatIDRHtml(block.incomeTotal);
+      document.getElementById("rep-debt").innerHTML = isUsd ? formatUSDHtml(block.debtTotal) : formatIDRHtml(block.debtTotal);
       document.getElementById("rep-net").innerHTML = isUsd ? formatUSDHtml(block.net) : formatIDRHtml(block.net);
 
       renderCatList(document.getElementById("rep-exp-cat"), block.expenseByCategory, block.expenseTotal, isUsd);
       renderCatList(document.getElementById("rep-inc-cat"), block.incomeByCategory, block.incomeTotal, isUsd);
+      renderCatList(document.getElementById("rep-debt-cat"), block.debtByCategory, block.debtTotal, isUsd);
     } catch (e) {
       err.textContent = e.message || "Gagal memuat laporan.";
       err.style.display = "block";

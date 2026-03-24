@@ -31,9 +31,12 @@ async function getMonthlyIncomeSeries(userId, currency = "IDR") {
     let income = 0;
     let expense = 0;
     for (const t of txs) {
-      const delta = getWalletDelta(t.category, t.amount);
-      if (delta > 0) income += delta;
-      else if (delta < 0) expense += Math.abs(delta);
+      if (t.category.type === "income") {
+        income += t.amount;
+      } else if (t.category.type === "expense") {
+        expense += t.amount;
+      }
+      // USER REQUIREMENT: Debt is excluded from standard income/expense charts.
     }
 
     points.push({

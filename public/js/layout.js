@@ -16,12 +16,15 @@
       '<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
     logout:
       '<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>',
+    repeat:
+      '<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>',
   };
 
   const NAV = [
     { href: "/dashboard", key: "dashboard", label: "Dashboard", icon: SVG.home },
     { href: "/reports", key: "reports", label: "Laporan", icon: SVG.chart },
     { href: "/transactions", key: "transactions", label: "Transaksi", icon: SVG.list },
+    { href: "/liabilities", key: "liabilities", label: "Liabilitas", icon: SVG.repeat },
     { href: "/budgets", key: "budgets", label: "Budget", icon: SVG.pie },
     { href: "/wallets", key: "wallets", label: "Dompet", icon: SVG.wallet },
     { href: "/settings", key: "settings", label: "Pengaturan", icon: SVG.gear },

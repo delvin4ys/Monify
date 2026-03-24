@@ -56,12 +56,18 @@ async function getFinancialSummary(userId, currency = "IDR") {
   function sumInOut(rows) {
     let expenses = 0;
     let income = 0;
+    let debt = 0;
     for (const r of rows) {
-      const d = getWalletDelta(r.category, r.amount);
-      if (d < 0) expenses += -d;
-      else if (d > 0) income += d;
+      if (r.category.type === "expense") {
+        expenses += r.amount;
+      } else if (r.category.type === "income") {
+        income += r.amount;
+      } else if (r.category.type === "debt") {
+        // USER REQUIREMENT: Debt activity is tracked separately.
+        debt += r.amount;
+      }
     }
-    return { expenses, income };
+    return { expenses, income, debt };
   }
 
   const currentMonth = sumInOut(curTx);
@@ -69,6 +75,7 @@ async function getFinancialSummary(userId, currency = "IDR") {
 
   const expensesMonth = currentMonth.expenses;
   const incomeMonth = currentMonth.income;
+  const debtMonth = currentMonth.debt;
   const expensesPrev = previousMonth.expenses;
   const incomePrev = previousMonth.income;
 
@@ -89,6 +96,8 @@ async function getFinancialSummary(userId, currency = "IDR") {
     balanceDeltaPct,
     expensesMonth,
     expensesDeltaPct,
+    incomeMonth, // Added incomeMonth back for clarity if needed by UI
+    debtMonth,   // Added debtMonth for separate tracking
     savingsMonth,
     savingsDeltaPct,
   };

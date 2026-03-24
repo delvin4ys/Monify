@@ -10,7 +10,7 @@ const CATEGORY_TEMPLATE = [
   { name: "Tabungan Darurat", type: "expense", icon: "🛡️", parentName: "Dana Darurat" },
   { name: "Kebutuhan Keluarga", type: "expense", icon: "👨‍👩‍👧‍👦", parentName: "Keluarga" },
   { name: "Zakat / Persepuluhan", type: "expense", icon: "🕌", parentName: "Kewajiban Finansial" },
-  { name: "Cicilan Pinjaman", type: "expense", icon: "💸", parentName: "Kewajiban Finansial" },
+  { name: "Cicilan Pinjaman", type: "debt", debtSubtype: "REPAYMENT", icon: "💸", parentName: "Kewajiban Finansial" },
   { name: "Parkir & Tilang", type: "expense", icon: "🚦", parentName: "Denda & Sanksi" },
   { name: "Makan di Luar", type: "expense", icon: "🍜", parentName: "Makan & Minuman" },
   { name: "Kopi & Camilan", type: "expense", icon: "☕", parentName: "Makan & Minuman" },

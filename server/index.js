@@ -413,6 +413,31 @@ app.get("/api/reports", requireAuth, async (req, res) => {
   }
 });
 
+app.get("/api/liabilities", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    // Get all unpaid debt transactions
+    const txs = await prisma.transaction.findMany({
+      where: {
+        userId,
+        type: "debt",
+        paidOff: false,
+        status: "success",
+      },
+      include: { category: true, wallet: true },
+      orderBy: { date: "desc" },
+    });
+
+    // Grouping by debtSubtype for easier frontend consumption
+    const debts = txs.filter(t => t.category.debtSubtype === "DEBT");
+    const loans = txs.filter(t => t.category.debtSubtype === "LOAN");
+
+    res.json({ debts, loans });
+  } catch (e) {
+    res.status(500).json({ error: e.message || "Gagal memuat data liabilitas." });
+  }
+});
+
 app.get("/api/transactions/:id", requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -1121,6 +1146,7 @@ app.get("/transactions/edit", sendPage("transaction-edit.html"));
 app.get("/budgets", sendPage("budgets.html"));
 app.get("/transactions/category", sendPage("transaction-category.html"));
 app.get("/reports", sendPage("reports.html"));
+app.get("/liabilities", sendPage("liabilities.html"));
 app.get("/wallets", sendPage("wallets.html"));
 app.get("/wallets/assets", sendPage("wallet-assets.html"));
 app.get("/settings", sendPage("settings.html"));

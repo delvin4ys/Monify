@@ -51,6 +51,11 @@
               <p class="text-muted text-sm mb-0">Arus bersih</p>
               <div class="report-kpi-val" id="rep-net">—</div>
             </div>
+            <!-- USER REQUIREMENT: Separate Debt Section -->
+            <div class="card" style="border-color: #94a3b8">
+              <p class="text-muted text-sm mb-0">Kewajiban &amp; Cicilan (Liability)</p>
+              <div class="report-kpi-val" id="rep-debt">—</div>
+            </div>
           </div>
 
           <div style="display: grid; gap: 1rem; margin-top: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))">
@@ -61,6 +66,10 @@
             <div class="card">
               <strong>Pemasukan per kategori</strong>
               <div id="rep-inc-cat" class="mt-3 report-cat-list"></div>
+            </div>
+            <div class="card">
+              <strong>Kewajiban per kategori</strong>
+              <div id="rep-debt-cat" class="mt-3 report-cat-list"></div>
             </div>
           </div>
 

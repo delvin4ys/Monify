@@ -10,6 +10,12 @@ const session = require("express-session");
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
+const { createClient } = require("@supabase/supabase-js");
+
+const supabase = createClient(
+  process.env.SUPABASE_URL || "",
+  process.env.SUPABASE_ANON_KEY || ""
+);
 
 const { prisma } = require("./lib/prisma");
 const { isAdminEmail } = require("./lib/admin");
@@ -38,15 +44,7 @@ try {
 }
 
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, storageUploadDir);
-    },
-    filename: function (req, file, cb) {
-      const ext = path.extname(file.originalname || "") || ".jpg";
-      cb(null, Date.now() + "-" + Math.random().toString(36).slice(2) + ext);
-    },
-  }),
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
@@ -227,11 +225,33 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-app.post("/api/upload", requireAuth, upload.single("file"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "File tidak ada." });
+app.post("/api/upload", requireAuth, upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "File tidak ada." });
+    }
+
+    const { buffer, originalname, mimetype } = req.file;
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}${path.extname(originalname)}`;
+
+    const { data, error } = await supabase.storage
+      .from("uploads")
+      .upload(fileName, buffer, {
+        contentType: mimetype,
+        upsert: true,
+      });
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from("uploads")
+      .getPublicUrl(fileName);
+
+    res.json({ url: publicUrl });
+  } catch (e) {
+    console.error("Upload error:", e);
+    res.status(500).json({ error: e.message || "Gagal upload ke cloud storage." });
   }
-  res.json({ url: "/uploads/" + req.file.filename });
 });
 
 // ——— Data ———

@@ -3,9 +3,15 @@ const { getWalletDelta } = require("./wallet-delta");
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
-async function getMonthlyIncomeSeries(userId, currency = "IDR") {
+async function getMonthlyIncomeSeries(userId, currency = "IDR", toDateStr = null) {
   const cur = currency === "USD" ? "USD" : "IDR";
-  const now = new Date();
+  
+  let now = new Date();
+  if (toDateStr) {
+    const d = new Date(toDateStr);
+    if (!isNaN(d.getTime())) now = d;
+  }
+  
   const endYear = now.getFullYear();
   const endMonth = now.getMonth();
 
@@ -16,7 +22,13 @@ async function getMonthlyIncomeSeries(userId, currency = "IDR") {
     const y = d.getFullYear();
     const m = d.getMonth();
     const start = new Date(y, m, 1, 0, 0, 0, 0);
-    const end = new Date(y, m + 1, 0, 23, 59, 59, 999);
+    let end = new Date(y, m + 1, 0, 23, 59, 59, 999);
+    
+    // If this is the "current" month in the 12-mo series, cap it by the 'now' date
+    if (i === 0) {
+      end = now;
+      end.setHours(23, 59, 59, 999);
+    }
 
     const txs = await prisma.transaction.findMany({
       where: {

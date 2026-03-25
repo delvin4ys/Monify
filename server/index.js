@@ -1000,7 +1000,7 @@ app.get("/api/summary", requireAuth, async (req, res) => {
 
 app.get("/api/monthly-income", requireAuth, async (req, res) => {
   try {
-    const data = await getMonthlyIncomeSeries(req.session.userId);
+    const data = await getMonthlyIncomeSeries(req.session.userId, req.query.currency, req.query.to);
     res.json({ data });
   } catch (e) {
     res.status(500).json({ error: e.message || "Gagal data grafik." });

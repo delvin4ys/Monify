@@ -49,7 +49,12 @@ const upload = multer({
 
 app.use(express.json({ limit: "2mb" }));
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, uptime: process.uptime() });
+  res.json({
+    ok: true,
+    uptime: process.uptime(),
+    envKeys: Object.keys(process.env).filter(k => !k.includes("SECRET") && !k.includes("PASSWORD") && !k.includes("KEY")),
+    hasDatabaseUrl: !!process.env.DATABASE_URL
+  });
 });
 
 app.use(

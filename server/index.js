@@ -56,7 +56,6 @@ const upload = multer({
 app.use(express.json({ limit: "2mb" }));
 
 // 1. First, serve static files (No DB needed)
-const publicDir = path.join(__dirname, "..", "public");
 app.use("/uploads", express.static(process.env.VERCEL ? "/tmp/uploads" : path.join(__dirname, "..", "storage", "uploads")));
 app.use(express.static(publicDir, { index: false }));
 

@@ -60,6 +60,8 @@ async function createDefaultWalletsAndCategories(userId) {
         },
       });
     }
+  }, {
+    timeout: 30000 // Meningkatkan timeout menjadi 30 detik
   });
 }
 

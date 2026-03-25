@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         col.className = "chart-bars__col";
         var bar = document.createElement("div");
         bar.className = "chart-bars__bar chart-bars__bar--inc" + (i === data.length - 1 ? " is-hi" : "");
-        bar.style.height = Math.max(4, (d.amount / max) * chartH) + "px";
+        bar.style.height = ((d.amount / max) * chartH) + "px";
         var lab = document.createElement("span");
         lab.className = "chart-bars__label";
         lab.textContent = d.month;

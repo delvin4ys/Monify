@@ -313,7 +313,7 @@ table.data td {
 .chart-bars {
   display: flex;
   align-items: flex-end;
-  gap: 4px;
+  gap: 12px;
   height: 92%;
   padding: 0.5rem 0;
   position: relative;
@@ -346,12 +346,10 @@ table.data td {
 }
 
 .chart-bars__bar {
-  flex: 1;
   width: 100%;
-  max-width: 16px;
+  max-width: 24px;
   border-radius: 4px 4px 0 0;
-  min-height: 4px;
-  transition: background 0.2s, opacity 0.2s;
+  transition: background 0.2s, opacity 0.2s, height 0.3s ease-out;
 }
 
 .chart-bars__bar--inc {

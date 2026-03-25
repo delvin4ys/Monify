@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   function renderWalletLogoHtml(logo) {
     if (!logo) return '<span class="tx-meta-icon tx-meta-icon--wallet tx-wallet-logo-emoji tx-wallet-logo-emoji--empty">—</span>';
-    if (typeof logo === "string" && logo.charAt(0) === "/") {
+    if (typeof logo === "string" && (logo.startsWith("/") || logo.startsWith("http"))) {
       return '<span class="tx-meta-icon tx-meta-icon--wallet"><img src="' + logo + '" alt="" class="tx-wallet-logo-img" /></span>';
     }
     return '<span class="tx-meta-icon tx-meta-icon--wallet tx-wallet-logo-emoji">' + logo + "</span>";
@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   function renderWalletLogoInner(logo) {
     if (!logo) return "—";
-    if (typeof logo === "string" && logo.charAt(0) === "/") {
+    if (typeof logo === "string" && (logo.startsWith("/") || logo.startsWith("http"))) {
       return '<img src="' + logo + '" alt="" class="tx-wallet-logo-img" />';
     }
     return logo;

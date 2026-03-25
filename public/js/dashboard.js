@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             var bal = w.currency === "IDR" ? formatIDRHtml(w.balance) : formatUSDHtml(w.balance);
             var bg = 'var(--card)';
             var logoHtml = "";
-            if (w.logo && w.logo.startsWith("/")) {
+            if (w.logo && (w.logo.startsWith("/") || w.logo.startsWith("http"))) {
               logoHtml = '<img src="' + w.logo + '" style="max-width:24px; max-height:24px; object-fit:contain;" />';
             } else if (w.logo) {
               logoHtml = '<span style="font-size:1.25rem; line-height:1;">' + w.logo + '</span>';

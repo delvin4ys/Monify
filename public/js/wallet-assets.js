@@ -7,10 +7,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   var errEl = document.getElementById("assets-err");
 
   function logoBlock(w) {
-    if (w.logo && typeof w.logo === "string" && w.logo.charAt(0) === "/") {
+    if (w.logo && typeof w.logo === "string" && (w.logo.startsWith("/") || w.logo.startsWith("http"))) {
       return '<img class="asset-card__logo-img" src="' + w.logo + '" alt="" />';
     }
-    if (w.logo && typeof w.logo === "string" && w.logo.length > 0 && w.logo.charAt(0) !== "/") {
+    if (w.logo && typeof w.logo === "string" && w.logo.length > 0) {
       return '<span class="asset-card__logo-fallback">' + w.logo + "</span>";
     }
     return '<span class="asset-card__logo-fallback asset-card__logo-fallback--empty">?</span>';

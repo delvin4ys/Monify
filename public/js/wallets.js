@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   function logoHtml(w) {
-    if (w.logo && typeof w.logo === "string" && w.logo.charAt(0) === "/") {
+    if (w.logo && typeof w.logo === "string" && (w.logo.startsWith("/") || w.logo.startsWith("http"))) {
       return '<img class="wallet-tile__logo" src="' + w.logo + '" alt="" />';
     }
     if (w.logo) {

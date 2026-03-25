@@ -1207,22 +1207,24 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Monify: http://localhost:${PORT}`);
-});
-
-module.exports = app;
-
-function shutdown(signal) {
-  console.log(signal + ": shutting down…");
-  server.close(() => {
-    prisma.$disconnect().finally(() => process.exit(0));
+if (!process.env.VERCEL) {
+  const server = app.listen(PORT, () => {
+    console.log(`Monify: http://localhost:${PORT}`);
   });
-  setTimeout(() => process.exit(1), 10000);
+
+  function shutdown(signal) {
+    console.log(signal + ": shutting down…");
+    server.close(() => {
+      prisma.$disconnect().finally(() => process.exit(0));
+    });
+    setTimeout(() => process.exit(1), 10000);
+  }
+
+  ["SIGINT", "SIGTERM"].forEach(function (sig) {
+    process.on(sig, function () {
+      shutdown(sig);
+    });
+  });
 }
 
-["SIGINT", "SIGTERM"].forEach(function (sig) {
-  process.on(sig, function () {
-    shutdown(sig);
-  });
-});
+module.exports = app;

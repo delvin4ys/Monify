@@ -22,6 +22,7 @@ const { walletToJson, categoryToJson, transactionToJson, categoryParentToJson } 
 const { getWalletDelta } = require("./lib/wallet-delta");
 
 const app = express();
+app.set("trust proxy", 1); // Wajib untuk Vercel agar cookie secure bisa dikirim
 const publicDir = path.join(__dirname, "..", "public");
 const storageUploadDir = path.join(__dirname, "..", "storage", "uploads");
 const PORT = Number(process.env.PORT) || 3000;

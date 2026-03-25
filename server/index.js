@@ -12,10 +12,15 @@ const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const { createClient } = require("@supabase/supabase-js");
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || "",
-  process.env.SUPABASE_ANON_KEY || ""
-);
+// Initialize Supabase client robustly
+let supabase = null;
+if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+  try {
+    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+  } catch (e) {
+    console.error("Gagal inisialisasi Supabase:", e.message);
+  }
+}
 
 const { prisma } = require("./lib/prisma");
 const { isAdminEmail } = require("./lib/admin");
@@ -229,6 +234,10 @@ app.post("/api/upload", requireAuth, upload.single("file"), async (req, res) => 
   try {
     if (!req.file) {
       return res.status(400).json({ error: "File tidak ada." });
+    }
+
+    if (!supabase) {
+      return res.status(500).json({ error: "Cloud storage (Supabase) belum terkonfigurasi di Vercel." });
     }
 
     const { buffer, originalname, mimetype } = req.file;

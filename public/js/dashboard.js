@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         var col = document.createElement("div");
         col.className = "chart-bars__col";
         var bar = document.createElement("div");
-        bar.className = "chart-bars__bar" + (i === data.length - 1 ? " is-hi" : "");
+        bar.className = "chart-bars__bar chart-bars__bar--inc" + (i === data.length - 1 ? " is-hi" : "");
         bar.style.height = Math.max(4, (d.amount / max) * chartH) + "px";
         var lab = document.createElement("span");
         lab.className = "chart-bars__label";

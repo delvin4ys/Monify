@@ -3,11 +3,7 @@ generator client {
 }
 
 datasource db {
-  // === VERCEL DEPLOYMENT GUIDE ===
-  // 1. Pada saat Anda akan 'Push' ke Vercel, TOLONG UBAH nilai 'provider' di bawah ini menjadi "postgresql"
-  // 2. Di dalam Dashboard Vercel > Settings > Environment Variables, masukkan DATABASE_URL dari hosting Postgres Anda (misal Neon / Supabase).
-  // 3. Pastikan 'Build Command' Vercel Anda adalah: npx prisma generate && npx prisma db push && node server/index.js (Atau biarkan CLI Vercel mendeteksinya otomatis).
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

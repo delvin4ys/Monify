@@ -395,6 +395,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (!id || !window.confirm("Hapus transaksi ini? Tindakan tidak dapat dibatalkan.")) return;
     MonifyApi.fetchJson("/api/transactions/" + id, { method: "DELETE" })
       .then(function () {
+        MonifyLayout.showToast("success", "Dihapus", "Transaksi berhasil dihapus.");
         return MonifyApi.fetchJson("/api/wallets");
       })
       .then(function (res) {
@@ -404,7 +405,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         return load();
       })
       .catch(function (err) {
-        window.alert(err.message || "Gagal menghapus.");
+        MonifyLayout.showToast("error", "Gagal", err.message || "Gagal menghapus transaksi.");
       });
   });
 
@@ -523,14 +524,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         body: JSON.stringify({ amount: amount, date: date, walletId: walletId }),
       });
       closePayModal();
+      MonifyLayout.showToast("success", "Pembayaran Berhasil", "Pembayaran cicilan telah dicatat.");
       // Refresh wallets + transaction list
       var res = await MonifyApi.fetchJson("/api/wallets");
       wallets = res.wallets || [];
       renderBalances();
       load();
     } catch (e) {
-      payErrEl.textContent = e.message || "Gagal membayar.";
-      payErrEl.style.display = "block";
+      MonifyLayout.showToast("error", "Gagal", e.message || "Gagal melakukan pembayaran.");
     }
   };
 });

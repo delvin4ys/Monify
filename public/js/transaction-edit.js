@@ -310,10 +310,9 @@ document.addEventListener("DOMContentLoaded", async function () {
           status: status,
         }),
       });
-      window.location.href = "/transactions";
+      MonifyLayout.saveToastAndRedirect("/transactions", "success", "Perubahan Disimpan", "Transaksi berhasil diperbarui.");
     } catch (e) {
-      errEl.textContent = e.message || "Gagal menyimpan.";
-      errEl.style.display = "block";
+      MonifyLayout.showToast("error", "Gagal", e.message || "Gagal menyimpan perubahan.");
     }
   };
 });

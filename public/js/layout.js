@@ -155,5 +155,63 @@
         })
         .join("");
     },
+
+    showToast: function (type, title, message) {
+      let container = document.getElementById("monify-toast-container");
+      if (!container) {
+        container = document.createElement("div");
+        container.id = "monify-toast-container";
+        container.className = "toast-container";
+        document.body.appendChild(container);
+      }
+
+      const toast = document.createElement("div");
+      toast.className = "toast toast--" + (type || "info");
+      
+      let icon = "🔔";
+      if (type === "success") icon = "✅";
+      if (type === "error") icon = "❌";
+      if (type === "info") icon = "ℹ️";
+
+      toast.innerHTML = 
+        '<div class="toast__icon">' + icon + '</div>' +
+        '<div class="toast__content">' +
+          '<div class="toast__title">' + title + '</div>' +
+          '<div class="toast__msg">' + message + '</div>' +
+        '</div>' +
+        '<button type="button" class="toast__close">&times;</button>';
+
+      container.appendChild(toast);
+
+      // Trigger animation
+      setTimeout(function() { toast.classList.add("is-visible"); }, 10);
+
+      const closeToast = function() {
+        toast.classList.remove("is-visible");
+        setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400);
+      };
+
+      toast.querySelector(".toast__close").onclick = closeToast;
+      setTimeout(closeToast, 4000);
+    },
+
+    saveToastAndRedirect: function(url, type, title, message) {
+      sessionStorage.setItem("monify_pending_toast", JSON.stringify({ type: type, title: title, message: message }));
+      window.location.href = url;
+    }
   };
+
+  // Check for pending toast on load
+  const pending = sessionStorage.getItem("monify_pending_toast");
+  if (pending) {
+    try {
+      const t = JSON.parse(pending);
+      sessionStorage.removeItem("monify_pending_toast");
+      window.addEventListener("load", function() {
+        setTimeout(function() {
+          window.MonifyLayout.showToast(t.type, t.title, t.message);
+        }, 500);
+      });
+    } catch(e) {}
+  }
 })();

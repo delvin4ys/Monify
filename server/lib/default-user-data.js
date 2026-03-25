@@ -35,11 +35,11 @@ const CATEGORY_TEMPLATE = [
   { name: "Hasil Proyek", type: "income", icon: "💻", parentName: "Freelance & Usaha" },
   { name: "Pendapatan Lain", type: "income", icon: "➕", parentName: "Lainnya (Pemasukan)" },
 
-  // Debt-related categories
-  { name: "Hutang", type: "debt", debtSubtype: "DEBT", icon: "⚠️", parentName: "Hutang" },
-  { name: "Penagihan Piutang", type: "debt", debtSubtype: "DEBT_COLLECTION", icon: "✅", parentName: "Penagihan Piutang" },
-  { name: "Pinjaman", type: "debt", debtSubtype: "LOAN", icon: "🤝", parentName: "Pinjaman" },
-  { name: "Pelunasan", type: "debt", debtSubtype: "REPAYMENT", icon: "💳", parentName: "Pelunasan" },
+  // Debt-related categories (TOP-LEVEL)
+  { name: "Hutang", type: "debt", debtSubtype: "DEBT", icon: "⚠️", parentName: null },
+  { name: "Penagihan Piutang", type: "debt", debtSubtype: "DEBT_COLLECTION", icon: "✅", parentName: null },
+  { name: "Pinjaman", type: "debt", debtSubtype: "LOAN", icon: "🤝", parentName: null },
+  { name: "Pelunasan", type: "debt", debtSubtype: "REPAYMENT", icon: "💳", parentName: null },
 ];
 
 async function createDefaultWalletsAndCategories(userId) {
@@ -48,7 +48,7 @@ async function createDefaultWalletsAndCategories(userId) {
   await prisma.$transaction(async (tx) => {
 
     for (const c of CATEGORY_TEMPLATE) {
-      const parent = await findSystemParentByName(c.parentName, c.type === "debt" ? "debt" : c.type === "income" ? "income" : "expense");
+      const parent = c.parentName ? await findSystemParentByName(c.parentName, c.type === "debt" ? "debt" : c.type === "income" ? "income" : "expense") : null;
       await tx.category.create({
         data: {
           userId,

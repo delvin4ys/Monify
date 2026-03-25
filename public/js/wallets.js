@@ -95,9 +95,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
           await MonifyApi.fetchJson("/api/wallets/" + id, { method: "DELETE" });
           if (editingWalletId === id) cancelEdit();
+          MonifyLayout.showToast("success", "Dihapus", "Dompet berhasil dihapus.");
           await render();
         } catch (err) {
-          alert(err.message || "Gagal menghapus dompet.");
+          MonifyLayout.showToast("error", "Gagal", err.message || "Gagal menghapus dompet.");
         }
       }
       return;
@@ -225,6 +226,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           method: "PATCH",
           body: JSON.stringify(payload),
         });
+        MonifyLayout.showToast("success", "Perubahan Disimpan", "Dompet berhasil diperbarui.");
         cancelEdit();
       } else {
         await MonifyApi.fetchJson("/api/wallets", {
@@ -235,6 +237,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             balance: balance,
           }),
         });
+        MonifyLayout.showToast("success", "Berhasil", "Dompet baru telah ditambahkan.");
         document.getElementById("w-name").value = "";
         document.getElementById("w-balance").value = "";
         document.getElementById("w-logo-file").value = "";
@@ -242,8 +245,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
       await render();
     } catch (e) {
-      err.textContent = e.message || "Gagal";
-      err.style.display = "block";
+      MonifyLayout.showToast("error", "Gagal", e.message || "Gagal menyimpan dompet.");
     }
   };
 

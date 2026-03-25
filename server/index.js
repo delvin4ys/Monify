@@ -63,6 +63,36 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true, uptime: process.uptime() });
 });
 
+// TEMPORARY: Fix production category icons and orphan debt categories
+app.get("/api/tmp-fix-category-data", async (req, res) => {
+  try {
+    const debtNames = ["Hutang", "Penagihan Piutang", "Pinjaman", "Pelunasan"];
+    const icons = {
+      "Hutang": "⚠️",
+      "Penagihan Piutang": "✅",
+      "Pinjaman": "🤝",
+      "Pelunasan": "💳"
+    };
+
+    // 1. Update icons and remove parentId
+    for (const name of debtNames) {
+      await prisma.category.updateMany({
+        where: { name: name },
+        data: { icon: icons[name], parentId: null }
+      });
+    }
+
+    // 2. Delete legacy debt parents
+    await prisma.categoryParent.deleteMany({
+      where: { name: { in: debtNames } }
+    });
+
+    res.json({ ok: true, message: "Production data fixed successfully." });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // 2. Then, session (Hits DB)
 app.use(
   session({

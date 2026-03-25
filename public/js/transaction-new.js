@@ -293,10 +293,9 @@ document.addEventListener("DOMContentLoaded", async function () {
           status: status,
         }),
       });
-      window.location.href = "/transactions";
+      MonifyLayout.saveToastAndRedirect("/transactions", "success", "Berhasil", "Transaksi berhasil dicatat.");
     } catch (e) {
-      errEl.textContent = e.message || "Gagal menyimpan.";
-      errEl.style.display = "block";
+      MonifyLayout.showToast("error", "Gagal", e.message || "Gagal menyimpan transaksi.");
     }
   };
 });

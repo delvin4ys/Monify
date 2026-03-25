@@ -29,11 +29,7 @@ const PRESET_PARENTS = [
   { name: "Freelance & Usaha", kind: "income", sortOrder: 50 },
   { name: "Lainnya (Pemasukan)", kind: "income", sortOrder: 60 },
 
-  // Hutang / pinjaman (Debt)
-  { name: "Hutang", kind: "debt", sortOrder: 10 },
-  { name: "Penagihan Piutang", kind: "debt", sortOrder: 20 },
-  { name: "Pinjaman", kind: "debt", sortOrder: 30 },
-  { name: "Pelunasan", kind: "debt", sortOrder: 40 },
+  // Hutang / pinjaman (Debt) - Now handled as top-level categories without parents
 ];
 
 async function ensureSystemParents() {

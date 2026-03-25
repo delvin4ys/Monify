@@ -64,12 +64,21 @@ document.addEventListener("DOMContentLoaded", async function () {
       return (a.sortOrder || 0) - (b.sortOrder || 0) || a.name.localeCompare(b.name);
     });
 
+    // Render Independent Categories (Top-level/Orphans)
+    var orphans = categories.filter(function(c) { return !c.parentId; });
+    orphans.forEach(function (c) {
+      html += '<div class="cat-tree-node cat-tree-node--orphan">';
+      html += '  <div class="cat-tree-parent" style="border-bottom:none; margin-bottom:0;">';
+      html += '    <div class="cat-tree-parent-icon">' + iconOrFallback(c.icon) + '</div>';
+      html += '    <div class="cat-tree-parent-name" style="flex:1">' + c.name + ' <span class="text-muted" style="font-weight:400;font-size:0.8rem">(' + (c.type === "debt" ? "hutang/pinjaman" : c.type) + ')</span></div>';
+      html += '    <button type="button" class="btn-wallet-del" data-del-c="' + c.id + '" title="Hapus Kategori">×</button>';
+      html += '  </div>';
+      html += '</div>';
+    });
+
     sortedParents.forEach(function (p) {
       var children = byParent[p.id] || [];
-      
       html += '<div class="cat-tree-node">';
-      
-      // Parent Row
       html += '<div class="cat-tree-parent">';
       html += '  <div class="cat-tree-parent-icon">' + iconOrFallback(p.icon || "📂") + '</div>';
       html += '  <div class="cat-tree-parent-name" style="flex:1">' + p.name + ' <span class="text-muted" style="font-weight:400;font-size:0.8rem">(' + p.kind + ')</span></div>';
@@ -78,7 +87,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
       html += '</div>';
 
-      // Children list
       html += '<div class="cat-tree-children">';
       children.sort(function(a,b){ return a.name.localeCompare(b.name); }).forEach(function (c) {
         html += '<div class="cat-tree-child">';
@@ -88,19 +96,15 @@ document.addEventListener("DOMContentLoaded", async function () {
         html += '</div>';
       });
       
-      // If no children, show a placeholder if not system
       if (children.length === 0) {
         html += '<div class="text-muted" style="padding: 0.5rem 0 0.5rem 2rem; font-size: 0.85rem; font-style: italic;">Belum ada sub-kategori</div>';
       }
-      
-      html += '</div>'; // close children
-      html += '</div>'; // close node
+      html += '</div>';
+      html += '</div>';
     });
 
     html += '</div>';
-
     document.getElementById("cat-tree-container").innerHTML = html;
-
     fillParentDropdown();
     syncDebtUi();
   }
@@ -113,8 +117,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         await MonifyApi.fetchJson("/api/category-parents/" + delP.getAttribute("data-del-p"), {
           method: "DELETE",
         });
+        MonifyLayout.showToast("success", "Dihapus", "Induk kategori berhasil dihapus.");
         await load();
-      } catch (err) { alert(err.message); }
+      } catch (err) { MonifyLayout.showToast("error", "Gagal", err.message); }
       return;
     }
 
@@ -125,8 +130,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         await MonifyApi.fetchJson("/api/categories/" + delC.getAttribute("data-del-c"), {
           method: "DELETE",
         });
+        MonifyLayout.showToast("success", "Dihapus", "Kategori berhasil dihapus.");
         await load();
-      } catch (err) { alert(err.message); }
+      } catch (err) { MonifyLayout.showToast("error", "Gagal", err.message); }
     }
   };
 
@@ -139,10 +145,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         method: "POST",
         body: JSON.stringify({ name: name, kind: kind }),
       });
+      MonifyLayout.showToast("success", "Berhasil", "Induk kategori '" + name + "' ditambahkan.");
       document.getElementById("np-name").value = "";
       await load();
     } catch (e) {
-      alert(e.message);
+      MonifyLayout.showToast("error", "Gagal", e.message);
     }
   };
 
@@ -152,11 +159,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     var type = document.getElementById("nc-type").value;
     var parentId = document.getElementById("nc-parent").value;
     var name = document.getElementById("nc-name").value.trim();
-    var icon = document.getElementById("nc-icon").value.trim() || "dot";
+    var icon = document.getElementById("nc-icon").value.trim() || "🏷️";
     var debtSubtype = type === "debt" ? document.getElementById("nc-debt-sub").value : null;
     if (!parentId || !name) {
-      err.textContent = "Pilih induk dan isi nama.";
-      err.style.display = "block";
+      MonifyLayout.showToast("info", "Lengkapi Data", "Pilih induk dan isi nama kategori.");
       return;
     }
     try {
@@ -170,12 +176,12 @@ document.addEventListener("DOMContentLoaded", async function () {
           debtSubtype: debtSubtype,
         }),
       });
+      MonifyLayout.showToast("success", "Berhasil", "Kategori '" + name + "' berhasil ditambahkan.");
       document.getElementById("nc-name").value = "";
       document.getElementById("nc-icon").value = "";
       await load();
     } catch (e) {
-      err.textContent = e.message || "Gagal";
-      err.style.display = "block";
+      MonifyLayout.showToast("error", "Gagal", e.message);
     }
   };
 

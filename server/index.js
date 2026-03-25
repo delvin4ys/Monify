@@ -54,10 +54,17 @@ const upload = multer({
 });
 
 app.use(express.json({ limit: "2mb" }));
+
+// 1. First, serve static files (No DB needed)
+const publicDir = path.join(__dirname, "..", "public");
+app.use("/uploads", express.static(process.env.VERCEL ? "/tmp/uploads" : path.join(__dirname, "..", "storage", "uploads")));
+app.use(express.static(publicDir, { index: false }));
+
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, uptime: process.uptime() });
 });
 
+// 2. Then, session (Hits DB)
 app.use(
   session({
     name: "monify.sid",
@@ -1163,9 +1170,6 @@ app.get("/api/admin/users", requireAuth, async (req, res) => {
     res.status(500).json({ error: e.message || "Gagal." });
   }
 });
-
-app.use("/uploads", express.static(storageUploadDir));
-app.use(express.static(publicDir, { index: false }));
 
 function sendPage(name) {
   return (req, res) => res.sendFile(path.join(publicDir, name));

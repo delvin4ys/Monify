@@ -40,6 +40,10 @@ const CATEGORY_TEMPLATE = [
   { name: "Penagihan Piutang", type: "debt", debtSubtype: "DEBT_COLLECTION", icon: "✅", parentName: null },
   { name: "Pinjaman", type: "debt", debtSubtype: "LOAN", icon: "🤝", parentName: null },
   { name: "Pelunasan", type: "debt", debtSubtype: "REPAYMENT", icon: "💳", parentName: null },
+
+  // System Categories (TOP-LEVEL)
+  { name: "Transfer Masuk", type: "income", icon: "📥", parentName: null },
+  { name: "Transfer Keluar", type: "expense", icon: "📤", parentName: null },
 ];
 
 async function createDefaultWalletsAndCategories(userId) {

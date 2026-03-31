@@ -66,12 +66,16 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Render Independent Categories (Top-level/Orphans)
     var orphans = categories.filter(function(c) { return !c.parentId; });
+    var systemCats = ["Transfer Masuk", "Transfer Keluar"];
     orphans.forEach(function (c) {
+      var isSystem = systemCats.includes(c.name);
       html += '<div class="cat-tree-node cat-tree-node--orphan">';
       html += '  <div class="cat-tree-parent" style="border-bottom:none; margin-bottom:0;">';
       html += '    <div class="cat-tree-parent-icon">' + iconOrFallback(c.icon) + '</div>';
       html += '    <div class="cat-tree-parent-name" style="flex:1">' + c.name + ' <span class="text-muted" style="font-weight:400;font-size:0.8rem">(' + (c.type === "debt" ? "hutang/pinjaman" : c.type) + ')</span></div>';
-      html += '    <button type="button" class="btn-wallet-del" data-del-c="' + c.id + '" title="Hapus Kategori">×</button>';
+      if (!isSystem) {
+        html += '    <button type="button" class="btn-wallet-del" data-del-c="' + c.id + '" title="Hapus Kategori">×</button>';
+      }
       html += '  </div>';
       html += '</div>';
     });

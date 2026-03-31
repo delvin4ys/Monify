@@ -1009,6 +1009,10 @@ app.delete("/api/categories/:id", requireAuth, async (req, res) => {
     if (n > 0) {
       return res.status(400).json({ error: "Kategori masih dipakai transaksi." });
     }
+    const systemCategories = ["Transfer Masuk", "Transfer Keluar"];
+    if (systemCategories.includes(c.name)) {
+      return res.status(403).json({ error: "Kategori sistem ini tidak bisa dihapus." });
+    }
     await prisma.budget.deleteMany({
       where: { userId, targetKind: "CATEGORY", targetId: id },
     });

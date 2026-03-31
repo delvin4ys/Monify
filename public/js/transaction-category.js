@@ -48,9 +48,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   var html = '<div class="cat-tree">';
   parentsForKind.forEach(function (p) {
     var children = byParent[p.id] || [];
-    
+
     html += '<div class="cat-tree-node">';
-    
+
     // Parent Card
     html += '<div class="cat-tree-parent" data-id="' + p.id + '" data-name="' + p.name.replace(/"/g, "&quot;") + '" data-type="PARENT">';
     html += '  <div class="cat-tree-parent-icon">' + iconOrFallback(p.icon || "📂") + '</div>';
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
       html += '</div>';
     }
-    
+
     html += '</div>';
   });
 
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     html += '<div class="cat-tree-node">';
     html += '  <div class="cat-tree-parent">';
     html += '    <div class="cat-tree-parent-icon">📦</div>';
-    html += '    <div class="cat-tree-parent-name">Tanpa induk</div>';
+    html += '    <div class="cat-tree-parent-name">Lainnya</div>';
     html += '  </div>';
     html += '  <div class="cat-tree-children">';
     orphans.forEach(function (c) {

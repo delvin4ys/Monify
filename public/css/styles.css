@@ -66,12 +66,9 @@ a:hover {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: var(--brand);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
+  overflow: hidden;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .sidebar__nav {
@@ -154,12 +151,54 @@ a:hover {
 
 @media (max-width: 1023px) {
   .sidebar {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    display: flex !important;
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
   }
 
   .page {
     padding-bottom: 5rem;
   }
+
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 0.25rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-backdrop.is-open {
+  display: block;
+  opacity: 1;
 }
 
 .mobile-nav {
@@ -651,7 +690,7 @@ table.data td {
   background: var(--card);
   color: var(--text);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -716,7 +755,7 @@ table.data td {
 }
 
 .tx-date-row td {
-  background: #eef2ff;
+  background: var(--brand-light);
   border-bottom: none;
   padding-top: 1rem;
 }
@@ -2260,7 +2299,7 @@ table.data td {
 }
 
 .cat-tree-parent:hover {
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .cat-tree-parent-icon {
@@ -2274,7 +2313,7 @@ table.data td {
   border-radius: 50%;
   font-size: 1.4rem;
   z-index: 2;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .cat-tree-parent-name {
@@ -2284,7 +2323,8 @@ table.data td {
 }
 
 .cat-tree-children {
-  margin-left: 21px; /* Center of 44px icon is 22px. -1px for line width */
+  margin-left: 21px;
+  /* Center of 44px icon is 22px. -1px for line width */
   border-left: 1.5px dotted #cbd5e1;
   position: relative;
   padding-bottom: 0.5rem;
@@ -2331,7 +2371,7 @@ table.data td {
   border-radius: 50%;
   font-size: 1.1rem;
   z-index: 2;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .cat-tree-child-name {
@@ -2341,13 +2381,41 @@ table.data td {
 }
 
 /* Specific colors for icons based on index to match the "colorful" aesthetic in the image */
-.cat-tree-child:nth-child(7n+1) .cat-tree-child-icon { background-color: #fef9c3; color: #854d0e; }
-.cat-tree-child:nth-child(7n+2) .cat-tree-child-icon { background-color: #dcfce7; color: #166534; }
-.cat-tree-child:nth-child(7n+3) .cat-tree-child-icon { background-color: #ccfbf1; color: #115e59; }
-.cat-tree-child:nth-child(7n+4) .cat-tree-child-icon { background-color: #ffedd5; color: #9a3412; }
-.cat-tree-child:nth-child(7n+5) .cat-tree-child-icon { background-color: #dbeafe; color: #1e40af; }
-.cat-tree-child:nth-child(7n+6) .cat-tree-child-icon { background-color: #e0e7ff; color: #3730a3; }
-.cat-tree-child:nth-child(7n+7) .cat-tree-child-icon { background-color: #f1f5f9; color: #475569; }
+.cat-tree-child:nth-child(7n+1) .cat-tree-child-icon {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.cat-tree-child:nth-child(7n+2) .cat-tree-child-icon {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.cat-tree-child:nth-child(7n+3) .cat-tree-child-icon {
+  background-color: #ccfbf1;
+  color: #115e59;
+}
+
+.cat-tree-child:nth-child(7n+4) .cat-tree-child-icon {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.cat-tree-child:nth-child(7n+5) .cat-tree-child-icon {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.cat-tree-child:nth-child(7n+6) .cat-tree-child-icon {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.cat-tree-child:nth-child(7n+7) .cat-tree-child-icon {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
 /* --- Liabilities Page Redesign --- */
 .grid-liabilities {
   display: grid;
@@ -2365,7 +2433,7 @@ table.data td {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
@@ -2373,23 +2441,27 @@ table.data td {
 
 .liab-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.07);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.07);
 }
 
 .liab-card::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
   width: 4px;
   background: var(--brand);
 }
 
 .liab-card--loan::before {
-  background: #0ea5e9; /* Light blue for loans given */
+  background: #0ea5e9;
+  /* Light blue for loans given */
 }
 
 .liab-card--debt::before {
-  background: #f43f5e; /* Rose for debts taken */
+  background: #f43f5e;
+  /* Rose for debts taken */
 }
 
 .liab-card__header {
@@ -2534,9 +2606,17 @@ table.data td {
   height: 18px;
 }
 
-[data-theme="dark"] .liab-card__icon { background: #1e293b; }
-[data-theme="dark"] .liab-progress { background: #334155; }
-[data-theme="dark"] .liab-btn--edit:hover { background: #1e293b; }
+[data-theme="dark"] .liab-card__icon {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .liab-progress {
+  background: #334155;
+}
+
+[data-theme="dark"] .liab-btn--edit:hover {
+  background: #1e293b;
+}
 
 /* --- Premium Toast Notification System --- */
 .toast-container {
@@ -2620,15 +2700,41 @@ table.data td {
 }
 
 /* Status variants */
-.toast--success { border-left-color: #10b981; }
-.toast--success .toast__icon { background: #ecfdf5; color: #059669; }
-.toast--success .toast__title { color: #059669; }
+.toast--success {
+  border-left-color: #10b981;
+}
 
-.toast--error { border-left-color: #ef4444; }
-.toast--error .toast__icon { background: #fef2f2; color: #dc2626; }
-.toast--error .toast__title { color: #dc2626; }
+.toast--success .toast__icon {
+  background: #ecfdf5;
+  color: #059669;
+}
 
-.toast--info { border-left-color: #8b5cf6; }
-.toast--info .toast__icon { background: #f5f3ff; color: #7c3aed; }
-.toast--info .toast__title { color: #7c3aed; }
-
+.toast--success .toast__title {
+  color: #059669;
+}
+
+.toast--error {
+  border-left-color: #ef4444;
+}
+
+.toast--error .toast__icon {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.toast--error .toast__title {
+  color: #dc2626;
+}
+
+.toast--info {
+  border-left-color: #8b5cf6;
+}
+
+.toast--info .toast__icon {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.toast--info .toast__title {
+  color: #7c3aed;
+}

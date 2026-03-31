@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     var kpiEyeShowIcon = document.getElementById("kpi-balance-eye-show");
     var kpiEyeHideIcon = document.getElementById("kpi-balance-eye-hide");
 
-    var balanceHidden = false;
+    var balanceHidden = localStorage.getItem("monify_balance_hidden") === "true";
 
     function maskBalanceHtml() {
       return (
@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (kpiEyeBtn) {
       kpiEyeBtn.addEventListener("click", function () {
         balanceHidden = !balanceHidden;
+        localStorage.setItem("monify_balance_hidden", balanceHidden);
         syncBalanceVisibility();
       });
     }
@@ -54,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     var walletEyeBtn = document.getElementById("kpi-wallet-eye");
     var walletEyeShowIcon = document.getElementById("kpi-wallet-eye-show");
     var walletEyeHideIcon = document.getElementById("kpi-wallet-eye-hide");
-    var walletHidden = false;
+    var walletHidden = localStorage.getItem("monify_wallet_hidden") === "true";
 
     function syncWalletVisibility() {
       var els = document.querySelectorAll(".wallet-tile-bal");
@@ -76,6 +77,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (walletEyeBtn) {
       walletEyeBtn.addEventListener("click", function () {
         walletHidden = !walletHidden;
+        localStorage.setItem("monify_wallet_hidden", walletHidden);
         syncWalletVisibility();
       });
     }
@@ -141,60 +143,70 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (max < 1) max = 1;
       var chartEl = document.getElementById("chart-bars");
       chartEl.innerHTML = "";
-      var chartTipEl = document.createElement("div");
-      chartTipEl.className = "chart-bars__tip";
-      chartTipEl.setAttribute("role", "tooltip");
-      chartTipEl.setAttribute("aria-hidden", "true");
-      chartEl.appendChild(chartTipEl);
+      var allZero = data.every(function (d) { return d.amount === 0; });
+      if (allZero) {
+        chartEl.style.cssText = "display:flex;align-items:center;justify-content:center;min-height:140px;";
+        chartEl.innerHTML =
+          '<div style="text-align:center">' +
+          '<div class="text-muted" style="font-size:0.85rem;margin-bottom:0.5rem">Belum ada riwayat pemasukan</div>' +
+          '<a href="/transactions/new" class="btn btn--primary" style="display:inline-block;color:#fff">+ Transaksi</a>' +
+          '</div>';
+      } else {
+        var chartTipEl = document.createElement("div");
+        chartTipEl.className = "chart-bars__tip";
+        chartTipEl.setAttribute("role", "tooltip");
+        chartTipEl.setAttribute("aria-hidden", "true");
+        chartEl.appendChild(chartTipEl);
 
-      var chartH = 180;
-      data.forEach(function (d, i) {
-        var col = document.createElement("div");
-        col.className = "chart-bars__col";
-        var bar = document.createElement("div");
-        bar.className = "chart-bars__bar chart-bars__bar--inc" + (i === data.length - 1 ? " is-hi" : "");
-        bar.style.height = ((d.amount / max) * chartH) + "px";
-        var lab = document.createElement("span");
-        lab.className = "chart-bars__label";
-        lab.textContent = d.month;
+        var chartH = 180;
+        data.forEach(function (d, i) {
+          var col = document.createElement("div");
+          col.className = "chart-bars__col";
+          var bar = document.createElement("div");
+          bar.className = "chart-bars__bar chart-bars__bar--inc" + (i === data.length - 1 ? " is-hi" : "");
+          bar.style.height = ((d.amount / max) * chartH) + "px";
+          var lab = document.createElement("span");
+          lab.className = "chart-bars__label";
+          lab.textContent = d.month;
 
-        bar.tabIndex = 0; // Allow keyboard focus to show tooltip.
+          bar.tabIndex = 0; // Allow keyboard focus to show tooltip.
 
-        var fmt = ccy === "USD" ? formatUSDHtml(d.amount) : formatIDRHtml(d.amount);
+          var fmt = ccy === "USD" ? formatUSDHtml(d.amount) : formatIDRHtml(d.amount);
 
-        function showTip() {
-          chartTipEl.innerHTML =
-            '<div class="chart-bars__tip-month">' +
-            (d.month || "") +
-            "</div><div class=\"chart-bars__tip-value\">" +
-            fmt +
-            "</div>";
+          function showTip() {
+            chartTipEl.innerHTML =
+              '<div class="chart-bars__tip-month">' +
+              (d.month || "") +
+              "</div><div class=\"chart-bars__tip-value\">" +
+              fmt +
+              "</div>";
 
-          var chartRect = chartEl.getBoundingClientRect();
-          var barRect = bar.getBoundingClientRect();
-          var x = barRect.left - chartRect.left + barRect.width / 2;
-          var y = barRect.top - chartRect.top;
+            var chartRect = chartEl.getBoundingClientRect();
+            var barRect = bar.getBoundingClientRect();
+            var x = barRect.left - chartRect.left + barRect.width / 2;
+            var y = barRect.top - chartRect.top;
 
-          chartTipEl.style.left = x + "px";
-          chartTipEl.style.top = y + "px";
-          chartTipEl.classList.add("is-open");
-          chartTipEl.setAttribute("aria-hidden", "false");
-        }
+            chartTipEl.style.left = x + "px";
+            chartTipEl.style.top = y + "px";
+            chartTipEl.classList.add("is-open");
+            chartTipEl.setAttribute("aria-hidden", "false");
+          }
 
-        function hideTip() {
-          chartTipEl.classList.remove("is-open");
-          chartTipEl.setAttribute("aria-hidden", "true");
-        }
+          function hideTip() {
+            chartTipEl.classList.remove("is-open");
+            chartTipEl.setAttribute("aria-hidden", "true");
+          }
 
-        bar.addEventListener("mouseenter", showTip);
-        bar.addEventListener("mouseleave", hideTip);
-        bar.addEventListener("focus", showTip);
-        bar.addEventListener("blur", hideTip);
+          bar.addEventListener("mouseenter", showTip);
+          bar.addEventListener("mouseleave", hideTip);
+          bar.addEventListener("focus", showTip);
+          bar.addEventListener("blur", hideTip);
 
-        col.appendChild(bar);
-        col.appendChild(lab);
-        chartEl.appendChild(col);
-      });
+          col.appendChild(bar);
+          col.appendChild(lab);
+          chartEl.appendChild(col);
+        });
+      }
 
       var wallets = await MonifyApi.fetchJson("/api/wallets");
       var wList = wallets.wallets || [];
@@ -208,7 +220,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           emptyEl = document.createElement("div");
           emptyEl.id = "wallet-empty-state";
           emptyEl.style.cssText = "text-align: center; padding: 2.5rem 0;";
-          emptyEl.innerHTML = '<div class="text-muted" style="font-size: 0.85rem; margin: 1.2rem 0;">Tambahkan dompetmu untuk memulai transaksi</div><a href="/wallets" class="btn btn--primary" style="display: inline-block; color: #fff;">+ Dompet</a>';
+          emptyEl.innerHTML = '<div class="text-muted" style="font-size: 0.85rem; margin: 0.5rem 0;">Tambahkan dompetmu untuk memulai transaksi</div><a href="/wallets" class="btn btn--primary" style="display: inline-block; color: #fff;">+ Dompet</a>';
           wg.parentNode.appendChild(emptyEl);
         }
         emptyEl.style.display = "block";
@@ -231,13 +243,13 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
             return (
               '<div class="card wallet-tile" style="background:' + bg + '; border: 1px solid var(--border); padding: 1.25rem; display: flex; flex-direction: column; min-height: 140px; box-shadow: var(--shadow);">' +
-                '<div style="background: var(--bg); border: 1px solid var(--border); width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: auto;">' + logoHtml + '</div>' +
-                '<div style="margin-top: 1.25rem;">' +
-                  '<div style="font-weight: 600; font-size: 0.95rem; color: var(--text);">' + w.name + '</div>' +
-                  '<div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;"><strong><span class="wallet-tile-bal" data-val=\'' + bal + '\'>' +
-                  (walletHidden ? "••••••" : bal) +
-                  "</span></strong></div>" +
-                '</div>' +
+              '<div style="background: var(--bg); border: 1px solid var(--border); width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: auto;">' + logoHtml + '</div>' +
+              '<div style="margin-top: 1.25rem;">' +
+              '<div style="font-weight: 600; font-size: 0.95rem; color: var(--text);">' + w.name + '</div>' +
+              '<div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;"><strong><span class="wallet-tile-bal" data-val=\'' + bal + '\'>' +
+              (walletHidden ? "••••••" : bal) +
+              "</span></strong></div>" +
+              '</div>' +
               '</div>'
             );
           })
@@ -259,7 +271,12 @@ document.addEventListener("DOMContentLoaded", async function () {
           topEl.innerHTML =
             '<p class="text-muted text-sm">Top kategori untuk USD tersedia di halaman Laporan (filter rentang).</p>';
         } else if (!idr || !idr.expenseByCategory || !idr.expenseByCategory.length) {
-          topEl.innerHTML = '<p class="text-muted text-sm">Belum ada pengeluaran terklasifikasi bulan ini.</p>';
+          topEl.style.cssText = "display:flex;align-items:center;justify-content:center;min-height:140px;";
+          topEl.innerHTML =
+            '<div style="text-align:center">' +
+            '<div class="text-muted" style="font-size:0.85rem;margin-bottom:0.5rem">Belum ada pengeluaran terklasifikasi bulan ini.</div>' +
+            '<a href="/transactions/new" class="btn btn--primary" style="display:inline-block;color:#fff">+ Transaksi</a>' +
+            '</div>';
         } else {
           var top = idr.expenseByCategory.slice(0, 5);
           var expTotal = idr.expenseTotal;
@@ -276,25 +293,35 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       var tx = await MonifyApi.fetchJson("/api/transactions?period=thisMonth");
       var rows = (tx.transactions || []).slice(0, 6);
-      document.getElementById("recent-tx").innerHTML = rows
-        .map(function (t) {
-          var sign = t.direction === "in" ? "+" : "−";
-          var icon = t.categoryIcon || "🏷️";
-          return (
-            '<div style="display:flex;align-items:center;padding:0.5rem 1.25rem;border-bottom:1px solid var(--border);gap:0.75rem">' +
-            '<div style="width:34px;height:34px;border-radius:50%;background:#ecfdf5;border:1px solid rgba(6,95,70,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem">' + icon + '</div>' +
-            '<div style="min-width:0;flex:1">' +
-            '<div style="font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.title || "") + '</div>' +
-            '<div class="text-muted" style="font-size:0.75rem">' + (t.categoryName || "—") + ' · ' + formatDate(t.date, ccy) + '</div>' +
-            '</div>' +
-            '<div style="text-align:right;flex-shrink:0">' +
-            '<div class="amount-money-cell" style="font-size:0.85rem">' + sign + fmtTx(t) + '</div>' +
-            '<span class="badge ' + (t.status === "success" ? "badge--ok" : "badge--pending") + '" style="font-size:0.65rem">' +
-            (t.status === "success" ? "Berhasil" : "Pending") + '</span>' +
-            '</div></div>'
-          );
-        })
-        .join("");
+      var recentEl = document.getElementById("recent-tx");
+      if (rows.length === 0) {
+        recentEl.style.cssText = "display:flex;align-items:center;justify-content:center;min-height:180px;";
+        recentEl.innerHTML =
+          '<div style="text-align:center">' +
+          '<div class="text-muted" style="font-size:0.85rem;margin-bottom:0.5rem">Belum ada transaksi bulan ini.</div>' +
+          '<a href="/transactions/new" class="btn btn--primary" style="display:inline-block;color:#fff">+ Transaksi</a>' +
+          '</div>';
+      } else {
+        recentEl.innerHTML = rows
+          .map(function (t) {
+            var sign = t.direction === "in" ? "+" : "−";
+            var icon = t.categoryIcon || "🏷️";
+            return (
+              '<div style="display:flex;align-items:center;padding:0.5rem 1.25rem;border-bottom:1px solid var(--border);gap:0.75rem">' +
+              '<div style="width:34px;height:34px;border-radius:50%;background:#ecfdf5;border:1px solid rgba(6,95,70,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem">' + icon + '</div>' +
+              '<div style="min-width:0;flex:1">' +
+              '<div style="font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.title || "") + '</div>' +
+              '<div class="text-muted" style="font-size:0.75rem">' + (t.categoryName || "—") + ' · ' + formatDate(t.date, ccy) + '</div>' +
+              '</div>' +
+              '<div style="text-align:right;flex-shrink:0">' +
+              '<div class="amount-money-cell" style="font-size:0.85rem">' + sign + fmtTx(t) + '</div>' +
+              '<span class="badge ' + (t.status === "success" ? "badge--ok" : "badge--pending") + '" style="font-size:0.65rem">' +
+              (t.status === "success" ? "Berhasil" : "Pending") + '</span>' +
+              '</div></div>'
+            );
+          })
+          .join("");
+      }
     }
 
     await loadDashboard();

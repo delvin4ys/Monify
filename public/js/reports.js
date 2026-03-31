@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   MonifyLayout.renderMobileNav(document.getElementById("mobile-nav"), "reports");
 
   var isUsd = ccy === "USD";
-  document.getElementById("rep-ccy-label").textContent = isUsd ? "USD" : "IDR";
 
   function fmtCatRow(c, total, isUsdRow) {
     var pct = total > 0 ? Math.round((c.amount / total) * 100) : 0;
@@ -28,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   function renderCatList(el, list, total, isUsdRow) {
     if (!list || !list.length) {
-      el.innerHTML = '<p class="text-muted text-sm">Tidak ada data.</p>';
+      el.innerHTML = '<p class="text-muted text-sm">Tidak ada data</p>';
       return;
     }
     el.innerHTML = list.map(function (c) {
@@ -52,11 +51,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (!block) {
         document.getElementById("rep-kpi-main").style.display = "none";
         document.getElementById("rep-exp-cat").innerHTML =
-          '<p class="text-muted text-sm">Tidak ada data ' + (isUsd ? "USD" : "IDR") + " dalam rentang ini.</p>";
+          '<p class="text-muted text-sm">Tidak ada data dalam rentang ini.</p>';
         document.getElementById("rep-inc-cat").innerHTML =
-          '<p class="text-muted text-sm">Tidak ada data ' + (isUsd ? "USD" : "IDR") + " dalam rentang ini.</p>";
+          '<p class="text-muted text-sm">Tidak ada data dalam rentang ini.</p>';
         document.getElementById("rep-debt-cat").innerHTML =
-          '<p class="text-muted text-sm">Tidak ada data ' + (isUsd ? "USD" : "IDR") + " dalam rentang ini.</p>";
+          '<p class="text-muted text-sm">Tidak ada data dalam rentang ini.</p>';
         return;
       }
 
@@ -88,9 +87,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     var totInc = 0;
     var totExp = 0;
     var maxExpVal = 0;
-    var maxExpMo = "—";
-    
-    data.forEach(function(d) {
+    var maxExpMo = "(?)";
+
+    data.forEach(function (d) {
       if (d.amount > max) max = d.amount;
       if (d.expense > max) max = d.expense;
       totInc += d.amount || 0;
@@ -111,7 +110,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     var chartH = 180;
     var chartEl = document.getElementById("chart-bars");
     chartEl.innerHTML = "";
-    
+
     var tipEl = document.createElement("div");
     tipEl.className = "chart-bars__tip";
     chartEl.appendChild(tipEl);
@@ -126,17 +125,17 @@ document.addEventListener("DOMContentLoaded", async function () {
       var pctExp = tot > 0 ? Math.round((d.expense / tot) * 100) : 0;
       var incHTML = isUsd ? formatUSDHtml(d.amount) : formatIDRHtml(d.amount);
       var expHTML = isUsd ? formatUSDHtml(d.expense) : formatIDRHtml(d.expense);
-      tipEl.innerHTML = 
+      tipEl.innerHTML =
         '<div class="chart-bars__tip-month">' + d.month + '</div>' +
         '<div style="display:flex; gap:16px; align-items:flex-end;">' +
-          '<div style="text-align:center;">' +
-            '<div style="color:#a7f3d0; font-size:0.7rem; margin-bottom:2px;">Pemasukan (' + pctInc + '%)</div>' +
-            '<div>' + incHTML + '</div>' +
-          '</div>' +
-          '<div style="text-align:center;">' +
-            '<div style="color:#fecaca; font-size:0.7rem; margin-bottom:2px;">Pengeluaran (' + pctExp + '%)</div>' +
-            '<div>' + expHTML + '</div>' +
-          '</div>' +
+        '<div style="text-align:center;">' +
+        '<div style="color:#a7f3d0; font-size:0.7rem; margin-bottom:2px;">Pemasukan (' + pctInc + '%)</div>' +
+        '<div>' + incHTML + '</div>' +
+        '</div>' +
+        '<div style="text-align:center;">' +
+        '<div style="color:#fecaca; font-size:0.7rem; margin-bottom:2px;">Pengeluaran (' + pctExp + '%)</div>' +
+        '<div>' + expHTML + '</div>' +
+        '</div>' +
         '</div>';
       tipEl.style.left = left + "px";
       tipEl.style.top = (top - 10) + "px";
@@ -162,8 +161,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       lab.textContent = d.month;
       col.appendChild(wrap);
       col.appendChild(lab);
-      col.onmouseenter = function() { showTip(d, col); };
-      col.onmouseleave = function() { tipEl.classList.remove("is-open"); };
+      col.onmouseenter = function () { showTip(d, col); };
+      col.onmouseleave = function () { tipEl.classList.remove("is-open"); };
       chartEl.appendChild(col);
     });
   }
@@ -171,8 +170,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   var today = new Date();
   document.getElementById("rep-from").value = today.toISOString().slice(0, 10);
   document.getElementById("rep-to").value = today.toISOString().slice(0, 10);
-  
-  document.getElementById("rep-load").onclick = function() {
+
+  document.getElementById("rep-load").onclick = function () {
     loadReport();
     loadMonthlyChart();
   };

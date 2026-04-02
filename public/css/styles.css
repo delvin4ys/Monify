@@ -5,8 +5,13 @@
   --text: #0f172a;
   --muted: #64748b;
   --border: #e2e8f0;
-  --brand: #059669;
-  --brand-light: #d1fae5;
+  --brand: #5478FF;
+  --palette-yellow: #FFDE42;
+  --palette-cyan: #53CBF3;
+  --palette-blue: #5478FF;
+  --palette-navy: #111FA2;
+  --brand-hover: #111FA2;
+  --brand-light: #EFF4FF;
   --danger: #dc2626;
   --radius: 12px;
   --shadow: 0 1px 3px rgb(0 0 0 / 0.06);
@@ -30,10 +35,6 @@ body {
 a {
   color: var(--brand);
   text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 .app-shell {
@@ -105,12 +106,12 @@ a:hover {
 
 .sidebar__link.is-active {
   background: var(--brand-light);
-  color: #047857;
+  color: var(--brand-hover);
 }
 
 #sidebar-logout:hover {
-  background-color: #fef2f2 !important;
-  color: #ef4444 !important;
+  background-color: #fef2f2;
+  color: #ef4444;
 }
 
 .sidebar__footer {
@@ -119,7 +120,7 @@ a:hover {
 }
 
 .sidebar__upgrade {
-  background: linear-gradient(135deg, #047857, #064e3b);
+  background: linear-gradient(135deg, var(--brand-hover), var(--palette-navy));
   color: white;
   border-radius: var(--radius);
   padding: 1rem;
@@ -276,7 +277,7 @@ a:hover {
 }
 
 .btn--primary:hover {
-  background: #047857;
+  background: var(--brand-hover);
 }
 
 .btn--outline {
@@ -298,7 +299,7 @@ a:hover {
 }
 
 .input:focus {
-  outline: 2px solid rgba(5, 150, 105, 0.25);
+  outline: 2px solid rgba(84, 120, 255, 0.25);
   border-color: var(--brand);
 }
 
@@ -341,7 +342,7 @@ table.data td {
 
 .badge--ok {
   background: var(--brand-light);
-  color: #065f46;
+  color: var(--palette-navy);
 }
 
 .badge--pending {
@@ -392,11 +393,11 @@ table.data td {
 }
 
 .chart-bars__bar--inc {
-  background: linear-gradient(180deg, #34d399 0%, #a7f3d0 100%);
+  background: linear-gradient(180deg, var(--palette-cyan) 0%, #BAE6FD 100%);
 }
 
 .chart-bars__col.is-hi .chart-bars__bar--inc {
-  background: linear-gradient(180deg, var(--brand) 0%, #a7f3d0 100%);
+  background: linear-gradient(180deg, var(--brand) 0%, #BAE6FD 100%);
 }
 
 .chart-bars__bar--exp {
@@ -427,15 +428,15 @@ table.data td {
 }
 
 .kpi-eye-btn:hover {
-  background: #f0fdf4;
-  border-color: #6ee7b7;
-  color: #0f766e;
+  background: #F8FAFC;
+  border-color: var(--palette-cyan);
+  color: var(--palette-blue);
 }
 
 [data-theme="dark"] .kpi-eye-btn:hover {
-  background: #0b2a22;
-  border-color: #064e3b;
-  color: #6ee7b7;
+  background: #444444;
+  border-color: #444444;
+  color: #E0E0E0;
 }
 
 .kpi-balance-masked {
@@ -447,10 +448,10 @@ table.data td {
   z-index: 10;
   padding: 0.35rem 0.55rem;
   border-radius: 10px;
-  background: rgba(15, 23, 42, 0.96);
+  background: rgba(18, 18, 18, 0.96);
   color: #ffffff;
   font-size: 0.75rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 10px 30px rgba(18, 18, 18, 0.18);
   white-space: nowrap;
   transform: translate(-50%, -8px);
   opacity: 0;
@@ -477,7 +478,7 @@ table.data td {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(18, 18, 18, 0.4);
   display: none;
   align-items: flex-end;
   justify-content: center;
@@ -538,7 +539,7 @@ table.data td {
 
 .alert--ok {
   background: var(--brand-light);
-  color: #065f46;
+  color: var(--palette-navy);
 }
 
 .wallet-grid {
@@ -607,7 +608,7 @@ table.data td {
 }
 
 .btn-back:hover {
-  background: #047857;
+  background: var(--brand-hover);
   text-decoration: none;
   color: white;
 }
@@ -697,8 +698,8 @@ table.data td {
 
 .month-chip.is-active {
   background: var(--brand-light);
-  border-color: #6ee7b7;
-  color: #047857;
+  border-color: var(--palette-cyan);
+  color: var(--brand-hover);
 }
 
 .balance-scroll-wrap {
@@ -741,8 +742,8 @@ table.data td {
 }
 
 .balance-pill--total {
-  border-color: #6ee7b7;
-  background: linear-gradient(135deg, #ecfdf5, #fff);
+  border-color: var(--palette-cyan);
+  background: linear-gradient(135deg, var(--brand-light), #fff);
 }
 
 /* Total IDR: besarkan isi (label + nilai) */
@@ -778,8 +779,8 @@ table.data td {
 }
 
 .tx-date-total.is-up {
-  background: #dcfce7;
-  color: #166534;
+  background: #FEF3C7;
+  color: #92400E;
 }
 
 .tx-date-total.is-down {
@@ -789,7 +790,7 @@ table.data td {
 
 .tx-date-total.is-mix {
   background: #e2e8f0;
-  color: #334155;
+  color: #081229;
 }
 
 .tx-thumb {
@@ -823,7 +824,7 @@ table.data td {
 .currency-toggle__btn.is-active {
   border-color: var(--brand);
   background: var(--brand-light);
-  color: #047857;
+  color: var(--brand-hover);
 }
 
 .tx-type-tabs {
@@ -836,9 +837,9 @@ table.data td {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  border: 1px solid #86efac;
-  background: #f0fdf4;
-  color: #14532d;
+  border: 1px solid var(--palette-cyan);
+  background: #F8FAFC;
+  color: var(--palette-navy);
   border-radius: 999px;
   padding: 0.35rem 0.7rem;
   font-size: 0.85rem;
@@ -903,7 +904,7 @@ table.data td {
 }
 
 [data-theme="dark"] .budget-card__icon-wrap {
-  background: #0f172a;
+  background: #121212;
 }
 
 .gauge-wrap {
@@ -1083,9 +1084,9 @@ table.data td {
   height: var(--tx-cat-size);
   border-radius: 16px;
   z-index: 1;
-  background: #ecfdf5;
-  border-color: rgba(6, 95, 70, 0.25);
-  color: #047857;
+  background: var(--brand-light);
+  border-color: rgba(17, 31, 162, 0.25);
+  color: var(--brand-hover);
   font-size: 1rem;
 }
 
@@ -1258,9 +1259,9 @@ table.data td {
 }
 
 .tx-meta-icon--cat {
-  background: #ecfdf5;
-  border-color: rgba(6, 95, 70, 0.25);
-  color: #047857;
+  background: var(--brand-light);
+  border-color: rgba(17, 31, 162, 0.25);
+  color: var(--brand-hover);
   font-size: 0.8rem;
 }
 
@@ -1336,7 +1337,7 @@ table.data td {
   align-items: center;
   justify-content: center;
   background: #fff;
-  color: #334155;
+  color: #081229;
   text-decoration: none;
 }
 
@@ -1442,8 +1443,8 @@ table.data td {
 }
 
 [data-theme="dark"] .sidebar__logout {
-  background: linear-gradient(180deg, #450a0a 0%, #3f1313 100%);
-  color: #fecaca;
+  background: linear-gradient(180deg, #2A2A2A 0%, #3f1313 100%);
+  color: #E0E0E0;
   border-color: rgba(248, 113, 113, 0.35);
 }
 
@@ -1586,7 +1587,7 @@ table.data td {
 
 .cat-pick-card:hover {
   background: var(--brand-light);
-  border-color: #6ee7b7;
+  border-color: var(--palette-cyan);
 }
 
 .cat-pick-card--child {
@@ -1628,8 +1629,8 @@ table.data td {
 }
 
 .settings-tile:hover {
-  border-color: #6ee7b7;
-  background: #f0fdf4;
+  border-color: var(--palette-cyan);
+  background: #F8FAFC;
   text-decoration: none;
 }
 
@@ -1648,12 +1649,12 @@ table.data td {
 }
 
 [data-theme="dark"] {
-  --bg: #0f172a;
-  --card: #1e293b;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --border: #334155;
-  --brand-light: #064e3b;
+  --bg: #121212;
+  --card: #282828;
+  --text: #E0E0E0;
+  --muted: #B0B0B0;
+  --border: #444444;
+  --brand-light: #444444;
   --shadow: 0 1px 3px rgb(0 0 0 / 0.25);
 }
 
@@ -1665,22 +1666,20 @@ table.data td {
 [data-theme="dark"] .sidebar,
 [data-theme="dark"] .topbar,
 [data-theme="dark"] .mobile-nav {
-  background: #1e293b;
+  background: #121212;
   border-color: var(--border);
 }
 
 [data-theme="dark"] .sidebar__link {
-  color: #cbd5e1;
+  color: var(--palette-yellow);
 }
 
 [data-theme="dark"] .sidebar__link:hover {
-  background: #334155;
-  color: #fff;
+  background: #444444;
 }
 
 [data-theme="dark"] .sidebar__link.is-active {
-  background: #064e3b;
-  color: #6ee7b7;
+  background: #444444;
 }
 
 [data-theme="dark"] .card,
@@ -1690,129 +1689,129 @@ table.data td {
 }
 
 [data-theme="dark"] .input {
-  background: #0f172a;
+  background: #121212;
   border-color: var(--border);
   color: var(--text);
 }
 
 [data-theme="dark"] .wallet-tile,
 [data-theme="dark"] .amount-inline__flag {
-  background: #0f172a;
+  background: #121212;
 }
 
 [data-theme="dark"] .amount-inline__flag.is-active {
-  background: #064e3b;
+  background: #444444;
 }
 
 [data-theme="dark"] .month-chip {
-  background: #1e293b;
+  background: #121212;
   border-color: var(--border);
   color: var(--text);
 }
 
 [data-theme="dark"] .month-chip.is-active {
-  background: #064e3b;
-  color: #a7f3d0;
+  background: #444444;
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .tx-date-row td {
-  background: #1e293b;
+  background: #121212;
 }
 
 [data-theme="dark"] .tx-date-total.is-up {
-  background: #14532d;
-  color: #bbf7d0;
+  background: #444444;
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .tx-date-total.is-down {
-  background: #7f1d1d;
-  color: #fecaca;
+  background: #444444;
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .tx-date-total.is-mix {
-  background: #334155;
-  color: #cbd5e1;
+  background: #444444;
+  color: #B0B0B0;
 }
 
 [data-theme="dark"] .tx-cat-pill {
-  border-color: #166534;
-  background: #052e16;
-  color: #bbf7d0;
+  border-color: #92400E;
+  background: #444444;
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .tx-cat-pill.is-empty {
-  border-color: #334155;
-  background: #0f172a;
-  color: #94a3b8;
+  border-color: #444444;
+  background: #121212;
+  color: #B0B0B0;
 }
 
 [data-theme="dark"] .tx-icon-btn {
-  background: #0f172a;
-  border-color: #334155;
-  color: #cbd5e1;
+  background: #121212;
+  border-color: #444444;
+  color: #B0B0B0;
 }
 
 [data-theme="dark"] .tx-icon-btn--edit:hover {
-  background: #172554;
-  border-color: #1d4ed8;
-  color: #93c5fd;
+  background: #2A2A2A;
+  border-color: #B0B0B0;
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .tx-icon-btn--delete:hover {
-  background: #450a0a;
-  border-color: #b91c1c;
-  color: #fecaca;
+  background: #2A2A2A;
+  border-color: #888888;
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .tx-meta-icon {
-  background: #0f172a;
+  background: #121212;
   border-color: var(--border);
   color: var(--text);
 }
 
 [data-theme="dark"] .tx-meta-icon--cat {
-  background: #052e16;
-  border-color: #166534;
-  color: #bbf7d0;
+  background: #444444;
+  border-color: #92400E;
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .tx-iconbox {
-  background: #0f172a;
+  background: #121212;
   border-color: var(--border);
   color: var(--text);
 }
 
 [data-theme="dark"] .tx-iconbox--cat {
-  background: #052e16;
-  border-color: #166534;
-  color: #bbf7d0;
+  background: #444444;
+  border-color: #92400E;
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .tx-iconbox--wallet {
-  background: #0f172a;
-  color: #cbd5e1;
+  background: #121212;
+  color: #B0B0B0;
 }
 
 [data-theme="dark"] .tx-iconbox--type {
-  background: #0b2a3f;
-  border-color: rgba(14, 116, 144, 0.6);
-  color: #67e8f9;
+  background: #2C2C2C;
+  border-color: rgba(68, 68, 68, 0.6);
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .tx-meta-cell {
-  background: #0f172a;
+  background: #121212;
   border-color: var(--border);
 }
 
 [data-theme="dark"] .tx-attach-ind {
-  background: #0f172a;
+  background: #121212;
   border-color: var(--border);
   color: var(--muted);
 }
 
 [data-theme="dark"] .alert--error {
-  background: #450a0a;
-  color: #fecaca;
+  background: #2A2A2A;
+  color: #E0E0E0;
 }
 
 /* Settings: daftar baris seperti aplikasi ponsel */
@@ -1877,7 +1876,7 @@ table.data td {
 }
 
 [data-theme="dark"] .settings-row:hover {
-  background: #334155;
+  background: #444444;
 }
 
 /* Dropdown mata uang (IDR / USD) */
@@ -1976,7 +1975,7 @@ table.data td {
   cursor: pointer;
   font: inherit;
   text-align: left;
-  color: #0f172a;
+  color: #000000;
 }
 
 .ccy-dropdown__option:hover,
@@ -2017,21 +2016,21 @@ table.data td {
 }
 
 [data-theme="dark"] .ccy-dropdown__btn {
-  background: #0f172a;
+  background: #121212;
 }
 
 [data-theme="dark"] .ccy-dropdown__menu {
-  background: #1e293b;
+  background: #121212;
   border-color: var(--border);
 }
 
 [data-theme="dark"] .ccy-dropdown__option {
-  color: #f1f5f9;
+  color: #E0E0E0;
 }
 
 [data-theme="dark"] .ccy-dropdown__option:hover,
 [data-theme="dark"] .ccy-dropdown__option:focus {
-  background: #334155;
+  background: #444444;
 }
 
 .tx-attach-btn__svg {
@@ -2150,9 +2149,9 @@ table.data td {
 }
 
 .tx-remaining--done {
-  color: #166534;
-  background: #dcfce7;
-  border-color: #86efac;
+  color: #92400E;
+  background: #FEF3C7;
+  border-color: var(--palette-cyan);
 }
 
 /* Paid-off row */
@@ -2194,7 +2193,7 @@ table.data td {
   max-width: 400px;
   width: 100%;
   padding: 1.5rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(18, 18, 18, 0.2);
 }
 
 .payment-modal h3 {
@@ -2215,11 +2214,11 @@ table.data td {
 }
 
 [data-theme="dark"] .btn--outline:hover {
-  background: #334155;
+  background: #444444;
 }
 
 [data-theme="dark"] table.data th {
-  background: #0f172a;
+  background: #121212;
   color: var(--muted);
   border-bottom: 1px solid var(--border);
 }
@@ -2229,8 +2228,8 @@ table.data td {
 }
 
 .ringkasan-banner {
-  border-color: #a7f3d0;
-  background: linear-gradient(90deg, #ecfdf5, #fff);
+  border-color: #BAE6FD;
+  background: linear-gradient(90deg, var(--brand-light), #fff);
 }
 
 [data-theme="dark"] .ringkasan-banner {
@@ -2246,7 +2245,7 @@ table.data td {
 }
 
 [data-theme="dark"] .tx-attach-btn:hover {
-  background: #334155;
+  background: #444444;
 }
 
 [data-theme="dark"] .progress-bar-bg {
@@ -2263,12 +2262,12 @@ table.data td {
 }
 
 [data-theme="dark"] .cat-pick-card {
-  background: #0f172a;
+  background: #121212;
   border-color: var(--border);
 }
 
 [data-theme="dark"] .cat-pick-card:hover {
-  background: #334155;
+  background: #444444;
   border-color: var(--border);
 }
 
@@ -2299,7 +2298,7 @@ table.data td {
 }
 
 .cat-tree-parent:hover {
-  background: rgba(0, 0, 0, 0.02);
+  background: rgba(18, 18, 18, 0.02);
 }
 
 .cat-tree-parent-icon {
@@ -2313,7 +2312,7 @@ table.data td {
   border-radius: 50%;
   font-size: 1.4rem;
   z-index: 2;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 5px rgba(18, 18, 18, 0.05);
 }
 
 .cat-tree-parent-name {
@@ -2371,13 +2370,13 @@ table.data td {
   border-radius: 50%;
   font-size: 1.1rem;
   z-index: 2;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(18, 18, 18, 0.04);
 }
 
 .cat-tree-child-name {
   font-weight: 500;
   font-size: 0.95rem;
-  color: #334155;
+  color: #081229;
 }
 
 /* Specific colors for icons based on index to match the "colorful" aesthetic in the image */
@@ -2387,13 +2386,13 @@ table.data td {
 }
 
 .cat-tree-child:nth-child(7n+2) .cat-tree-child-icon {
-  background-color: #dcfce7;
-  color: #166534;
+  background-color: #FEF3C7;
+  color: #92400E;
 }
 
 .cat-tree-child:nth-child(7n+3) .cat-tree-child-icon {
   background-color: #ccfbf1;
-  color: #115e59;
+  color: var(--palette-navy);
 }
 
 .cat-tree-child:nth-child(7n+4) .cat-tree-child-icon {
@@ -2433,7 +2432,7 @@ table.data td {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 12px rgba(18, 18, 18, 0.03);
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
@@ -2441,7 +2440,7 @@ table.data td {
 
 .liab-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 12px 24px rgba(18, 18, 18, 0.07);
 }
 
 .liab-card::before {
@@ -2607,15 +2606,15 @@ table.data td {
 }
 
 [data-theme="dark"] .liab-card__icon {
-  background: #1e293b;
+  background: #121212;
 }
 
 [data-theme="dark"] .liab-progress {
-  background: #334155;
+  background: #444444;
 }
 
 [data-theme="dark"] .liab-btn--edit:hover {
-  background: #1e293b;
+  background: #121212;
 }
 
 /* --- Premium Toast Notification System --- */
@@ -2636,7 +2635,7 @@ table.data td {
   max-width: 360px;
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(18, 18, 18, 0.1), 0 8px 10px -6px rgba(18, 18, 18, 0.1);
   padding: 1rem;
   display: flex;
   align-items: flex-start;
@@ -2701,16 +2700,16 @@ table.data td {
 
 /* Status variants */
 .toast--success {
-  border-left-color: #10b981;
+  border-left-color: var(--palette-cyan);
 }
 
 .toast--success .toast__icon {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--brand-light);
+  color: var(--palette-blue);
 }
 
 .toast--success .toast__title {
-  color: #059669;
+  color: var(--palette-blue);
 }
 
 .toast--error {
@@ -2737,4 +2736,105 @@ table.data td {
 
 .toast--info .toast__title {
   color: #7c3aed;
+}
+
+/* Dark Mode Overrides - Monochromatic Buttons */
+[data-theme="dark"] .btn--primary {
+  background: #555555;
+  color: #E0E0E0;
+}
+
+[data-theme="dark"] .btn--primary:hover {
+  background: #3d3d3d;
+  color: #121212;
+}
+
+[data-theme="dark"] .btn-back {
+  background: #444444;
+}
+
+[data-theme="dark"] .btn-back:hover {
+  background: #888888;
+}
+
+[data-theme="dark"] .btn-back svg {
+  stroke: #E0E0E0;
+}
+
+[data-theme="dark"] .sidebar__logout {
+  background: #121212;
+  border-color: #444444;
+  color: #E0E0E0;
+}
+
+[data-theme="dark"] .sidebar__logout:hover {
+  background: #444444;
+  color: #FFFFFF;
+}
+
+
+/* Container revisions: distinctive background and no borders */
+[data-theme="dark"] .card,
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .topbar,
+[data-theme="dark"] .modal,
+[data-theme="dark"] .mobile-nav,
+[data-theme="dark"] .settings-screen,
+[data-theme="dark"] .auth-card {
+  background: var(--card) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* For specific items that might need their own distinct container feel but mapped to #121212, we can elevate them too if needed */
+[data-theme="dark"] .month-chip,
+[data-theme="dark"] .wallet-tile,
+[data-theme="dark"] .cat-pick-card {
+  background: #333333 !important;
+  border: none !important;
+}
+
+
+/* Yellow Accent Overrides for Dark Mode links and small text/badges */
+[data-theme="dark"] a {
+  color: #FFDE42 !important;
+}
+
+[data-theme="dark"] a:hover {
+  filter: brightness(1.1);
+}
+
+/* KPI Badges and similar small visual text boxes */
+[data-theme="dark"] .badge--ok,
+[data-theme="dark"] .badge--pending,
+[data-theme="dark"] .tx-date-total {
+  color: #FFDE42 !important;
+  background: rgba(255, 222, 66, 0.1) !important;
+  border: 1px solid rgba(255, 222, 66, 0.25) !important;
+}
+
+/* Add an explicit override to make sure any stray brand links use yellow */
+[data-theme="dark"] .tx-icon-btn {
+  color: #B0B0B0;
+}
+
+[data-theme="dark"] .tx-icon-btn:hover {
+  color: #FFDE42;
+  border-color: #FFDE42;
+}
+
+/* Specific override for logout sidebar item using ID */
+[data-theme="dark"] #sidebar-logout:hover {
+  background-color: #444444 !important;
+}
+
+[data-theme="dark"] #sidebar-logout {
+  background-color: transparent !important;
+  color: #d45555;
+  border-color: #444444 !important;
+}
+/* Yellow Topbar Page Label in Dark Mode */
+[data-theme="dark"] .topbar .text-muted.text-sm {
+  color: #FFDE42 !important;
+  font-weight: 600;
 }

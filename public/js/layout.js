@@ -81,7 +81,7 @@
             var init = name.substring(0, 1).toUpperCase();
             var html = '<div id="topbar-profile" style="display:flex;align-items:center;gap:0.75rem;margin-left:auto;">' +
                        '<div style="text-align:right;line-height:1.2"><div style="font-weight:600;font-size:0.85rem;color:var(--text)">' + name + '</div><div style="font-size:0.7rem" class="text-muted">' + email + '</div></div>' +
-                       '<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg, var(--brand), #064e3b);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;box-shadow:0 2px 5px rgba(0,0,0,0.1)">' + init + '</div>' +
+                       '<div style="width:34px;height:34px;border-radius:50%;background:#FFDE42;color:#121212;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;box-shadow:0 2px 5px rgba(0,0,0,0.1)">' + init + '</div>' +
                        '</div>';
             var wrap = document.createElement("div");
             wrap.style.display = "flex";

@@ -31,8 +31,8 @@ Sumber bukti (semua dijalankan pada sesi ini kecuali disebut lain):
 
 | Status | Jumlah baris |
 |---|---|
-| PASS | 63 |
-| PARTIAL | 32 |
+| PASS | 64 |
+| PARTIAL | 31 |
 | FAIL | 5 |
 | NOT TESTED | 4 |
 
@@ -46,8 +46,8 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Build Vercel | Build selesai tanpa error | `vercel build` lokal sukses; status Vercel di commit `bdb9924`: "Deployment has completed" / Ready | V, G | PASS | — |
 | Bundel fungsi lengkap | Server, Prisma engine, dan `public/` ikut terbawa | Semua ada; `/api/health`, `/login`, halaman 404, dan redirect berjalan dari bundel | V | PASS | — |
 | Routing asset statis | CSS/JS/font dilayani statis dengan cache yang benar, bukan lewat fungsi | 198 request asset → semuanya dari output statis; `/assets/<hash>/…` `immutable`, selebihnya 1 jam. CDN Vercel sungguhan belum diamati | V, E | PARTIAL | Cek header `x-vercel-cache` di preview |
-| Aplikasi berjalan di preview Vercel | Halaman dan API merespons benar | 36 dari 36 pemeriksaan lolos pada deployment `96e743e`: registrasi, dompet, transfer, transaksi, hutang, tabungan, budget, dashboard, laporan, rekonsiliasi, duplikat, CSRF, hapus akun. Akun uji dihapus setelahnya. Pemilik berhasil login dengan akun lama | Skrip E2E terhadap preview; SQL setelahnya (15 pengguna, 0 sisa) | PASS | Uji tampilan form oleh pemilik |
-| `AUTH_SECRET` di Vercel | Terisi ≥ 32 karakter di environment Preview dan Production | Sebelumnya tidak ada sama sekali; kini terisi untuk **Preview**. Production belum | Daftar env Vercel; fungsi termuat di preview | PARTIAL | Isi untuk Production saat rilis |
+| Aplikasi berjalan di preview Vercel | Halaman dan API merespons benar | Uji API 36 dari 36 dan uji browser 19 dari 19 lolos pada Preview nyata, termasuk setelah `DATABASE_URL` pindah ke transaction pooler. Akun uji dihapus setelahnya | Skrip E2E dan Playwright terhadap Preview; SQL setelahnya (15 pengguna, 0 sisa) | PASS | — |
+| `AUTH_SECRET` di Vercel | Terisi ≥ 32 karakter di environment Preview dan Production | Terpasang di keduanya (sensitive, nilai berbeda) | Daftar env Vercel; fungsi Preview termuat | PASS | — |
 | Skema database cocok dengan kode | Migrasi v1 sudah diterapkan pada database yang dipakai deployment | Diterapkan pada database Supabase (dipakai Preview dan Production) dalam satu transaksi; riwayat migrasi Prisma tercatat | SQL verifikasi setelah migrasi | PASS | — |
 | Versi Node deployment | Sama dengan yang diuji | `engines.node` dikunci ke `22.x`; CI dan test lokal memakai Node 22 | `package.json`; CI | PASS | — |
 | CI/CD | Test otomatis berjalan pada setiap push | GitHub Actions menjalankan `npm test` pada push dan pull request; run pertama lolos | Check run `test` pada PR `delvin4ys/Monify#1` | PASS | — |

@@ -13,14 +13,16 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 
 Prioritas pemilik sekarang: menyiapkan rilis Production yang aman untuk publik. Fitur baru dan perapian UI ditunda. Checklist rilis ada di `docs/RELEASE_CHECKLIST.md`.
 
-1. CONFIRMED: Keputusan terakhir: NOT READY FOR PRODUCTION. Kode siap, yang tersisa konfigurasi Production dan persetujuan pemilik.
+1. CONFIRMED: Keputusan terakhir: READY FOR PRODUCTION. Semua blocker teknis selesai. Rilis hanya menunggu persetujuan eksplisit pemilik untuk merge PR ke `main`.
 2. CONFIRMED: Commit kode terakhir `96e743e` di `revamp/v1-foundation` (sesudahnya hanya commit dokumen; cek `git log`). `npm test` 73 dari 73 lolos, lokal dan di GitHub Actions. Build Preview sukses.
 3. CONFIRMED: Preview hidup di `https://monify-git-revamp-v1-foundation-delvin4ys-projects.vercel.app` (dilindungi Vercel Authentication), berjalan di region `sin1`, Node 22.
 4. CONFIRMED: Uji E2E terhadap Preview nyata: 36 dari 36 pemeriksaan lolos (registrasi, dompet, transfer, transaksi, hutang, tabungan, budget, dashboard, laporan, rekonsiliasi, duplikat, CSRF, hapus akun). Akun uji sementara dihapus; database kembali ke 15 pengguna tanpa sisa data.
 5. CONFIRMED: Pemilik berhasil login di Preview dengan akun lama dan membuat satu transaksi.
 6. CONFIRMED: Versi baru BELUM dirilis. `main` masih kode lama. Tidak ada merge dan tidak ada perubahan deployment Production.
 7. CONFIRMED: Database Supabase (dipakai Preview dan Production) sudah di skema v1, RLS aktif, rekonsiliasi 0 selisih.
-8. BLOCKED (menunggu pemilik): `AUTH_SECRET` untuk Production belum ada; `DATABASE_URL` masih session pooler port 5432; pemilik belum memberi persetujuan rilis setelah mencoba alur inti di browser.
+8. CONFIRMED: Konfigurasi Vercel dipasang Claude atas permintaan pemilik: `AUTH_SECRET` (Production, sensitive), `APP_URL` (Production, `https://monify-budget.vercel.app`), `DATABASE_URL` diganti ke transaction pooler port 6543 dengan `pgbouncer=true&connection_limit=5` (semua environment). Preview di-redeploy (`dpl_76u8V5BZsfzFCpyZTxANBzvo3nLH`) dan uji browser 19 dari 19 lolos di atasnya.
+10. CONFIRMED: Keputusan pemilik: reset password lewat email, lampiran, dan pindai struk dikerjakan setelah rilis (bukan blocker).
+11. BLOCKED (menunggu pemilik): persetujuan eksplisit untuk merge ke `main`.
 9. Audit: `docs/FINAL_QUALITY_AUDIT.md`: 63 PASS, 32 PARTIAL, 5 FAIL, 4 NOT TESTED.
 
 ## C. Pekerjaan yang selesai
@@ -62,7 +64,7 @@ Prioritas pemilik sekarang: menyiapkan rilis Production yang aman untuk publik. 
 ## E. Detail teknis
 
 - Vercel: project `monify`, projectId `prj_ikJvfMhCJAkzO74wKPOr7hntbFLn`, teamId `team_ACUK0v7A4uqIiKthh1YqBC5G` (slug `delvin4ys-projects`). Fungsi berjalan di region `sin1`. `engines.node` adalah `22.x`.
-- Environment variable di Vercel (nama saja): `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` (semua environment), `AUTH_SECRET` (Preview saja). Belum ada: `APP_URL`, `ADMIN_EMAILS`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_BUCKET`, `RESEND_API_KEY`, `MAIL_FROM`, `ANTHROPIC_API_KEY`.
+- Environment variable di Vercel (nama saja): `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` (semua environment), `AUTH_SECRET` (Preview dan Production, nilai berbeda), `APP_URL` (Production). Domain produksi: `monify-budget.vercel.app`. Belum ada: `ADMIN_EMAILS`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_BUCKET`, `RESEND_API_KEY`, `MAIL_FROM`, `ANTHROPIC_API_KEY`.
 - Supabase: project ref `vjimzfqfwdkbfzhvhcru`, region `ap-southeast-1`, Postgres 17. `DATABASE_URL` mengarah ke session pooler `aws-1-ap-southeast-1.pooler.supabase.com:5432`.
 - Perintah: `npm ci`, `npm test`, `npm run dev:seed`, `npm run db:deploy`, `npm run db:status`.
 - Uji E2E terhadap Preview: `get_access_to_vercel_url` memberi tautan berbagi, lalu `curl` dengan cookie jar. Skrip membuat akun `e2e-...@example.test`, menjalankan alur, lalu menghapus akunnya lewat `DELETE /api/account`.
@@ -98,11 +100,10 @@ Prioritas pemilik sekarang: menyiapkan rilis Production yang aman untuk publik. 
 
 ## H. Langkah berikutnya (berurutan)
 
-1. Pemilik mengisi `AUTH_SECRET` untuk Production dan mengganti `DATABASE_URL` ke transaction pooler (langkah rinci di `docs/RELEASE_CHECKLIST.md`). Jangan meminta nilainya di chat.
-2. Verifikasi lewat connector Vercel: nama variabel dan target (jangan dekripsi), redeploy Preview, `/api/health`, log runtime.
-3. Pemilik mencoba alur inti di Preview lewat browser dan memberi persetujuan rilis secara eksplisit.
-4. Hanya setelah persetujuan itu: cadangan baru, merge PR `delvin4ys/Monify#1`, verifikasi Production (urutan di checklist).
-5. Setelah rilis: email reset password (Resend), Supabase Storage privat, rate limit lintas instance, naik ke Prisma 7, test E2E di repo, perapian UI mobile.
+1. Tunggu persetujuan eksplisit pemilik untuk rilis. Tanpa itu jangan merge.
+2. Setelah disetujui: verifikasi ulang CI dan Preview, buat cadangan baru database, merge PR `delvin4ys/Monify#1`, lalu verifikasi Production di `https://monify-budget.vercel.app` (`/api/health`, login, satu transaksi, log runtime). Urutan lengkap dan jalur mundur ada di `docs/RELEASE_CHECKLIST.md`.
+3. Setelah rilis (rencana pemilik: hari berikutnya): email reset password (Resend), Supabase Storage privat untuk lampiran, pindai struk dengan API key.
+4. Lalu: rate limit lintas instance, naik ke Prisma 7, test E2E di repo, perapian UI mobile, hapus skema `backup_v0_20261112` setelah stabil.
 
 ## I. Konteks yang harus dipertahankan
 

@@ -94,7 +94,7 @@ Catatan keamanan: password database dan nilai `AUTH_SECRET` sempat tampil di tra
 2. ✅ Cadangan database: skema `backup_prerelease_20261112` (15 tabel, 15 pengguna, 135 transaksi).
 3. ✅ Merge PR `delvin4ys/Monify#1` ke `main`; Vercel men-deploy Production otomatis.
 4. ✅ Verifikasi Production: `/api/health` 200, halaman login tampil, E2E 36 dari 36, rekonsiliasi konsisten, database bersih dari data uji.
-5. ⬜ Konfirmasi pemilik: login dengan akun lama di Production.
+5. ✅ Konfirmasi pemilik: login dengan akun lama di Production dan satu transaksi baru berhasil (13 Nov 2026).
 6. ⬜ Setelah stabil beberapa hari: hapus skema cadangan.
 
 Jalur mundur darurat: Vercel → Deployments → Promote deployment Production sebelumnya (`dpl_7nLB…`). Kode lama tidak sepenuhnya cocok dengan skema baru, jadi hanya untuk keadaan darurat singkat.

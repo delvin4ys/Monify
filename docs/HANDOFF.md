@@ -17,7 +17,7 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 4. CONFIRMED: Konfigurasi Vercel: `AUTH_SECRET` (Preview dan Production), `APP_URL` (Production), `DATABASE_URL` transaction pooler port 6543 dengan `pgbouncer=true&connection_limit=5`. Region fungsi `sin1`, Node 22.
 5. CONFIRMED: Cadangan database: skema `backup_prerelease_20261112` (sesaat sebelum rilis, 15 tabel) dan `backup_v0_20261112` (sebelum migrasi v1).
 6. CONFIRMED: Catatan ini di-commit di branch `revamp/v1-foundation` SETELAH merge, jadi `main` belum memuat versi terbaru dokumen ini. Branch sudah disamakan dengan `main` lalu ditambah commit dokumen.
-7. UNVERIFIED: Pemilik belum mengonfirmasi login di Production dengan akun lama. Semua pengguna perlu login ulang sekali karena kunci sesi berganti.
+7. CONFIRMED: Pemilik sudah login di Production dengan akun lama (13 Nov 2026), halaman Transaksi tampil benar, dan satu transaksi baru berhasil dibuat. Pengguna lain perlu login ulang sekali karena kunci sesi berganti.
 8. Diputuskan pemilik: reset password lewat email, lampiran, dan pindai struk dikerjakan setelah rilis. Ketiganya nonaktif dengan pesan yang jelas.
 9. Audit: `docs/FINAL_QUALITY_AUDIT.md`. Checklist rilis: `docs/RELEASE_CHECKLIST.md`.
 
@@ -96,7 +96,7 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 
 ## H. Langkah berikutnya (berurutan)
 
-1. Minta pemilik login di `https://monify-budget.vercel.app` dengan akun lama dan mencoba satu transaksi. Pantau log runtime Production (Hobby hanya menyimpan 1 jam).
+1. SUPERSEDED: konfirmasi login pemilik di Production sudah diterima. Lanjut ke nomor 2.
 2. Log bising yang diketahui, bukan kegagalan: `[session] koneksi awal database gagal` pada request yang tidak menyentuh database (mis. `/api/health`). Penyebab: session store memanggil `$connect()` saat modul dimuat, lalu fungsi serverless dibekukan sebelum selesai. Query sungguhan berjalan normal (terbukti oleh E2E Production). Perbaikan kecil yang disarankan: jadikan `$connect` pada proxy di `server/app.js` tidak melakukan apa-apa, karena Prisma menyambung sendiri saat query pertama.
 3. Pekerjaan yang direncanakan pemilik berikutnya: email reset password (Resend: `RESEND_API_KEY`, `MAIL_FROM`), Supabase Storage privat untuk lampiran (`SUPABASE_SERVICE_ROLE_KEY`, bucket `attachments`), pindai struk (`ANTHROPIC_API_KEY`).
 4. Lalu: rate limit lintas instance, verifikasi email, naik ke Prisma 7, test E2E di repo, perapian UI mobile, menutup atau memindahkan bucket publik lama `uploads`.

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#09090a" />
+    <title>Monify</title>
+    <link rel="icon" href="/assets/{{V}}/assets/logo/logo.png" type="image/png" />
+    <link rel="preload" href="/assets/{{V}}/assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/{{V}}/css/app.css" />
+    <script src="/assets/{{V}}/js/theme-init.js"></script>
+    <link rel="modulepreload" href="/assets/{{V}}/js/app/main.js" />
+    <link rel="modulepreload" href="/assets/{{V}}/js/app/ui.js" />
+    <link rel="modulepreload" href="/assets/{{V}}/js/app/api.js" />
+    <link rel="modulepreload" href="/assets/{{V}}/js/app/store.js" />
+    <link rel="modulepreload" href="/assets/{{V}}/js/app/format.js" />
+    <link rel="modulepreload" href="/assets/{{V}}/js/app/forms.js" />
+    <link rel="modulepreload" href="/assets/{{V}}/js/app/art.js" />
+  </head>
+  <body>
+    <a class="sr-only" href="#view">Lewati ke konten</a>
+    <div class="shell">
+      <aside class="sidebar" aria-label="Navigasi utama">
+        <a class="brand" href="/dashboard" data-link>
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18V7l8 7 8-7v11" /></svg>
+          </span>
+          <span>Monify</span>
+        </a>
+        <nav class="nav" id="nav"></nav>
+        <div class="sidebar__foot" id="sidebar-foot"></div>
+      </aside>
+      <div class="main">
+        <header class="topbar" id="topbar">
+          <div class="topbar__title" id="page-title">Monify</div>
+          <div class="grow"></div>
+          <div class="row-flex" id="topbar-actions"></div>
+        </header>
+        <main class="view" id="view" tabindex="-1"></main>
+      </div>
+    </div>
+    <nav class="tabbar" id="tabbar" aria-label="Navigasi"></nav>
+    <button class="fab" id="fab" aria-label="Transaksi baru">
+      <svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+    </button>
+    <noscript><p style="padding: 24px">Monify membutuhkan JavaScript.</p></noscript>
+    <script type="module" src="/assets/{{V}}/js/app/main.js"></script>
+  </body>
+</html>

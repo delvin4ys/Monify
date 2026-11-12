@@ -1,32 +1,44 @@
 {
   "name": "monify",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "node --watch server/index.js",
+    "dev": "node scripts/dev-local.mjs",
+    "dev:seed": "node scripts/dev-local.mjs --seed",
+    "dev:server": "node --watch-path=server server/index.js",
     "start": "node server/index.js",
+    "test": "node tests/run.mjs",
+    "db:local": "node scripts/dev-db.mjs",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:seed": "prisma db seed",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:baseline": "prisma migrate resolve --applied 0_init",
+    "db:status": "prisma migrate status",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "perf": "node scripts/perf.mjs",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
     "@prisma/client": "^6.3.0",
     "@quixo3/prisma-session-store": "^3.1.19",
     "@supabase/supabase-js": "^2.100.0",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.6.1",
-    "express": "^4.22.1",
+    "express": "^4.22.3",
     "express-session": "^1.18.1",
-    "multer": "^1.4.5-lts.1"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "helmet": "^8.3.0",
+    "multer": "^2.5.0"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "prisma": "^6.3.0",
-    "tsx": "^4.19.2"
+    "@fontsource-variable/geist": "^5.3.0",
+    "embedded-postgres": "^18.6.0-beta.19",
+    "pg": "^8.23.1",
+    "prisma": "^6.3.0"
+  },
+  "description": "Monify — personal finance management platform",
+  "engines": {
+    "node": "22.x"
   }
 }

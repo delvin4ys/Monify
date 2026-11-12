@@ -54,7 +54,19 @@ function createApp() {
   app.get("/api/health", (req, res) => res.json({ ok: true, data: { uptime: Math.round(process.uptime()), version: currentVersion() } }));
 
   // ——— 2. Sesi ———
-  const store = new PrismaSessionStore(prisma, {
+  // Store memanggil $connect() saat dibuat tanpa menangani kegagalannya. Bila database
+  // sedang tidak terjangkau, itu menjadi unhandled rejection yang mematikan proses
+  // (terjadi di Vercel saat cold start). Kegagalan dicatat saja: Prisma menyambung
+  // ulang sendiri pada query berikutnya.
+  const storeClient = new Proxy(prisma, {
+    get(target, prop) {
+      if (prop === "$connect") {
+        return () => target.$connect().catch((e) => console.error("[session] koneksi awal database gagal:", e && e.message));
+      }
+      return target[prop];
+    },
+  });
+  const store = new PrismaSessionStore(storeClient, {
     checkPeriod: config.isTest ? undefined : 10 * 60 * 1000,
     dbRecordIdIsSessionId: true,
     dbRecordIdFunction: undefined,

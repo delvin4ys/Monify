@@ -31,10 +31,10 @@ Sumber bukti (semua dijalankan pada sesi ini kecuali disebut lain):
 
 | Status | Jumlah baris |
 |---|---|
-| PASS | 55 |
-| PARTIAL | 33 |
+| PASS | 58 |
+| PARTIAL | 34 |
 | FAIL | 7 |
-| NOT TESTED | 9 |
+| NOT TESTED | 5 |
 
 Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proyek belum siap produksi** karena deployment nyata, migrasi data produksi, dan integrasi eksternal belum pernah diverifikasi, dan ada dependency dengan celah keamanan yang belum diperbarui.
 
@@ -46,9 +46,9 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Build Vercel | Build selesai tanpa error | `vercel build` lokal sukses; status Vercel di commit `bdb9924`: "Deployment has completed" / Ready | V, G | PASS | — |
 | Bundel fungsi lengkap | Server, Prisma engine, dan `public/` ikut terbawa | Semua ada; `/api/health`, `/login`, halaman 404, dan redirect berjalan dari bundel | V | PASS | — |
 | Routing asset statis | CSS/JS/font dilayani statis dengan cache yang benar, bukan lewat fungsi | 198 request asset → semuanya dari output statis; `/assets/<hash>/…` `immutable`, selebihnya 1 jam. CDN Vercel sungguhan belum diamati | V, E | PARTIAL | Cek header `x-vercel-cache` di preview |
-| Aplikasi berjalan di preview Vercel | Halaman dan API merespons benar | Tidak bisa diperiksa: preview dilindungi Vercel Authentication (semua URL → 302 ke SSO) | `curl` ke URL preview | NOT TESTED | Pemilik membuka preview, atau memberi akses (lihat "Akses eksternal") |
-| `AUTH_SECRET` di Vercel | Terisi ≥ 32 karakter di environment Preview dan Production | Tanpa variabel ini fungsi gagal dimuat dan **setiap** halaman/API menjawab 500. Branch `main` masih punya nilai cadangan, jadi variabel ini mungkin belum pernah diisi | V (skenario tanpa secret) | NOT TESTED | Pastikan terisi di Vercel sebelum membuka preview |
-| Skema database cocok dengan kode | Migrasi v1 sudah diterapkan pada database yang dipakai deployment | Terhadap database berskema lama, halaman login tampil tetapi login dan registrasi menjawab 500 (`P2022`, kolom `User.dateFormat` belum ada) | V (skenario skema lama) | NOT TESTED | Jalankan prosedur upgrade di README pada database preview/produksi setelah backup |
+| Aplikasi berjalan di preview Vercel | Halaman dan API merespons benar | `/api/health` 200 dan halaman login tampil dari deployment `dpl_J6s2…`; pemilik berhasil login dengan akun lama. Alur lain di preview belum diuji satu per satu | Connector Vercel (fetch + log runtime); konfirmasi pemilik | PARTIAL | Uji transaksi, transfer, dan hutang di preview |
+| `AUTH_SECRET` di Vercel | Terisi ≥ 32 karakter di environment Preview dan Production | Sebelumnya tidak ada sama sekali; kini terisi untuk **Preview**. Production belum | Daftar env Vercel; fungsi termuat di preview | PARTIAL | Isi untuk Production saat rilis |
+| Skema database cocok dengan kode | Migrasi v1 sudah diterapkan pada database yang dipakai deployment | Diterapkan pada database Supabase (dipakai Preview dan Production) dalam satu transaksi; riwayat migrasi Prisma tercatat | SQL verifikasi setelah migrasi | PASS | — |
 | Versi Node deployment | Sama dengan yang diuji | `engines.node` = `>=20`; Vercel memilih major terbaru yang tersedia, sedangkan test dijalankan di Node 22 | V (`.vc-config.json`), K | PARTIAL | Kunci ke satu major (mis. `22.x`) |
 | CI/CD | Test otomatis berjalan pada setiap push | Tidak ada workflow CI; hanya build otomatis Vercel | tidak ada folder `.github` | FAIL | Tambah workflow yang menjalankan `npm test` |
 
@@ -74,7 +74,7 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Verifikasi email | Email diverifikasi saat mendaftar | Belum dibuat | K | FAIL | Buat setelah email aktif |
 | Protected routes | Tanpa login tidak bisa mengakses halaman maupun API | API 401; halaman dialihkan ke `/login` di server | T `auth`; E | PASS | — |
 | Isolasi data antar pengguna | Pengguna A tidak bisa membaca/mengubah data B | Ditolak pada dompet, transaksi, transfer, hutang, tabungan, budget, laporan, lampiran | T `isolation` (test case 4) | PASS | — |
-| Row-Level Security | Dievaluasi sebagai lapisan tambahan | Dievaluasi dan sengaja tidak dipakai (alasan di `SECURITY_GUIDELINES.md`); isolasi hanya di lapisan aplikasi | K | PARTIAL | Pertimbangkan ulang bila Supabase client dipakai langsung |
+| Row-Level Security | Dievaluasi sebagai lapisan tambahan | Sebelumnya semua tabel terbaca lewat API publik Supabase dengan anon key (RLS mati). Kini RLS aktif di semua tabel tanpa policy: API publik tertutup, aplikasi tetap berjalan lewat Prisma | SQL (`relrowsecurity`); login pemilik berhasil sesudahnya | PASS | Aktifkan RLS pada setiap tabel baru |
 | Hak admin | Hanya admin sah | Admin = email di `ADMIN_EMAILS`. Karena email tidak diverifikasi, siapa pun yang lebih dulu mendaftar dengan email itu menjadi admin | T `isolation` (akses), K (celah) | PARTIAL | Daftarkan akun admin lebih dulu; tambah verifikasi email |
 | Profil, ganti password, hapus akun | Berfungsi dengan konfirmasi | Ganti password mengakhiri sesi lain; hapus akun butuh password | T `auth` | PASS | — |
 | Manajemen sesi | Melihat dan mengakhiri sesi | Jumlah sesi aktif + keluar dari perangkat lain; tanpa daftar per perangkat | T `auth` | PARTIAL | — |
@@ -182,7 +182,7 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Cegah transaksi duplikat | Idempotency | Transaksi, transfer, pembayaran hutang. Belum: setoran tabungan, pembuatan hutang | T; K | PARTIAL | Lengkapi |
 | Audit metadata | Jejak aktivitas finansial | `AuditLog` ditulis dalam transaksi yang sama; isinya tidak diperiksa test | K | PARTIAL | Tambah assertion |
 | Migrasi non-destruktif | Aditif, teruji pada data lama | Lolos pada data lama buatan dan database kosong | T `migration` | PASS | — |
-| Migrasi pada data produksi | Diterapkan dengan backup | Belum dijalankan | — | NOT TESTED | Backup → baseline → deploy |
+| Migrasi pada data produksi | Diterapkan dengan backup | Diterapkan 12 Nov 2026. Cadangan di skema `backup_v0_20261112`. Jumlah baris sama (15 pengguna, 23 dompet, 134 transaksi); saldo, nominal, tanggal tidak berubah; rekonsiliasi 0 selisih. 17 dari 37 baris transfer lama tidak berpasangan dan tetap berjenis transfer | SQL perbandingan dengan cadangan | PASS | Hapus skema cadangan setelah rilis stabil |
 | Penyimpanan lampiran di production | Privat dan persisten | Tanpa Supabase, file ditulis ke `/tmp` fungsi (hilang). Dengan Supabase belum diuji; kode masih menerima anon key sebagai cadangan | K | NOT TESTED | Isi service-role key + bucket privat, uji |
 | Lampiran lama | Tidak publik | Unggahan versi lama tetap ber-URL publik | K | FAIL | Migrasikan ke bucket privat |
 | Monitoring & error tracking | Ada | Hanya `console` dengan nomor referensi | K | PARTIAL | Pasang layanan error tracking |
@@ -198,6 +198,11 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Empat test case finansial di brief | Lolos | Lolos | T `transfers`, `debts`, `reports`, `isolation` | PASS | — |
 
 ## Perubahan selama sesi audit
+
+- `server/app.js`: kegagalan koneksi awal database tidak lagi mematikan proses. Di preview Vercel tercatat satu kali "Can't reach database server" saat cold start yang membuat fungsi keluar; kini hanya dicatat dan Prisma menyambung ulang pada query berikutnya.
+- Infrastruktur (lewat connector, atas persetujuan pemilik): project Supabase diaktifkan kembali, migrasi v1 diterapkan dengan cadangan, RLS diaktifkan, `AUTH_SECRET` dipasang untuk Preview, preview di-redeploy.
+- Catatan: kode lama di `main` tidak lagi aman dipakai terhadap database ini (daftar transaksi gagal bila ada baris tanpa kategori; tulisannya tidak terklasifikasi).
+- Risiko terbuka: fungsi Vercel berjalan di `iad1` sedangkan database di Singapura, dan `DATABASE_URL` memakai session pooler (port 5432).
 
 - `scripts/dev-db.mjs`: Postgres tertanam kini bisa berjalan saat proses dijalankan sebagai root (container CI/Docker). Tanpa ini `npm test` gagal start di lingkungan seperti itu.
 - `README.md`, `docs/TESTING_STRATEGY.md`: jumlah test diperbarui menjadi 70.

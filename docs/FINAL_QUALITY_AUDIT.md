@@ -31,9 +31,9 @@ Sumber bukti (semua dijalankan pada sesi ini kecuali disebut lain):
 
 | Status | Jumlah baris |
 |---|---|
-| PASS | 58 |
-| PARTIAL | 34 |
-| FAIL | 7 |
+| PASS | 61 |
+| PARTIAL | 33 |
+| FAIL | 5 |
 | NOT TESTED | 5 |
 
 Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proyek belum siap produksi** karena deployment nyata, migrasi data produksi, dan integrasi eksternal belum pernah diverifikasi, dan ada dependency dengan celah keamanan yang belum diperbarui.
@@ -49,8 +49,8 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Aplikasi berjalan di preview Vercel | Halaman dan API merespons benar | `/api/health` 200 dan halaman login tampil dari deployment `dpl_J6s2…`; pemilik berhasil login dengan akun lama. Alur lain di preview belum diuji satu per satu | Connector Vercel (fetch + log runtime); konfirmasi pemilik | PARTIAL | Uji transaksi, transfer, dan hutang di preview |
 | `AUTH_SECRET` di Vercel | Terisi ≥ 32 karakter di environment Preview dan Production | Sebelumnya tidak ada sama sekali; kini terisi untuk **Preview**. Production belum | Daftar env Vercel; fungsi termuat di preview | PARTIAL | Isi untuk Production saat rilis |
 | Skema database cocok dengan kode | Migrasi v1 sudah diterapkan pada database yang dipakai deployment | Diterapkan pada database Supabase (dipakai Preview dan Production) dalam satu transaksi; riwayat migrasi Prisma tercatat | SQL verifikasi setelah migrasi | PASS | — |
-| Versi Node deployment | Sama dengan yang diuji | `engines.node` = `>=20`; Vercel memilih major terbaru yang tersedia, sedangkan test dijalankan di Node 22 | V (`.vc-config.json`), K | PARTIAL | Kunci ke satu major (mis. `22.x`) |
-| CI/CD | Test otomatis berjalan pada setiap push | Tidak ada workflow CI; hanya build otomatis Vercel | tidak ada folder `.github` | FAIL | Tambah workflow yang menjalankan `npm test` |
+| Versi Node deployment | Sama dengan yang diuji | `engines.node` dikunci ke `22.x`; CI dan test lokal memakai Node 22 | `package.json`; CI | PASS | — |
+| CI/CD | Test otomatis berjalan pada setiap push | GitHub Actions menjalankan `npm test` pada push dan pull request; run pertama lolos | Check run `test` pada PR `delvin4ys/Monify#1` | PASS | — |
 
 ## 1. Performa
 
@@ -90,7 +90,7 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Pilihan dompet default | Preset bank/e-wallet umum | Logo tersedia untuk sebagian (BCA, BRI, OVO, dll.); Mandiri, GoPay, DANA tanpa logo | K | PARTIAL | Lengkapi aset |
 | Transaksi: tambah, ubah, hapus | Saldo ikut berubah dengan benar | Atomic lewat ledger; tambah lewat UI mengubah saldo dan total dengan tepat | T `ledger`; E | PASS | — |
 | Nominal > 0 divalidasi backend | Ditolak di server | Integer positif + `CHECK` di database | T `ledger`, `unit`, `migration` | PASS | — |
-| Form transaksi | Mudah dipakai | Berfungsi; menekan Enter tidak menyimpan (tombol Simpan di luar `<form>`) | E | PARTIAL | Hubungkan tombol ke form |
+| Form transaksi | Mudah dipakai | Enter di kolom isian menyimpan; satu transaksi tercatat, tanpa duplikat | Playwright lokal (pengeluaran naik tepat 12.000, 1 baris) | PASS | — |
 | Lampiran transaksi | Opsional, privat | Backend teruji; unggah lewat UI tidak diuji | T `receipts`, `unit` | PARTIAL | Uji lewat UI |
 | Kategori kustom | Buat, ubah, hapus dengan pemeriksaan, ikon, warna, per jenis | Lengkap + arsip + grup | T `ledger` | PASS | — |
 | Riwayat: cari, filter, sort, pagination, total | Lengkap | Lengkap di API; halaman tampil benar | T `ledger`; E | PASS | — |
@@ -175,7 +175,7 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | SQL injection | Query terparameter | Prisma + template terikat; tanpa test khusus | K | PARTIAL | — |
 | XSS | Output di-escape | Template meng-escape + CSP; tanpa test payload di browser | K, T `auth` (CSP) | PARTIAL | Tambah test E2E |
 | Rate limiting | Membatasi percobaan | Di memori per instance; di serverless batas efektif longgar | T `auth` | PARTIAL | Pindahkan ke penyimpanan bersama |
-| Dependency tanpa celah diketahui | `npm audit` bersih | 10 temuan (1 critical, 8 high), termasuk `proxy-addr` (pemalsuan IP — berpengaruh pada rate limit), `body-parser`, `path-to-regexp`, `qs` | `npm audit` | FAIL | `npm audit fix` lalu `npm test` |
+| Dependency tanpa celah diketahui | `npm audit` bersih | `npm audit fix` diterapkan: temuan critical (`proxy-addr`) dan `body-parser`, `path-to-regexp` hilang. Sisa 5: 4 di `prisma` CLI (alat dev, perlu naik major) dan `qs.stringify` di bawah Express | `npm audit` | PARTIAL | Naikkan Prisma saat ada jendela uji |
 | Secrets | Tidak di-hardcode; gagal aman | Semua dari env; tanpa `AUTH_SECRET` server menolak menyala | K; V | PASS | — |
 | Uang tanpa floating-point | Integer / decimal | `BigInt` satuan terkecil | T `unit`, `migration` | PASS | — |
 | Perubahan saldo atomic, tanpa race | Tidak ada update hilang, saldo tidak negatif | Ledger dengan syarat pada `UPDATE` | T `ledger`, `transfers`, `debts` | PASS | — |
@@ -202,7 +202,8 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 - `server/app.js`: kegagalan koneksi awal database tidak lagi mematikan proses. Di preview Vercel tercatat satu kali "Can't reach database server" saat cold start yang membuat fungsi keluar; kini hanya dicatat dan Prisma menyambung ulang pada query berikutnya.
 - Infrastruktur (lewat connector, atas persetujuan pemilik): project Supabase diaktifkan kembali, migrasi v1 diterapkan dengan cadangan, RLS diaktifkan, `AUTH_SECRET` dipasang untuk Preview, preview di-redeploy.
 - Catatan: kode lama di `main` tidak lagi aman dipakai terhadap database ini (daftar transaksi gagal bila ada baris tanpa kategori; tulisannya tidak terklasifikasi).
-- Risiko terbuka: fungsi Vercel berjalan di `iad1` sedangkan database di Singapura, dan `DATABASE_URL` memakai session pooler (port 5432).
+- Fungsi Vercel dipindah ke `sin1` (header `x-vercel-id` preview menunjukkan `sin1`). Risiko terbuka: `DATABASE_URL` masih memakai session pooler (port 5432).
+- Dependency diperbarui (`npm audit fix`), Node dikunci ke 22.x, CI ditambahkan, Enter di form dialog kini menyimpan.
 
 - `scripts/dev-db.mjs`: Postgres tertanam kini bisa berjalan saat proses dijalankan sebagai root (container CI/Docker). Tanpa ini `npm test` gagal start di lingkungan seperti itu.
 - `README.md`, `docs/TESTING_STRATEGY.md`: jumlah test diperbarui menjadi 70.

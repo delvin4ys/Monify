@@ -11,14 +11,14 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 
 ## B. Keadaan terbaru (sumber kebenaran)
 
-1. CONFIRMED: Commit terakhir di `revamp/v1-foundation` adalah `c2b2e61`. Build preview Vercel untuk commit itu sukses.
+1. CONFIRMED: Pekerjaan terakhir di `revamp/v1-foundation`: dependency diperbarui, Node dikunci ke 22.x, region `sin1`, CI ditambahkan (commit `83d4a23`, build preview dan CI lolos), lalu perbaikan Enter di form dialog (commit sesudahnya; cek `git log`).
 2. CONFIRMED: Preview hidup di `https://monify-git-revamp-v1-foundation-delvin4ys-projects.vercel.app`. `/api/health` menjawab 200 dan halaman login tampil. Preview dilindungi Vercel Authentication, jadi hanya bisa dibuka sambil login Vercel.
 3. CONFIRMED: Pemilik berhasil login di preview dengan akun Monify lama.
 4. UNVERIFIED: Fitur lain di preview (tambah transaksi, transfer, pembayaran hutang, budget, tabungan, laporan) belum diuji di deployment nyata. Semuanya sudah lolos uji lokal.
 5. CONFIRMED: Versi baru BELUM dirilis ke produksi. `main` masih berisi kode lama. Tidak ada merge ke `main` dan tidak ada deployment Production yang dilakukan.
 6. CONFIRMED: Database Supabase (satu-satunya, dipakai Preview dan Production) SUDAH dimigrasi ke skema v1. Akibatnya situs produksi lama tidak aman dipakai lagi (lihat G1).
-7. CONFIRMED: `npm test` 70 dari 70 lolos pada commit `c2b2e61`.
-8. Audit lengkap ada di `docs/FINAL_QUALITY_AUDIT.md`: 58 PASS, 34 PARTIAL, 7 FAIL, 5 NOT TESTED.
+7. CONFIRMED: `npm test` 70 dari 70 lolos, lokal dan di GitHub Actions.
+8. Audit lengkap ada di `docs/FINAL_QUALITY_AUDIT.md`: 61 PASS, 33 PARTIAL, 5 FAIL, 5 NOT TESTED.
 
 ## C. Pekerjaan yang selesai
 
@@ -35,6 +35,11 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 11. COMPLETED: `AUTH_SECRET` dipasang di Vercel untuk environment Preview saja (tipe sensitive).
 12. COMPLETED: Environment cloud Claude bernama `monify` dibuat, mengizinkan host preview.
 13. COMPLETED: Connector Vercel dan Supabase tersambung dan diberi akses tim `delvin4ys-projects`.
+14. COMPLETED: `npm audit fix` (temuan critical hilang; sisa 5 di `prisma` CLI dan `qs`).
+15. COMPLETED: `engines.node` dikunci ke `22.x`.
+16. COMPLETED: `vercel.json` memakai `"regions": ["sin1"]`; header preview menunjukkan fungsi berjalan di `sin1`.
+17. COMPLETED: CI `.github/workflows/test.yml` menjalankan `npm test`; run pertama lolos.
+18. COMPLETED: Enter di kolom isian dialog menekan tombol utama (Simpan), di `public/js/app/ui.js`.
 
 ## D. Keputusan dan alasannya
 
@@ -42,13 +47,13 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 2. Migrasi dijalankan lewat connector Supabase (SQL), bukan `prisma migrate`, karena sesi cloud tidak punya akses jaringan langsung ke database. Riwayat migrasi Prisma ditulis manual agar `prisma migrate deploy` berikutnya tetap konsisten.
 3. RLS diaktifkan tanpa policy: aplikasi terhubung sebagai role pemilik tabel lewat Prisma sehingga tidak terpengaruh, sedangkan akses anon lewat API Supabase tertutup.
 4. `AUTH_SECRET` hanya untuk Preview: mengisi Production ditunda sampai rilis.
-5. Region Vercel belum diubah: riwayat repo menunjukkan pemilik pernah memasang `"regions": ["sin1"]` (commit `7c64a49`) lalu mencabutnya (commit `45064a0`, "Remove region fix"). Alasannya belum diketahui, jadi menunggu jawaban pemilik.
-6. `npm audit fix` dan CI belum dikerjakan: menunggu persetujuan pemilik.
+5. Region Vercel dipasang lagi ke `sin1` setelah pemilik meminta pekerjaan dilanjutkan. Pemilik pernah memasang lalu mencabutnya (commit `45064a0`, "Remove region fix") dengan alasan yang belum diketahui: bila muncul masalah hang atau timeout di preview, cabut baris `regions` lebih dulu.
+6. `npm audit fix` dan CI dikerjakan atas permintaan pemilik untuk melanjutkan.
 7. Aturan kerja dari pemilik yang masih berlaku: jangan reset atau menimpa commit yang ada, jangan merge ke `main`, jangan deploy Production, jangan membuat credential palsu, perbaiki hanya akar masalah yang terbukti, jangan mengklaim berhasil tanpa bukti.
 
 ## E. Detail teknis
 
-- Vercel: project `monify`, projectId `prj_ikJvfMhCJAkzO74wKPOr7hntbFLn`, teamId `team_ACUK0v7A4uqIiKthh1YqBC5G` (slug `delvin4ys-projects`). Fungsi berjalan di region `iad1`, runtime `nodejs26.x` (karena `engines.node` adalah `>=20`).
+- Vercel: project `monify`, projectId `prj_ikJvfMhCJAkzO74wKPOr7hntbFLn`, teamId `team_ACUK0v7A4uqIiKthh1YqBC5G` (slug `delvin4ys-projects`). Fungsi berjalan di region `sin1`. `engines.node` adalah `22.x`.
 - Environment variable di Vercel (nama saja): `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` (semua environment), `AUTH_SECRET` (Preview saja). Belum ada: `APP_URL`, `ADMIN_EMAILS`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_BUCKET`, `RESEND_API_KEY`, `MAIL_FROM`, `ANTHROPIC_API_KEY`.
 - Supabase: project ref `vjimzfqfwdkbfzhvhcru`, region `ap-southeast-1`, Postgres 17. `DATABASE_URL` mengarah ke session pooler `aws-1-ap-southeast-1.pooler.supabase.com:5432`.
 - Perintah: `npm ci`, `npm test`, `npm run dev:seed`, `npm run db:deploy`, `npm run db:status`.
@@ -66,10 +71,10 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 ## G. Masalah terbuka dan keterbatasan
 
 1. Situs produksi lama berjalan di atas database yang sudah dimigrasi. Uji lokal: login, dompet, kategori, budget tetap jalan, tetapi daftar transaksi error bila ada baris tanpa kategori (transfer atau penyesuaian dari versi baru), dan transaksi yang ditulis kode lama tidak terklasifikasi benar. Produksi sebaiknya tidak dipakai sampai versi baru dirilis.
-2. Region dan pooler: fungsi di AS, database di Singapura, memakai session pooler port 5432. Risiko lambat dan kehabisan koneksi. Idealnya region `sin1` dan transaction pooler port 6543 dengan `?pgbouncer=true&connection_limit=1`.
+2. Pooler: `DATABASE_URL` memakai session pooler port 5432. Risiko kehabisan koneksi saat ramai. Idealnya transaction pooler port 6543 dengan `?pgbouncer=true&connection_limit=1` (pemilik yang harus mengganti nilainya di Vercel).
 3. `AUTH_SECRET` belum ada untuk Production. Tanpa itu versi baru menjawab 500 di setiap request.
-4. `npm audit`: 10 temuan (1 critical `proxy-addr`, 8 high), belum diperbaiki.
-5. Tidak ada CI. `engines.node` belum dikunci.
+4. `npm audit`: sisa 5 temuan (4 di `prisma` CLI yang butuh naik major, 1 `qs`).
+5. SUPERSEDED: "tidak ada CI" dan "Node belum dikunci". Keduanya sudah selesai.
 6. Lampiran: tanpa Supabase Storage dengan service-role key, file di Vercel ditulis ke `/tmp` dan hilang. Lampiran versi lama masih ber-URL publik.
 7. Email reset password dan verifikasi email belum aktif (butuh Resend). Hak admin terikat email yang tidak diverifikasi: daftarkan akun admin sebelum mengisi `ADMIN_EMAILS`.
 8. Pindai struk AI belum pernah diuji dengan API key sungguhan.
@@ -77,7 +82,7 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 10. Idempotency belum ada untuk setoran tabungan dan pembuatan hutang.
 11. Ada dompet berkurs USD di data lama. Budget tidak memfilter mata uang.
 12. 17 baris transfer lama tidak berpasangan (tetap di luar laporan, tetapi tidak tampil sebagai satu transfer).
-13. UI: Enter di form transaksi tidak menyimpan; di mobile filter Transaksi memakan satu layar dan tombol tambah menutupi kartu.
+13. UI: di mobile filter Transaksi memakan satu layar dan tombol tambah menutupi kartu. (Enter di form sudah diperbaiki.)
 14. Belum ada test E2E di repo, belum ada Lighthouse, baru Chromium yang diuji.
 15. Nilai `AUTH_SECRET` Preview sempat tampil di transkrip sesi pembuatnya. Pemilik boleh menggantinya di dashboard Vercel.
 16. Skema cadangan `backup_v0_20261112` perlu dihapus setelah rilis stabil.
@@ -85,9 +90,9 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 ## H. Langkah berikutnya (berurutan)
 
 1. Pemilik menguji fitur di preview: tambah transaksi, transfer antar dompet, pembayaran hutang, lalu cek saldo dan dashboard. Bila ada error, baca log runtime lewat connector Vercel.
-2. Tanyakan kepada pemilik alasan region Singapura dulu dicabut. Bila tidak ada alasan khusus, pasang `"regions": ["sin1"]` di `vercel.json` dan ukur di preview.
-3. Minta pemilik mengganti `DATABASE_URL` di Vercel ke transaction pooler (port 6543). Jangan membuka nilai rahasia yang ada.
-4. Dengan persetujuan pemilik: `npm audit fix`, jalankan `npm test`, lalu tambah workflow CI yang menjalankan `npm test`, dan kunci `engines.node` ke `22.x`.
+2. Minta pemilik mengganti `DATABASE_URL` di Vercel ke transaction pooler (port 6543). Jangan membuka nilai rahasia yang ada.
+3. Idempotency untuk setoran tabungan dan pembuatan hutang, dengan test.
+4. Perbaikan UI mobile: filter Transaksi dan tombol tambah.
 5. Kerjakan P1 lain di `docs/FINAL_QUALITY_AUDIT.md` bagian "Yang belum selesai".
 6. Rilis produksi hanya atas perintah eksplisit pemilik: isi `AUTH_SECRET` untuk Production, merge PR `delvin4ys/Monify#1`, verifikasi produksi.
 

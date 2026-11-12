@@ -162,6 +162,14 @@ export function dialog({ title, body, footer, wide = false, onClose }) {
     if (e.key === "Escape") {
       e.stopPropagation();
       close();
+    } else if (e.key === "Enter" && !e.isComposing && e.target instanceof HTMLInputElement && overlay.contains(e.target) && !["file", "checkbox", "radio", "button", "submit"].includes(e.target.type)) {
+      // Enter di kolom isian = menekan tombol utama dialog (Simpan). Tombol itu berada
+      // di luar <form>, sehingga browser tidak melakukannya sendiri.
+      const primary = $(".dialog__foot .btn--primary", overlay);
+      if (primary && !primary.disabled) {
+        e.preventDefault();
+        primary.click();
+      }
     } else if (e.key === "Tab") {
       const items = $$(FOCUSABLE, overlay).filter((n) => n.offsetParent !== null);
       if (!items.length) return;

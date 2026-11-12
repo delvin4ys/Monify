@@ -23,7 +23,7 @@ Prioritas pemilik sekarang: menyiapkan rilis Production yang aman untuk publik. 
 8. CONFIRMED: Konfigurasi Vercel dipasang Claude atas permintaan pemilik: `AUTH_SECRET` (Production, sensitive), `APP_URL` (Production, `https://monify-budget.vercel.app`), `DATABASE_URL` diganti ke transaction pooler port 6543 dengan `pgbouncer=true&connection_limit=5` (semua environment). Preview di-redeploy (`dpl_76u8V5BZsfzFCpyZTxANBzvo3nLH`) dan uji browser 19 dari 19 lolos di atasnya.
 10. CONFIRMED: Keputusan pemilik: reset password lewat email, lampiran, dan pindai struk dikerjakan setelah rilis (bukan blocker).
 11. BLOCKED (menunggu pemilik): persetujuan eksplisit untuk merge ke `main`.
-9. Audit: `docs/FINAL_QUALITY_AUDIT.md`: 63 PASS, 32 PARTIAL, 5 FAIL, 4 NOT TESTED.
+9. Audit: `docs/FINAL_QUALITY_AUDIT.md`: 64 PASS, 31 PARTIAL, 5 FAIL, 4 NOT TESTED.
 
 ## C. Pekerjaan yang selesai
 

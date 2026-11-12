@@ -59,9 +59,17 @@ function client() {
   return supabase;
 }
 
-const driver = () => (client() ? "supabase" : "local");
+/**
+ * supabase : bucket privat (production).
+ * local    : disk lokal (pengembangan dan test).
+ * none     : serverless tanpa Supabase — disk fungsi bersifat sementara, jadi unggahan
+ *            ditolak daripada diterima lalu hilang diam-diam.
+ */
+const driver = () => (client() ? "supabase" : process.env.VERCEL ? "none" : "local");
+const unavailable = () => new AppError(503, "STORAGE_UNAVAILABLE", "Lampiran belum tersedia di server ini. Simpan transaksi tanpa lampiran.");
 
 async function save(userId, buffer, opts) {
+  if (driver() === "none") throw unavailable();
   const type = validate(buffer, opts);
   const key = `${userId}/${crypto.randomBytes(16).toString("hex")}.${type.ext}`;
   const sb = client();

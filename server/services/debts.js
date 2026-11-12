@@ -19,6 +19,7 @@ const { toDate } = require("../lib/dates");
 const S = require("../lib/serializers");
 const ledger = require("./ledger");
 const audit = require("./audit");
+const idempotency = require("./idempotency");
 
 const DETAIL = {
   wallet: true,
@@ -86,6 +87,9 @@ async function get(userId, id) {
  */
 async function create(userId, input) {
   const id = await prisma.$transaction(async (tx) => {
+    // Request yang sama terkirim ulang: kembalikan catatan yang sudah dibuat.
+    const done = await idempotency.findReplay(tx, userId, "debt.create", input.idempotencyKey);
+    if (done && done.entityId) return done.entityId;
     const w = input.walletId ? await wallet(tx, userId, input.walletId) : null;
     const debt = await tx.debt.create({
       data: {
@@ -119,7 +123,11 @@ async function create(userId, input) {
         },
       });
     }
-    await audit.record(tx, userId, "debt.create", "Debt", debt.id, { type: input.type, amount: input.amount });
+    await audit.record(tx, userId, "debt.create", "Debt", debt.id, {
+      type: input.type,
+      amount: input.amount,
+      ...(input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : {}),
+    });
     return debt.id;
   });
   return get(userId, id);

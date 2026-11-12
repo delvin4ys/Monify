@@ -35,9 +35,9 @@ const config = {
     .filter(Boolean),
   supabase: {
     url: process.env.SUPABASE_URL || "",
-    // Service-role key hanya boleh ada di server. Anon key dipakai sebagai cadangan
-    // agar deployment lama tetap berjalan.
-    key: process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "",
+    // Hanya service-role key (khusus server). Anon key sengaja tidak dipakai sebagai
+    // cadangan: ia tidak bisa menulis ke bucket privat, sehingga unggahan pasti gagal.
+    key: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
     bucket: process.env.SUPABASE_BUCKET || "attachments",
   },
   mail: {

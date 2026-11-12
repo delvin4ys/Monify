@@ -1,6 +1,6 @@
 import { html, mount, icon, raw, sk, emptyState, dialog, confirmDialog, toast, field, showErrors, busy, tile, $ } from "../ui.js";
 import { live } from "../page.js";
-import { api } from "../api.js";
+import { api, newKey } from "../api.js";
 import { boot, loadBoot } from "../store.js";
 import { money, percent, parseMoney, bindMoneyInput, moneyInputValue, today, date as fmtDate, symbol } from "../format.js";
 import { emptyArt, piggy } from "../art.js";
@@ -57,6 +57,8 @@ function goalForm(g) {
 /** Setor atau tarik. Menjelaskan beda "alokasi" dan "pemindahan nyata". */
 function entryForm(g, type) {
   const deposit = type === "deposit";
+  // Satu kunci per form: bila request terkirim ulang, server tidak mencatat dua kali.
+  const entryKey = newKey();
   const canMove = Boolean(g.walletId);
   const d = dialog({
     title: deposit ? `Menabung ke ${g.name}` : `Tarik dari ${g.name}`,
@@ -95,7 +97,7 @@ function entryForm(g, type) {
     busy(e.currentTarget, async () => {
       const amount = parseMoney(form.elements.amount.value) || 0;
       try {
-        const r = await api.post(`/api/savings/${g.id}/entries`, { type, amount, date: form.elements.date.value, note: form.elements.note.value.trim() || null, walletId: form.elements.walletId ? form.elements.walletId.value || null : null });
+        const r = await api.post(`/api/savings/${g.id}/entries`, { type, amount, date: form.elements.date.value, note: form.elements.note.value.trim() || null, walletId: form.elements.walletId ? form.elements.walletId.value || null : null }, { key: entryKey });
         if (r.movedMoney) await loadBoot(true).catch(() => {});
         const msg = r.justAchieved ? `Target ${g.name} tercapai! 🎉` : deposit ? `${money(amount)} masuk ke ${g.name}.` : `${money(amount)} ditarik dari ${g.name}.`;
         const pig = d.el.querySelector(".piggy");

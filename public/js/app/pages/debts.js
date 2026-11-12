@@ -74,13 +74,15 @@ function debtForm(type, d0) {
     form.querySelectorAll("[data-kind]").forEach((x) => x.setAttribute("aria-pressed", String(x === k)));
     hint();
   });
+  // Satu kunci per form: bila request terkirim ulang, server tidak mencatat dua kali.
+  const createKey = newKey();
   d.el.querySelector("[data-save]").onclick = (e) =>
     busy(e.currentTarget, async () => {
       const el = form.elements;
       const body = { personName: el.personName.value.trim(), amount: parseMoney(el.amount.value) || 0, date: el.date.value, dueDate: el.dueDate.value || null, description: el.description.value.trim() || null };
       try {
         if (editing) await api.patch("/api/debts/" + d0.id, body);
-        else await api.post("/api/debts", { ...body, type: kind, walletId: el.walletId.value || null });
+        else await api.post("/api/debts", { ...body, type: kind, walletId: el.walletId.value || null }, { key: createKey });
         await loadBoot(true).catch(() => {});
         d.close(true);
         toast(editing ? "Catatan diperbarui." : `Catatan ${T[kind].one} disimpan.`);

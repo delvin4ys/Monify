@@ -1,5 +1,7 @@
 const express = require("express");
-const { h, ok } = require("../lib/errors");
+const { h, ok, AppError } = require("../lib/errors");
+const { config } = require("../config");
+const mailer = require("../services/mailer");
 const v = require("../lib/validate");
 const { requireAuth, rateLimit } = require("../middleware/security");
 const users = require("../services/users");
@@ -65,6 +67,11 @@ router.post(
   "/auth/forgot",
   resetLimiter,
   h(async (req, res) => {
+    // Tanpa penyedia email di production, tautan reset tidak bisa sampai ke pengguna.
+    // Katakan terus terang daripada berpura-pura email terkirim.
+    if (config.isProd && !mailer.isConfigured()) {
+      throw new AppError(503, "RESET_UNAVAILABLE", "Reset password lewat email belum tersedia. Hubungi pengelola Monify.");
+    }
     const r = await users.requestPasswordReset(v.email(req.body), `${req.protocol}://${req.get("host")}`);
     // Respons sama untuk email terdaftar maupun tidak.
     ok(res, { message: "Bila email terdaftar, tautan reset password sudah dikirim.", ...(r.devLink ? { devLink: r.devLink } : {}) });

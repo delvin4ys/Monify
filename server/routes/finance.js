@@ -378,6 +378,7 @@ router.post(
       dueDate: v.day(b, "dueDate", { required: false, label: "Jatuh tempo" }),
       description: text(b, "description", 200, "Deskripsi"),
       walletId: v.id(b, "walletId", { required: false }),
+      idempotencyKey: v.idempotencyKey(req),
     });
     ok(res, { debt }, 201);
   })
@@ -544,6 +545,7 @@ router.post(
         date: v.day(b, "date"),
         note: text(b, "note", 140, "Catatan"),
         walletId: v.id(b, "walletId", { required: false }),
+        idempotencyKey: v.idempotencyKey(req),
       }),
       201
     );

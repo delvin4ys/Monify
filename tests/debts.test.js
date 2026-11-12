@@ -164,3 +164,26 @@ test("bunga/biaya dicatat terpisah sebagai pengeluaran, pokok tetap di luar lapo
   assert.equal(rep.expenseByCategory[0].name, "Bunga & Biaya Admin");
   await H.assertReconciled(c);
 });
+
+test("pencatatan hutang duplikat (Idempotency-Key sama, dikirim bersamaan) hanya dibuat sekali", async () => {
+  const c = await H.newUser("debtidem");
+  const w = await H.wallet(c, "BCA", 500_000);
+  const headers = { "Idempotency-Key": "debt-key-0000001" };
+  const body = { type: "PAYABLE", personName: "Sari", amount: 1_000_000, date: D, walletId: w.id };
+  const res = await Promise.all(Array.from({ length: 5 }, () => c.raw("POST", "/api/debts", { body, headers })));
+  assert.ok(res.every((r) => r.status === 201), res.map((r) => r.status).join(","));
+  const ids = new Set(res.map((r) => r.json.data.debt.id));
+  assert.equal(ids.size, 1, "semua respons menunjuk catatan yang sama");
+  const list = await c.get("/api/debts");
+  assert.equal(list.debts.length, 1);
+  assert.equal(list.totals.payable, 1_000_000);
+  assert.equal((await H.balances(c)).BCA, 1_500_000, "pokok pinjaman hanya masuk sekali");
+
+  // Tanpa dompet (tidak ada mutasi) juga terlindungi; pengguna lain dengan kunci sama tidak terpengaruh.
+  const h2 = { "Idempotency-Key": "debt-key-0000002" };
+  await Promise.all(Array.from({ length: 3 }, () => c.raw("POST", "/api/debts", { body: { type: "RECEIVABLE", personName: "Adi", amount: 200_000, date: D }, headers: h2 })));
+  assert.equal((await c.get("/api/debts")).debts.length, 2);
+  const other = await H.newUser("debtidem2");
+  await other.raw("POST", "/api/debts", { body: { type: "RECEIVABLE", personName: "Adi", amount: 200_000, date: D }, headers: h2 });
+  assert.equal((await other.get("/api/debts")).debts.length, 1);
+});

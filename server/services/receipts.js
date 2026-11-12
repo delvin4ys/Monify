@@ -84,7 +84,8 @@ function client() {
   return new Ctor({ apiKey: config.ai.anthropicApiKey, timeout: 45_000, maxRetries: 1 });
 }
 
-const isAvailable = () => Boolean(clientOverride || config.ai.anthropicApiKey);
+// Hasil scan menyimpan gambar struk sebagai lampiran, jadi butuh penyimpanan yang berfungsi.
+const isAvailable = () => Boolean(clientOverride || config.ai.anthropicApiKey) && storage.driver() !== "none";
 
 function money(v) {
   if (typeof v !== "number" || !Number.isFinite(v) || v <= 0) return null;

@@ -100,3 +100,17 @@ test("storage: deteksi tipe dari magic bytes dan kunci hanya di folder sendiri",
     assert.throws(() => storage.assertOwnKey("user1", bad), (e) => e.status === 404, String(bad));
   }
 });
+
+test("storage: di serverless tanpa Supabase unggahan ditolak, bukan disimpan sementara lalu hilang", async () => {
+  const storage = require("../server/services/storage");
+  const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(32)]);
+  assert.equal(storage.driver(), "local");
+  process.env.VERCEL = "1";
+  try {
+    assert.equal(storage.driver(), "none");
+    await assert.rejects(storage.save("user1", png), (e) => e.status === 503 && e.code === "STORAGE_UNAVAILABLE");
+    assert.equal(require("../server/services/receipts").isAvailable(), false);
+  } finally {
+    delete process.env.VERCEL;
+  }
+});

@@ -181,6 +181,8 @@ export function openTransaction({ mode = "expense", tx = null, preset = {} } = {
             ${field({ label: "Status", name: "status", control: html`<select class="select" id="f-status" name="status"><option value="success">Selesai</option><option value="pending" ${tx && tx.status === "pending" ? raw("selected") : ""}>Tertunda (belum mengubah saldo)</option></select>` })}
             ${state.scan
               ? ""
+              : boot.features.storage === "none"
+              ? ""
               : html`<div class="field span-2" data-field="file">
                   <label for="f-file">Lampiran (JPG, PNG, WebP, PDF — maks 5 MB)</label>
                   <input class="input" id="f-file" name="file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" style="padding:9px 12px" />

@@ -20,6 +20,7 @@ const S = require("../lib/serializers");
 const ledger = require("./ledger");
 const transfers = require("./transfers");
 const audit = require("./audit");
+const idempotency = require("./idempotency");
 
 function shape(g, todayStr = today()) {
   const target = Number(g.targetAmount);
@@ -153,6 +154,8 @@ async function remove(userId, id) {
 async function addEntry(userId, goalId, input) {
   const result = await prisma.$transaction(async (tx) => {
     const g = await owned(tx, userId, goalId);
+    // Request yang sama terkirim ulang (koneksi putus, klik ganda): jangan menabung dua kali.
+    if (await idempotency.findReplay(tx, userId, "savings.entry", input.idempotencyKey)) return { replayed: true };
     if (g.status === "ARCHIVED") throw badRequest("Tujuan ini diarsipkan.");
     const isDeposit = input.type !== "withdraw";
     const signedAmount = isDeposit ? input.amount : -input.amount;
@@ -178,10 +181,15 @@ async function addEntry(userId, goalId, input) {
       data: { goalId, userId, amount: signedAmount, date: toDate(input.date), note: input.note || null, transferId },
     });
     const goal = await recalc(tx, goalId);
-    await audit.record(tx, userId, "savings.entry", "SavingsGoal", goalId, { amount: signedAmount, transferId });
+    await audit.record(tx, userId, "savings.entry", "SavingsGoal", goalId, {
+      amount: signedAmount,
+      transferId,
+      entryId: entry.id,
+      ...(input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : {}),
+    });
     return { entryId: entry.id, achieved: goal.status === "ACHIEVED" && g.status !== "ACHIEVED" };
   });
-  return { goal: await get(userId, goalId), movedMoney: Boolean(input.walletId), justAchieved: result.achieved };
+  return { goal: await get(userId, goalId), movedMoney: Boolean(input.walletId), justAchieved: Boolean(result.achieved), replayed: Boolean(result.replayed) };
 }
 
 async function removeEntry(userId, goalId, entryId) {

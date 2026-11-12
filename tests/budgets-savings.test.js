@@ -137,3 +137,34 @@ test("tabungan dengan pemindahan nyata: uang pindah dompet, total saldo tidak be
   await c.fail(400, "POST", `/api/savings/${plain.id}/entries`, { amount: 1000, date: "2026-10-05", walletId: bca.id });
   await H.assertReconciled(c);
 });
+
+test("setoran tabungan duplikat (Idempotency-Key sama, dikirim bersamaan) hanya tercatat sekali", async () => {
+  const c = await H.newUser("saveidem");
+  const bca = await H.wallet(c, "BCA", 2_000_000);
+  const jago = await H.wallet(c, "Jago", 0);
+  const goal = (await c.post("/api/savings", { name: "Dana Darurat", targetAmount: 5_000_000, walletId: jago.id })).goal;
+
+  // Pemindahan nyata: lima request identik → satu setoran, satu transfer.
+  const headers = { "Idempotency-Key": "save-key-0000001" };
+  const res = await Promise.all(Array.from({ length: 5 }, () => c.raw("POST", `/api/savings/${goal.id}/entries`, { body: { amount: 300_000, date: "2026-10-05", walletId: bca.id }, headers })));
+  assert.ok(res.every((r) => r.status === 201), res.map((r) => r.status).join(","));
+  let g = (await c.get("/api/savings/" + goal.id)).goal;
+  assert.equal(g.entries.length, 1);
+  assert.equal(g.savedAmount, 300_000);
+  const b = await H.balances(c);
+  assert.equal(b.BCA, 1_700_000);
+  assert.equal(b.Jago, 300_000);
+
+  // Alokasi saja (tanpa mutasi dompet) juga terlindungi.
+  const h2 = { "Idempotency-Key": "save-key-0000002" };
+  await Promise.all(Array.from({ length: 4 }, () => c.raw("POST", `/api/savings/${goal.id}/entries`, { body: { amount: 100_000, date: "2026-10-06" }, headers: h2 })));
+  g = (await c.get("/api/savings/" + goal.id)).goal;
+  assert.equal(g.entries.length, 2);
+  assert.equal(g.savedAmount, 400_000);
+
+  // Kunci berbeda = niat berbeda → tercatat.
+  await c.raw("POST", `/api/savings/${goal.id}/entries`, { body: { amount: 100_000, date: "2026-10-06" }, headers: { "Idempotency-Key": "save-key-0000003" } });
+  assert.equal((await c.get("/api/savings/" + goal.id)).goal.savedAmount, 500_000);
+  const rec = await c.get("/api/reconcile");
+  assert.equal(rec.consistent, true);
+});

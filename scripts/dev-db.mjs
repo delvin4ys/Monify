@@ -66,6 +66,9 @@ export async function startDb(opts) {
     password: cfg.password,
     port: cfg.port,
     persistent: true, // penghapusan folder dilakukan pemanggil setelah server benar-benar berhenti
+    // Postgres menolak berjalan sebagai root (container CI/Docker). Dengan opsi ini library
+    // menjalankannya sebagai user `postgres` dan menyerahkan kepemilikan folder data kepadanya.
+    createPostgresUser: process.getuid?.() === 0,
     // Tanpa ini initdb di Windows memakai WIN1252 dan menolak emoji/ikon kategori.
     initdbFlags: ["--encoding=UTF8", "--locale=C"],
     // io_method=sync: tanpa proses io_worker, yang di Windows bisa tertinggal

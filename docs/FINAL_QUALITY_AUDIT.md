@@ -21,7 +21,7 @@ Sumber bukti (semua dijalankan pada sesi ini kecuali disebut lain):
 
 | Kode | Bukti |
 |---|---|
-| **T** | `npm test` — 70 test, 70 lolos, 0 gagal (Postgres tertanam, seluruh migrasi diterapkan). Nama file test disebut di tiap baris. |
+| **T** | `npm test` — 73 test, 73 lolos, 0 gagal (Postgres tertanam, seluruh migrasi diterapkan). Nama file test disebut di tiap baris. |
 | **V** | `vercel build` lokal (target preview) lalu bundel fungsi hasil build dijalankan dengan `VERCEL=1` di belakang emulasi routing `config.json`. |
 | **E** | Playwright (Chromium headless) terhadap bundel V dengan data demo: login, 8 halaman × 3 viewport (1280, 768, 375 px), alur tambah pengeluaran dan transfer lewat UI, ganti tema. |
 | **G** | Status commit dan komentar bot Vercel di GitHub pada PR `delvin4ys/Monify#1`. |
@@ -31,10 +31,10 @@ Sumber bukti (semua dijalankan pada sesi ini kecuali disebut lain):
 
 | Status | Jumlah baris |
 |---|---|
-| PASS | 61 |
-| PARTIAL | 33 |
+| PASS | 63 |
+| PARTIAL | 32 |
 | FAIL | 5 |
-| NOT TESTED | 5 |
+| NOT TESTED | 4 |
 
 Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proyek belum siap produksi** karena deployment nyata, migrasi data produksi, dan integrasi eksternal belum pernah diverifikasi, dan ada dependency dengan celah keamanan yang belum diperbarui.
 
@@ -46,7 +46,7 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Build Vercel | Build selesai tanpa error | `vercel build` lokal sukses; status Vercel di commit `bdb9924`: "Deployment has completed" / Ready | V, G | PASS | — |
 | Bundel fungsi lengkap | Server, Prisma engine, dan `public/` ikut terbawa | Semua ada; `/api/health`, `/login`, halaman 404, dan redirect berjalan dari bundel | V | PASS | — |
 | Routing asset statis | CSS/JS/font dilayani statis dengan cache yang benar, bukan lewat fungsi | 198 request asset → semuanya dari output statis; `/assets/<hash>/…` `immutable`, selebihnya 1 jam. CDN Vercel sungguhan belum diamati | V, E | PARTIAL | Cek header `x-vercel-cache` di preview |
-| Aplikasi berjalan di preview Vercel | Halaman dan API merespons benar | `/api/health` 200 dan halaman login tampil dari deployment `dpl_J6s2…`; pemilik berhasil login dengan akun lama. Alur lain di preview belum diuji satu per satu | Connector Vercel (fetch + log runtime); konfirmasi pemilik | PARTIAL | Uji transaksi, transfer, dan hutang di preview |
+| Aplikasi berjalan di preview Vercel | Halaman dan API merespons benar | 36 dari 36 pemeriksaan lolos pada deployment `96e743e`: registrasi, dompet, transfer, transaksi, hutang, tabungan, budget, dashboard, laporan, rekonsiliasi, duplikat, CSRF, hapus akun. Akun uji dihapus setelahnya. Pemilik berhasil login dengan akun lama | Skrip E2E terhadap preview; SQL setelahnya (15 pengguna, 0 sisa) | PASS | Uji tampilan form oleh pemilik |
 | `AUTH_SECRET` di Vercel | Terisi ≥ 32 karakter di environment Preview dan Production | Sebelumnya tidak ada sama sekali; kini terisi untuk **Preview**. Production belum | Daftar env Vercel; fungsi termuat di preview | PARTIAL | Isi untuk Production saat rilis |
 | Skema database cocok dengan kode | Migrasi v1 sudah diterapkan pada database yang dipakai deployment | Diterapkan pada database Supabase (dipakai Preview dan Production) dalam satu transaksi; riwayat migrasi Prisma tercatat | SQL verifikasi setelah migrasi | PASS | — |
 | Versi Node deployment | Sama dengan yang diuji | `engines.node` dikunci ke `22.x`; CI dan test lokal memakai Node 22 | `package.json`; CI | PASS | — |
@@ -70,7 +70,7 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 |---|---|---|---|---|---|
 | Registrasi, login, logout | Berfungsi; sesi aman | Sesi di-regenerate saat login, cookie HttpOnly + SameSite, bcrypt | T `auth`; E (login lewat UI) | PASS | — |
 | Lupa & reset password | Token aman, sekali pakai | Token 60 menit, hanya hash disimpan, respons sama untuk email terdaftar/tidak | T `auth` | PASS | — |
-| Pengiriman email reset | Email benar-benar terkirim | Lewat Resend bila dikonfigurasi; belum pernah dijalankan dengan API key. Di production tanpa konfigurasi, reset password tidak bisa dipakai | K | NOT TESTED | Isi `RESEND_API_KEY`, `MAIL_FROM`, `APP_URL` lalu uji |
+| Pengiriman email reset | Email benar-benar terkirim | Belum dikonfigurasi. Di production tanpa penyedia email, "Lupa password" menjawab 503 dengan pesan jelas, bukan berpura-pura terkirim | preview (503) | NOT TESTED | Isi `RESEND_API_KEY`, `MAIL_FROM`, `APP_URL` lalu uji |
 | Verifikasi email | Email diverifikasi saat mendaftar | Belum dibuat | K | FAIL | Buat setelah email aktif |
 | Protected routes | Tanpa login tidak bisa mengakses halaman maupun API | API 401; halaman dialihkan ke `/login` di server | T `auth`; E | PASS | — |
 | Isolasi data antar pengguna | Pengguna A tidak bisa membaca/mengubah data B | Ditolak pada dompet, transaksi, transfer, hutang, tabungan, budget, laporan, lampiran | T `isolation` (test case 4) | PASS | — |
@@ -121,7 +121,7 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Notifikasi over-budget | Peringatan sesuai tingkat | Status 80% / 100% di halaman Budget dan Dashboard; tanpa email/push | T `budgets-savings` (status), K | PARTIAL | — |
 | Savings goals | Target, tanggal, setor, tarik, progres, estimasi | Ada | T `budgets-savings` | PASS | — |
 | Tabungan tidak menggandakan saldo | Total saldo tetap | Alokasi tidak mengubah saldo; pemindahan nyata memakai transfer internal | T `budgets-savings` | PASS | — |
-| Tabungan: request ganda / bersamaan | Tidak tercatat dua kali | Tidak ada idempotency key untuk setoran; penarikan bersamaan tidak diuji | K | PARTIAL | Tambah idempotency + uji konkurensi |
+| Tabungan: request ganda / bersamaan | Tidak tercatat dua kali | Setoran dengan kunci sama tercatat sekali, baik alokasi maupun pemindahan nyata. Penarikan bersamaan dengan kunci berbeda belum diuji | T `budgets-savings`; preview | PARTIAL | Uji penarikan bersamaan |
 | Animasi celengan | Koin masuk, progres naik | Kode animasi ada; tidak diamati berjalan | K | PARTIAL | Uji visual |
 
 ## 6. Laporan & analitik
@@ -175,15 +175,15 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | SQL injection | Query terparameter | Prisma + template terikat; tanpa test khusus | K | PARTIAL | — |
 | XSS | Output di-escape | Template meng-escape + CSP; tanpa test payload di browser | K, T `auth` (CSP) | PARTIAL | Tambah test E2E |
 | Rate limiting | Membatasi percobaan | Di memori per instance; di serverless batas efektif longgar | T `auth` | PARTIAL | Pindahkan ke penyimpanan bersama |
-| Dependency tanpa celah diketahui | `npm audit` bersih | `npm audit fix` diterapkan: temuan critical (`proxy-addr`) dan `body-parser`, `path-to-regexp` hilang. Sisa 5: 4 di `prisma` CLI (alat dev, perlu naik major) dan `qs.stringify` di bawah Express | `npm audit` | PARTIAL | Naikkan Prisma saat ada jendela uji |
+| Dependency tanpa celah diketahui | `npm audit` bersih | Express 4.22.3 dan Multer 2.x. Sisa 4 temuan, semuanya di rantai Prisma CLI yang tidak ikut ke bundel fungsi (diperiksa pada hasil `vercel build`) | `npm audit`; isi `node_modules` bundel | PARTIAL | Naik ke Prisma 7 pada jendela uji tersendiri |
 | Secrets | Tidak di-hardcode; gagal aman | Semua dari env; tanpa `AUTH_SECRET` server menolak menyala | K; V | PASS | — |
 | Uang tanpa floating-point | Integer / decimal | `BigInt` satuan terkecil | T `unit`, `migration` | PASS | — |
 | Perubahan saldo atomic, tanpa race | Tidak ada update hilang, saldo tidak negatif | Ledger dengan syarat pada `UPDATE` | T `ledger`, `transfers`, `debts` | PASS | — |
-| Cegah transaksi duplikat | Idempotency | Transaksi, transfer, pembayaran hutang. Belum: setoran tabungan, pembuatan hutang | T; K | PARTIAL | Lengkapi |
+| Cegah transaksi duplikat | Idempotency | Transaksi, transfer, pembayaran hutang, pencatatan hutang, dan setoran tabungan. Dua yang terakhir memakai kunci advisory + kunci di `AuditLog`, tanpa perubahan skema | T `ledger`, `transfers`, `debts`, `budgets-savings` (lima request bersamaan); preview | PASS | — |
 | Audit metadata | Jejak aktivitas finansial | `AuditLog` ditulis dalam transaksi yang sama; isinya tidak diperiksa test | K | PARTIAL | Tambah assertion |
 | Migrasi non-destruktif | Aditif, teruji pada data lama | Lolos pada data lama buatan dan database kosong | T `migration` | PASS | — |
 | Migrasi pada data produksi | Diterapkan dengan backup | Diterapkan 12 Nov 2026. Cadangan di skema `backup_v0_20261112`. Jumlah baris sama (15 pengguna, 23 dompet, 134 transaksi); saldo, nominal, tanggal tidak berubah; rekonsiliasi 0 selisih. 17 dari 37 baris transfer lama tidak berpasangan dan tetap berjenis transfer | SQL perbandingan dengan cadangan | PASS | Hapus skema cadangan setelah rilis stabil |
-| Penyimpanan lampiran di production | Privat dan persisten | Tanpa Supabase, file ditulis ke `/tmp` fungsi (hilang). Dengan Supabase belum diuji; kode masih menerima anon key sebagai cadangan | K | NOT TESTED | Isi service-role key + bucket privat, uji |
+| Penyimpanan lampiran di production | Privat dan persisten | Tanpa service-role key Supabase, unggahan ditolak dengan 503 yang jelas dan kolom lampiran disembunyikan (tidak lagi ditulis ke `/tmp`). Anon key tidak lagi dipakai. Dengan Supabase belum diuji | T `unit`; preview (503) | PARTIAL | Isi service-role key + bucket privat, uji |
 | Lampiran lama | Tidak publik | Unggahan versi lama tetap ber-URL publik | K | FAIL | Migrasikan ke bucket privat |
 | Monitoring & error tracking | Ada | Hanya `console` dengan nomor referensi | K | PARTIAL | Pasang layanan error tracking |
 | Backup database | Strategi berjalan | Hanya disebut di dokumentasi | K | PARTIAL | Tetapkan jadwal backup |
@@ -198,6 +198,8 @@ Kesimpulan: **logika finansial dan isolasi data di backend kuat dan teruji; proy
 | Empat test case finansial di brief | Lolos | Lolos | T `transfers`, `debts`, `reports`, `isolation` | PASS | — |
 
 ## Perubahan selama sesi audit
+
+- Kesiapan rilis (commit `96e743e`): idempotency tabungan dan hutang, lampiran aman di serverless, pesan reset password yang jujur, Express 4.22.3, Multer 2.x. Checklist rilis: [`RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md).
 
 - `server/app.js`: kegagalan koneksi awal database tidak lagi mematikan proses. Di preview Vercel tercatat satu kali "Can't reach database server" saat cold start yang membuat fungsi keluar; kini hanya dicatat dan Prisma menyambung ulang pada query berikutnya.
 - Infrastruktur (lewat connector, atas persetujuan pemilik): project Supabase diaktifkan kembali, migrasi v1 diterapkan dengan cadangan, RLS diaktifkan, `AUTH_SECRET` dipasang untuk Preview, preview di-redeploy.

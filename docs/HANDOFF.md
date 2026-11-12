@@ -11,14 +11,17 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 
 ## B. Keadaan terbaru (sumber kebenaran)
 
-1. CONFIRMED: Pekerjaan terakhir di `revamp/v1-foundation`: dependency diperbarui, Node dikunci ke 22.x, region `sin1`, CI ditambahkan (commit `83d4a23`, build preview dan CI lolos), lalu perbaikan Enter di form dialog (commit sesudahnya; cek `git log`).
-2. CONFIRMED: Preview hidup di `https://monify-git-revamp-v1-foundation-delvin4ys-projects.vercel.app`. `/api/health` menjawab 200 dan halaman login tampil. Preview dilindungi Vercel Authentication, jadi hanya bisa dibuka sambil login Vercel.
-3. CONFIRMED: Pemilik berhasil login di preview dengan akun Monify lama.
-4. UNVERIFIED: Fitur lain di preview (tambah transaksi, transfer, pembayaran hutang, budget, tabungan, laporan) belum diuji di deployment nyata. Semuanya sudah lolos uji lokal.
-5. CONFIRMED: Versi baru BELUM dirilis ke produksi. `main` masih berisi kode lama. Tidak ada merge ke `main` dan tidak ada deployment Production yang dilakukan.
-6. CONFIRMED: Database Supabase (satu-satunya, dipakai Preview dan Production) SUDAH dimigrasi ke skema v1. Akibatnya situs produksi lama tidak aman dipakai lagi (lihat G1).
-7. CONFIRMED: `npm test` 70 dari 70 lolos, lokal dan di GitHub Actions.
-8. Audit lengkap ada di `docs/FINAL_QUALITY_AUDIT.md`: 61 PASS, 33 PARTIAL, 5 FAIL, 5 NOT TESTED.
+Prioritas pemilik sekarang: menyiapkan rilis Production yang aman untuk publik. Fitur baru dan perapian UI ditunda. Checklist rilis ada di `docs/RELEASE_CHECKLIST.md`.
+
+1. CONFIRMED: Keputusan terakhir: NOT READY FOR PRODUCTION. Kode siap, yang tersisa konfigurasi Production dan persetujuan pemilik.
+2. CONFIRMED: Commit kode terakhir `96e743e` di `revamp/v1-foundation` (sesudahnya hanya commit dokumen; cek `git log`). `npm test` 73 dari 73 lolos, lokal dan di GitHub Actions. Build Preview sukses.
+3. CONFIRMED: Preview hidup di `https://monify-git-revamp-v1-foundation-delvin4ys-projects.vercel.app` (dilindungi Vercel Authentication), berjalan di region `sin1`, Node 22.
+4. CONFIRMED: Uji E2E terhadap Preview nyata: 36 dari 36 pemeriksaan lolos (registrasi, dompet, transfer, transaksi, hutang, tabungan, budget, dashboard, laporan, rekonsiliasi, duplikat, CSRF, hapus akun). Akun uji sementara dihapus; database kembali ke 15 pengguna tanpa sisa data.
+5. CONFIRMED: Pemilik berhasil login di Preview dengan akun lama dan membuat satu transaksi.
+6. CONFIRMED: Versi baru BELUM dirilis. `main` masih kode lama. Tidak ada merge dan tidak ada perubahan deployment Production.
+7. CONFIRMED: Database Supabase (dipakai Preview dan Production) sudah di skema v1, RLS aktif, rekonsiliasi 0 selisih.
+8. BLOCKED (menunggu pemilik): `AUTH_SECRET` untuk Production belum ada; `DATABASE_URL` masih session pooler port 5432; pemilik belum memberi persetujuan rilis setelah mencoba alur inti di browser.
+9. Audit: `docs/FINAL_QUALITY_AUDIT.md`: 63 PASS, 32 PARTIAL, 5 FAIL, 4 NOT TESTED.
 
 ## C. Pekerjaan yang selesai
 
@@ -40,6 +43,11 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 16. COMPLETED: `vercel.json` memakai `"regions": ["sin1"]`; header preview menunjukkan fungsi berjalan di `sin1`.
 17. COMPLETED: CI `.github/workflows/test.yml` menjalankan `npm test`; run pertama lolos.
 18. COMPLETED: Enter di kolom isian dialog menekan tombol utama (Simpan), di `public/js/app/ui.js`.
+19. COMPLETED: Idempotency untuk setoran tabungan dan pencatatan hutang tanpa perubahan skema (`server/services/idempotency.js`: kunci advisory + kunci di meta `AuditLog`). Form mengirim `Idempotency-Key`.
+20. COMPLETED: Lampiran di serverless tanpa service-role key ditolak dengan 503 dan kolomnya disembunyikan; anon key tidak lagi dipakai sebagai cadangan.
+21. COMPLETED: Lupa password di production tanpa penyedia email menjawab 503 dengan pesan jelas.
+22. COMPLETED: Express 4.22.3, Multer 2.x. Sisa `npm audit`: 4 temuan di rantai Prisma CLI, tidak ikut ke bundel runtime.
+23. COMPLETED: `docs/RELEASE_CHECKLIST.md` dibuat.
 
 ## D. Keputusan dan alasannya
 
@@ -57,6 +65,7 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 - Environment variable di Vercel (nama saja): `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` (semua environment), `AUTH_SECRET` (Preview saja). Belum ada: `APP_URL`, `ADMIN_EMAILS`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_BUCKET`, `RESEND_API_KEY`, `MAIL_FROM`, `ANTHROPIC_API_KEY`.
 - Supabase: project ref `vjimzfqfwdkbfzhvhcru`, region `ap-southeast-1`, Postgres 17. `DATABASE_URL` mengarah ke session pooler `aws-1-ap-southeast-1.pooler.supabase.com:5432`.
 - Perintah: `npm ci`, `npm test`, `npm run dev:seed`, `npm run db:deploy`, `npm run db:status`.
+- Uji E2E terhadap Preview: `get_access_to_vercel_url` memberi tautan berbagi, lalu `curl` dengan cookie jar. Skrip membuat akun `e2e-...@example.test`, menjalankan alur, lalu menghapus akunnya lewat `DELETE /api/account`.
 - Cara verifikasi yang dipakai: `npm test`; `vercel build` lokal lalu menjalankan bundel dengan `VERCEL=1`; Playwright terhadap bundel itu; connector Vercel (`web_fetch_vercel_url`, `get_runtime_logs`); SQL verifikasi lewat connector Supabase.
 - Keterbatasan alat: connector Vercel hanya bisa mengambil halaman dengan GET, jadi alur yang butuh POST (login, simpan transaksi) di preview hanya bisa diuji pemilik.
 - Cara mengembalikan data lama bila perlu: tabel asli tersimpan di skema `backup_v0_20261112` (`User`, `CategoryParent`, `Wallet`, `Category`, `Budget`, `Transaction`, `Session`).
@@ -73,13 +82,13 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 1. Situs produksi lama berjalan di atas database yang sudah dimigrasi. Uji lokal: login, dompet, kategori, budget tetap jalan, tetapi daftar transaksi error bila ada baris tanpa kategori (transfer atau penyesuaian dari versi baru), dan transaksi yang ditulis kode lama tidak terklasifikasi benar. Produksi sebaiknya tidak dipakai sampai versi baru dirilis.
 2. Pooler: `DATABASE_URL` memakai session pooler port 5432. Risiko kehabisan koneksi saat ramai. Idealnya transaction pooler port 6543 dengan `?pgbouncer=true&connection_limit=1` (pemilik yang harus mengganti nilainya di Vercel).
 3. `AUTH_SECRET` belum ada untuk Production. Tanpa itu versi baru menjawab 500 di setiap request.
-4. `npm audit`: sisa 5 temuan (4 di `prisma` CLI yang butuh naik major, 1 `qs`).
+4. `npm audit`: sisa 4 temuan, semuanya di rantai Prisma CLI (butuh naik ke Prisma 7), tidak ikut ke bundel runtime.
 5. SUPERSEDED: "tidak ada CI" dan "Node belum dikunci". Keduanya sudah selesai.
 6. Lampiran: tanpa Supabase Storage dengan service-role key, file di Vercel ditulis ke `/tmp` dan hilang. Lampiran versi lama masih ber-URL publik.
 7. Email reset password dan verifikasi email belum aktif (butuh Resend). Hak admin terikat email yang tidak diverifikasi: daftarkan akun admin sebelum mengisi `ADMIN_EMAILS`.
 8. Pindai struk AI belum pernah diuji dengan API key sungguhan.
 9. Rate limit hanya di memori per instance.
-10. Idempotency belum ada untuk setoran tabungan dan pembuatan hutang.
+10. SUPERSEDED: idempotency tabungan dan hutang sudah selesai.
 11. Ada dompet berkurs USD di data lama. Budget tidak memfilter mata uang.
 12. 17 baris transfer lama tidak berpasangan (tetap di luar laporan, tetapi tidak tampil sebagai satu transfer).
 13. UI: di mobile filter Transaksi memakan satu layar dan tombol tambah menutupi kartu. (Enter di form sudah diperbaiki.)
@@ -89,12 +98,11 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 
 ## H. Langkah berikutnya (berurutan)
 
-1. Pemilik menguji fitur di preview: tambah transaksi, transfer antar dompet, pembayaran hutang, lalu cek saldo dan dashboard. Bila ada error, baca log runtime lewat connector Vercel.
-2. Minta pemilik mengganti `DATABASE_URL` di Vercel ke transaction pooler (port 6543). Jangan membuka nilai rahasia yang ada.
-3. Idempotency untuk setoran tabungan dan pembuatan hutang, dengan test.
-4. Perbaikan UI mobile: filter Transaksi dan tombol tambah.
-5. Kerjakan P1 lain di `docs/FINAL_QUALITY_AUDIT.md` bagian "Yang belum selesai".
-6. Rilis produksi hanya atas perintah eksplisit pemilik: isi `AUTH_SECRET` untuk Production, merge PR `delvin4ys/Monify#1`, verifikasi produksi.
+1. Pemilik mengisi `AUTH_SECRET` untuk Production dan mengganti `DATABASE_URL` ke transaction pooler (langkah rinci di `docs/RELEASE_CHECKLIST.md`). Jangan meminta nilainya di chat.
+2. Verifikasi lewat connector Vercel: nama variabel dan target (jangan dekripsi), redeploy Preview, `/api/health`, log runtime.
+3. Pemilik mencoba alur inti di Preview lewat browser dan memberi persetujuan rilis secara eksplisit.
+4. Hanya setelah persetujuan itu: cadangan baru, merge PR `delvin4ys/Monify#1`, verifikasi Production (urutan di checklist).
+5. Setelah rilis: email reset password (Resend), Supabase Storage privat, rate limit lintas instance, naik ke Prisma 7, test E2E di repo, perapian UI mobile.
 
 ## I. Konteks yang harus dipertahankan
 

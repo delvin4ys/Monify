@@ -10,7 +10,7 @@ npm test
 
 Test integrasi memanggil server Express sungguhan lewat HTTP dengan cookie sesi, jadi yang diuji adalah seluruh rantai: validasi → otorisasi → service → database → serialisasi.
 
-Hasil terakhir: **70 test, 70 lolos** (±25–50 detik).
+Hasil terakhir: **73 test, 73 lolos** (±25–50 detik).
 
 ## Cakupan
 

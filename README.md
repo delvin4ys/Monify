@@ -92,7 +92,7 @@ Migrasi v1 bersifat aditif (tidak ada tabel, kolom, atau baris yang dihapus) dan
 npm test
 ```
 
-Menyalakan Postgres sementara, menerapkan semua migrasi, lalu menjalankan 70 test (unit, integrasi API, logika finansial, isolasi multi-user, keamanan, migrasi data). Satu file saja: `npm test -- tests/debts.test.js`.
+Menyalakan Postgres sementara, menerapkan semua migrasi, lalu menjalankan 73 test (unit, integrasi API, logika finansial, isolasi multi-user, keamanan, migrasi data). Satu file saja: `npm test -- tests/debts.test.js`.
 
 ```bash
 npm run perf

@@ -2,7 +2,7 @@
 
 Keadaan per 12 November 2026, commit `96e743e` di `revamp/v1-foundation`.
 
-**Keputusan saat ini: READY FOR PRODUCTION.** Semua blocker teknis selesai dan terverifikasi. Rilis hanya menunggu persetujuan eksplisit pemilik untuk merge ke `main`.
+**Status: DIRILIS ke Production pada 12 November 2026** (merge commit `3f782cf`, deployment `dpl_6fwc…`). Situs publik `https://monify-budget.vercel.app` lolos 36 dari 36 pemeriksaan E2E setelah rilis; akun uji dihapus.
 
 Tanda: ✅ terverifikasi · ⛔ blocker rilis · ⚠️ risiko yang perlu keputusan pemilik · ⬜ dikerjakan saat rilis
 
@@ -88,11 +88,15 @@ Diputuskan pemilik (12 Nov 2026): reset password lewat email, lampiran, dan pind
 
 Catatan keamanan: password database dan nilai `AUTH_SECRET` sempat tampil di transkrip sesi Claude yang memasangnya (atas izin pemilik). Bila ingin lebih rapat, ganti password database di Supabase lalu perbarui `DATABASE_URL`, dan ganti `AUTH_SECRET` di Vercel.
 
-## Urutan rilis (setelah semua blocker selesai dan pemilik menyetujui)
+## Urutan rilis (dijalankan 12 November 2026)
 
-1. ⬜ Verifikasi ulang: CI hijau, Preview sehat, `AUTH_SECRET` dan `DATABASE_URL` Production terpasang.
-2. ⬜ Cadangan baru database sesaat sebelum rilis.
-3. ⬜ Merge PR `delvin4ys/Monify#1` ke `main` (memicu deployment Production otomatis).
-4. ⬜ Verifikasi Production: `/api/health`, login, satu transaksi, log runtime.
-5. ⬜ Jalur mundur bila bermasalah: Vercel → Deployments → Promote deployment Production sebelumnya. Catatan: kode lama tidak sepenuhnya cocok dengan skema baru, jadi mundur hanya untuk keadaan darurat singkat.
-6. ⬜ Setelah stabil beberapa hari: hapus skema `backup_v0_20261112`.
+1. ✅ Verifikasi ulang: CI hijau, Preview sehat, konfigurasi Production terpasang.
+2. ✅ Cadangan database: skema `backup_prerelease_20261112` (15 tabel, 15 pengguna, 135 transaksi).
+3. ✅ Merge PR `delvin4ys/Monify#1` ke `main`; Vercel men-deploy Production otomatis.
+4. ✅ Verifikasi Production: `/api/health` 200, halaman login tampil, E2E 36 dari 36, rekonsiliasi konsisten, database bersih dari data uji.
+5. ⬜ Konfirmasi pemilik: login dengan akun lama di Production.
+6. ⬜ Setelah stabil beberapa hari: hapus skema cadangan.
+
+Jalur mundur darurat: Vercel → Deployments → Promote deployment Production sebelumnya (`dpl_7nLB…`). Kode lama tidak sepenuhnya cocok dengan skema baru, jadi hanya untuk keadaan darurat singkat.
+
+Catatan log: pesan `[session] koneksi awal database gagal` pada request yang tidak menyentuh database adalah efek pembekuan fungsi serverless, bukan kegagalan query.

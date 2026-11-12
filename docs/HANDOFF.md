@@ -11,19 +11,15 @@ Dokumen ini adalah catatan serah terima untuk sesi berikutnya. Bagian B adalah s
 
 ## B. Keadaan terbaru (sumber kebenaran)
 
-Prioritas pemilik sekarang: menyiapkan rilis Production yang aman untuk publik. Fitur baru dan perapian UI ditunda. Checklist rilis ada di `docs/RELEASE_CHECKLIST.md`.
-
-1. CONFIRMED: Keputusan terakhir: READY FOR PRODUCTION. Semua blocker teknis selesai. Rilis hanya menunggu persetujuan eksplisit pemilik untuk merge PR ke `main`.
-2. CONFIRMED: Commit kode terakhir `96e743e` di `revamp/v1-foundation` (sesudahnya hanya commit dokumen; cek `git log`). `npm test` 73 dari 73 lolos, lokal dan di GitHub Actions. Build Preview sukses.
-3. CONFIRMED: Preview hidup di `https://monify-git-revamp-v1-foundation-delvin4ys-projects.vercel.app` (dilindungi Vercel Authentication), berjalan di region `sin1`, Node 22.
-4. CONFIRMED: Uji E2E terhadap Preview nyata: 36 dari 36 pemeriksaan lolos (registrasi, dompet, transfer, transaksi, hutang, tabungan, budget, dashboard, laporan, rekonsiliasi, duplikat, CSRF, hapus akun). Akun uji sementara dihapus; database kembali ke 15 pengguna tanpa sisa data.
-5. CONFIRMED: Pemilik berhasil login di Preview dengan akun lama dan membuat satu transaksi.
-6. CONFIRMED: Versi baru BELUM dirilis. `main` masih kode lama. Tidak ada merge dan tidak ada perubahan deployment Production.
-7. CONFIRMED: Database Supabase (dipakai Preview dan Production) sudah di skema v1, RLS aktif, rekonsiliasi 0 selisih.
-8. CONFIRMED: Konfigurasi Vercel dipasang Claude atas permintaan pemilik: `AUTH_SECRET` (Production, sensitive), `APP_URL` (Production, `https://monify-budget.vercel.app`), `DATABASE_URL` diganti ke transaction pooler port 6543 dengan `pgbouncer=true&connection_limit=5` (semua environment). Preview di-redeploy (`dpl_76u8V5BZsfzFCpyZTxANBzvo3nLH`) dan uji browser 19 dari 19 lolos di atasnya.
-10. CONFIRMED: Keputusan pemilik: reset password lewat email, lampiran, dan pindai struk dikerjakan setelah rilis (bukan blocker).
-11. BLOCKED (menunggu pemilik): persetujuan eksplisit untuk merge ke `main`.
-9. Audit: `docs/FINAL_QUALITY_AUDIT.md`: 64 PASS, 31 PARTIAL, 5 FAIL, 4 NOT TESTED.
+1. CONFIRMED: Versi baru SUDAH DIRILIS ke Production pada 12 November 2026 atas persetujuan eksplisit pemilik. PR `delvin4ys/Monify#1` di-merge ke `main` (merge commit `3f782cf`). Deployment Production `dpl_6fwctBeZPFGvQyvMd2ZNx5uzD2nn` berstatus READY.
+2. CONFIRMED: Situs publik `https://monify-budget.vercel.app` terverifikasi setelah rilis: 36 dari 36 pemeriksaan E2E lolos (registrasi, dompet, transfer, transaksi, hutang, tabungan, budget, dashboard, laporan, rekonsiliasi, duplikat, CSRF, header keamanan, hapus akun). Akun uji dihapus; database kembali ke 15 pengguna, rekonsiliasi 0 selisih.
+3. CONFIRMED: Sebelum rilis: CI hijau (73 dari 73 test), Preview lolos uji API 36 dari 36 dan uji browser 19 dari 19.
+4. CONFIRMED: Konfigurasi Vercel: `AUTH_SECRET` (Preview dan Production), `APP_URL` (Production), `DATABASE_URL` transaction pooler port 6543 dengan `pgbouncer=true&connection_limit=5`. Region fungsi `sin1`, Node 22.
+5. CONFIRMED: Cadangan database: skema `backup_prerelease_20261112` (sesaat sebelum rilis, 15 tabel) dan `backup_v0_20261112` (sebelum migrasi v1).
+6. CONFIRMED: Catatan ini di-commit di branch `revamp/v1-foundation` SETELAH merge, jadi `main` belum memuat versi terbaru dokumen ini. Branch sudah disamakan dengan `main` lalu ditambah commit dokumen.
+7. UNVERIFIED: Pemilik belum mengonfirmasi login di Production dengan akun lama. Semua pengguna perlu login ulang sekali karena kunci sesi berganti.
+8. Diputuskan pemilik: reset password lewat email, lampiran, dan pindai struk dikerjakan setelah rilis. Ketiganya nonaktif dengan pesan yang jelas.
+9. Audit: `docs/FINAL_QUALITY_AUDIT.md`. Checklist rilis: `docs/RELEASE_CHECKLIST.md`.
 
 ## C. Pekerjaan yang selesai
 
@@ -100,17 +96,20 @@ Prioritas pemilik sekarang: menyiapkan rilis Production yang aman untuk publik. 
 
 ## H. Langkah berikutnya (berurutan)
 
-1. Tunggu persetujuan eksplisit pemilik untuk rilis. Tanpa itu jangan merge.
-2. Setelah disetujui: verifikasi ulang CI dan Preview, buat cadangan baru database, merge PR `delvin4ys/Monify#1`, lalu verifikasi Production di `https://monify-budget.vercel.app` (`/api/health`, login, satu transaksi, log runtime). Urutan lengkap dan jalur mundur ada di `docs/RELEASE_CHECKLIST.md`.
-3. Setelah rilis (rencana pemilik: hari berikutnya): email reset password (Resend), Supabase Storage privat untuk lampiran, pindai struk dengan API key.
-4. Lalu: rate limit lintas instance, naik ke Prisma 7, test E2E di repo, perapian UI mobile, hapus skema `backup_v0_20261112` setelah stabil.
+1. Minta pemilik login di `https://monify-budget.vercel.app` dengan akun lama dan mencoba satu transaksi. Pantau log runtime Production (Hobby hanya menyimpan 1 jam).
+2. Log bising yang diketahui, bukan kegagalan: `[session] koneksi awal database gagal` pada request yang tidak menyentuh database (mis. `/api/health`). Penyebab: session store memanggil `$connect()` saat modul dimuat, lalu fungsi serverless dibekukan sebelum selesai. Query sungguhan berjalan normal (terbukti oleh E2E Production). Perbaikan kecil yang disarankan: jadikan `$connect` pada proxy di `server/app.js` tidak melakukan apa-apa, karena Prisma menyambung sendiri saat query pertama.
+3. Pekerjaan yang direncanakan pemilik berikutnya: email reset password (Resend: `RESEND_API_KEY`, `MAIL_FROM`), Supabase Storage privat untuk lampiran (`SUPABASE_SERVICE_ROLE_KEY`, bucket `attachments`), pindai struk (`ANTHROPIC_API_KEY`).
+4. Lalu: rate limit lintas instance, verifikasi email, naik ke Prisma 7, test E2E di repo, perapian UI mobile, menutup atau memindahkan bucket publik lama `uploads`.
+5. Setelah Production stabil beberapa hari dan pemilik setuju: hapus skema `backup_v0_20261112` dan `backup_prerelease_20261112`.
+6. Saran keamanan: ganti password database di Supabase (sempat tampil di transkrip sesi), lalu perbarui `DATABASE_URL` di Vercel dan redeploy.
+7. Setiap perubahan kode sekarang berdampak ke Production begitu masuk `main`: kerjakan di branch, uji di Preview, merge hanya atas persetujuan pemilik.
 
 ## I. Konteks yang harus dipertahankan
 
 - Pemilik berbahasa Indonesia dan bukan pengguna teknis mendalam: beri langkah yang jelas, satu per satu.
 - Jangan pernah meminta atau menempel password, secret, atau API key di chat. Jangan mendekripsi environment variable Vercel.
 - Status PASS hanya untuk hal yang benar-benar diuji. Fitur keuangan, keamanan, dan isolasi data butuh bukti backend, database, atau test.
-- Push hanya ke `revamp/v1-foundation`. Jangan membuat PR baru, jangan merge, jangan deploy Production tanpa diminta.
+- Push hanya ke branch kerja (`revamp/v1-foundation` atau branch baru yang ditentukan pemilik). Jangan merge ke `main` atau mengubah Production tanpa persetujuan eksplisit pemilik untuk perubahan itu.
 - Setiap tabel baru di skema `public` harus diaktifkan RLS-nya.
 - Database yang sama dipakai Preview dan Production: setiap perubahan skema atau data berdampak ke keduanya.
 

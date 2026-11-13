@@ -104,7 +104,8 @@ function createApp() {
   const AUTH_PAGES = ["/login", "/register", "/forgot-password", "/reset-password"];
   const APP_PAGES = ["/dashboard", "/transactions", "/wallets", "/budgets", "/savings", "/debts", "/reports", "/settings", "/admin"];
 
-  app.get("/", (req, res) => res.redirect(authed(req) ? "/dashboard" : "/login"));
+  // Halaman depan publik untuk pengunjung; pengguna yang sudah masuk langsung ke dashboard.
+  app.get("/", (req, res, next) => (authed(req) ? res.redirect("/dashboard") : sendPage("landing.html")(req, res, next)));
   for (const p of AUTH_PAGES) {
     app.get(p, (req, res, next) => (authed(req) && p !== "/reset-password" ? res.redirect("/dashboard") : sendPage("auth.html")(req, res, next)));
   }

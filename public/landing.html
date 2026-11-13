@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#09090a" />
+    <title>Monify — Uangmu, jelas arahnya</title>
+    <meta name="description" content="Monify membantu mencatat pemasukan dan pengeluaran, memindahkan dana antar dompet dalam satu langkah, serta memantau budget, tabungan, dan hutang." />
+    <link rel="icon" href="/assets/{{V}}/assets/logo/logo.png" type="image/png" />
+    <link rel="preload" href="/assets/{{V}}/assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/{{V}}/css/app.css" />
+    <link rel="stylesheet" href="/assets/{{V}}/css/landing.css" />
+    <script src="/assets/{{V}}/js/theme-init.js"></script>
+  </head>
+  <body class="lp">
+    <a class="sr-only" href="#fitur">Lewati ke konten</a>
+
+    <header class="lp-nav">
+      <a class="brand lp-brand" href="/" aria-label="Monify, beranda">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18V7l8 7 8-7v11" /></svg>
+        </span>
+        <span>Monify</span>
+      </a>
+      <nav class="lp-nav__links" aria-label="Bagian halaman">
+        <a href="#fitur">Fitur</a>
+        <a href="#cara-kerja">Cara kerja</a>
+      </nav>
+      <div class="lp-nav__actions">
+        <a class="btn btn--ghost" href="/login">Masuk</a>
+        <a class="btn btn--primary" href="/register">Daftar gratis</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- ——— Hero slides ——— -->
+      <section class="lp-hero" aria-roledescription="carousel" aria-label="Sekilas Monify" data-slider>
+        <svg class="lp-hero__arcs" viewBox="0 0 800 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+          <path d="M60 820C60 420 130 250 200 250s140 170 140 570" />
+          <path d="M260 820C260 480 320 330 380 330s120 150 120 490" />
+          <path d="M440 820C440 520 500 390 560 390s110 130 110 430" />
+          <path d="M610 820C610 580 660 470 710 470s90 110 90 350" />
+        </svg>
+
+        <div class="lp-slides" data-track>
+          <!-- Slide 1 -->
+          <article class="lp-slide is-active" role="group" aria-roledescription="slide" aria-label="1 dari 4" data-slide>
+            <div class="lp-slide__copy">
+              <p class="eyebrow" data-in>Keuangan pribadi</p>
+              <h1 data-in>Uangmu, <span class="lp-grad">jelas arahnya.</span></h1>
+              <p class="lp-lead" data-in>Semua dompet, pemasukan, dan pengeluaranmu di satu tempat, dengan saldo yang selalu cocok dengan catatannya.</p>
+              <div class="lp-cta" data-in>
+                <a class="btn btn--primary btn--lg" href="/register">Mulai gratis</a>
+                <a class="btn btn--lg" href="/login">Saya sudah punya akun</a>
+              </div>
+            </div>
+            <div class="lp-slide__art" aria-hidden="true" data-in="right">
+              <div class="lp-mock lp-mock--balance">
+                <span class="eyebrow">Total saldo · 3 dompet</span>
+                <strong class="lp-mock__big">Rp 12.450.000</strong>
+                <div class="lp-mock__row">
+                  <span><i class="lp-dot lp-dot--pos"></i>Pemasukan <b class="lp-pos">Rp 8.500.000</b></span>
+                  <span><i class="lp-dot lp-dot--neg"></i>Pengeluaran <b>Rp 3.920.000</b></span>
+                </div>
+                <div class="lp-bars">
+                  <i style="--h: 46%"></i><i class="neg" style="--h: 28%"></i> <i style="--h: 62%"></i><i class="neg" style="--h: 35%"></i> <i style="--h: 54%"></i><i class="neg" style="--h: 30%"></i> <i style="--h: 78%"></i
+                  ><i class="neg" style="--h: 36%"></i>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Slide 2 -->
+          <article class="lp-slide" role="group" aria-roledescription="slide" aria-label="2 dari 4" data-slide>
+            <div class="lp-slide__copy">
+              <p class="eyebrow" data-in>Transfer antar dompet</p>
+              <h2 data-in>Pindah dana, <span class="lp-grad">cukup satu langkah.</span></h2>
+              <p class="lp-lead" data-in>Satu kali input: saldo dompet asal berkurang, dompet tujuan bertambah, dan laporan tidak menghitungnya sebagai pengeluaran.</p>
+              <div class="lp-cta" data-in><a class="btn btn--primary btn--lg" href="/register">Coba sekarang</a></div>
+            </div>
+            <div class="lp-slide__art" aria-hidden="true" data-in="right">
+              <div class="lp-mock lp-mock--transfer">
+                <div class="lp-wallet"><span class="lp-wallet__name">BRI</span><strong>Rp 4.000.000</strong><em class="lp-neg">− Rp 1.000.000</em></div>
+                <div class="lp-flow"><i></i><i></i><i></i><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
+                <div class="lp-wallet"><span class="lp-wallet__name">BCA</span><strong>Rp 3.000.000</strong><em class="lp-pos">+ Rp 1.000.000</em></div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Slide 3 -->
+          <article class="lp-slide" role="group" aria-roledescription="slide" aria-label="3 dari 4" data-slide>
+            <div class="lp-slide__copy">
+              <p class="eyebrow" data-in>Budget</p>
+              <h2 data-in>Tahu batasnya <span class="lp-grad">sebelum terlewat.</span></h2>
+              <p class="lp-lead" data-in>Atur budget per kategori atau per dompet. Monify memberi tanda saat pemakaian mendekati batas, lengkap dengan saran belanja harian.</p>
+              <div class="lp-cta" data-in><a class="btn btn--primary btn--lg" href="/register">Buat budget pertama</a></div>
+            </div>
+            <div class="lp-slide__art" aria-hidden="true" data-in="right">
+              <div class="lp-mock lp-mock--budget">
+                <div class="lp-budget"><span>🍜 Makan di Luar <b>62%</b></span><div class="lp-progress"><i style="--w: 62%"></i></div><small>Rp 930.000 dari Rp 1.500.000</small></div>
+                <div class="lp-budget"><span>⛽ Transportasi <b class="lp-warn">84%</b></span><div class="lp-progress warn"><i style="--w: 84%"></i></div><small>Rp 420.000 dari Rp 500.000</small></div>
+                <div class="lp-budget"><span>🛒 Belanja <b>35%</b></span><div class="lp-progress"><i style="--w: 35%"></i></div><small>Rp 262.500 dari Rp 750.000</small></div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Slide 4 -->
+          <article class="lp-slide" role="group" aria-roledescription="slide" aria-label="4 dari 4" data-slide>
+            <div class="lp-slide__copy">
+              <p class="eyebrow" data-in>Tabungan &amp; hutang</p>
+              <h2 data-in>Target tercapai, <span class="lp-grad">hutang terpantau.</span></h2>
+              <p class="lp-lead" data-in>Sisihkan uang untuk tujuanmu dan catat hutang atau piutang. Setiap pembayaran langsung memperbarui sisa, riwayat, dan saldo dompet.</p>
+              <div class="lp-cta" data-in><a class="btn btn--primary btn--lg" href="/register">Mulai menabung</a></div>
+            </div>
+            <div class="lp-slide__art" aria-hidden="true" data-in="right">
+              <div class="lp-mock lp-mock--goal">
+                <div class="lp-goal">
+                  <span class="lp-goal__icon">🎯</span>
+                  <div><strong>Dana Darurat</strong><small>Rp 5.250.000 dari Rp 15.000.000</small><div class="lp-progress pos"><i style="--w: 35%"></i></div></div>
+                </div>
+                <div class="lp-goal">
+                  <span class="lp-goal__icon">🤝</span>
+                  <div><strong>Hutang ke Kak Rina</strong><small>Sisa Rp 4.000.000 dari Rp 5.000.000</small><div class="lp-progress"><i style="--w: 20%"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="lp-slider-ui">
+          <button class="lp-arrow" type="button" data-prev aria-label="Slide sebelumnya">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+          </button>
+          <div class="lp-dots" role="tablist" aria-label="Pilih slide">
+            <button type="button" role="tab" aria-selected="true" aria-label="Slide 1" data-dot></button>
+            <button type="button" role="tab" aria-selected="false" aria-label="Slide 2" data-dot></button>
+            <button type="button" role="tab" aria-selected="false" aria-label="Slide 3" data-dot></button>
+            <button type="button" role="tab" aria-selected="false" aria-label="Slide 4" data-dot></button>
+          </div>
+          <button class="lp-arrow" type="button" data-next aria-label="Slide berikutnya">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
+          <button class="lp-arrow lp-pause" type="button" data-pause aria-pressed="false" aria-label="Jeda pergantian slide otomatis">
+            <svg class="i-pause" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+            <svg class="i-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ——— Fitur ——— -->
+      <section class="lp-section" id="fitur">
+        <div class="lp-head" data-reveal>
+          <p class="eyebrow">Fitur</p>
+          <h2>Dirancang agar angkanya selalu benar</h2>
+          <p class="lp-lead">Bukan sekadar pencatat. Setiap perubahan saldo punya jejaknya sendiri.</p>
+        </div>
+        <div class="lp-grid">
+          <article class="lp-card" data-reveal="left"><span class="lp-card__icon">👛</span><h3>Banyak dompet</h3><p>Bank, e-wallet, dan tunai dengan saldo awal yang terpisah dari pemasukan, sehingga laporan tidak pernah keliru.</p></article>
+          <article class="lp-card" data-reveal="up"><span class="lp-card__icon">🔁</span><h3>Transfer satu langkah</h3><p>Pindahkan dana antar dompet sendiri dengan satu input. Kedua sisi tercatat bersamaan atau tidak sama sekali.</p></article>
+          <article class="lp-card" data-reveal="right"><span class="lp-card__icon">📊</span><h3>Laporan yang jujur</h3><p>Arus kas bersih, surplus atau defisit, dan perbandingan dengan periode sebelumnya untuk rentang tanggal apa pun.</p></article>
+          <article class="lp-card" data-reveal="left"><span class="lp-card__icon">🎯</span><h3>Budget &amp; tabungan</h3><p>Batas belanja per kategori atau dompet, serta tujuan tabungan dengan perkiraan kapan tercapai.</p></article>
+          <article class="lp-card" data-reveal="up"><span class="lp-card__icon">🤝</span><h3>Hutang &amp; piutang</h3><p>Bayar sebagian atau lunas. Pokok hutang tidak dihitung dua kali sebagai pengeluaran.</p></article>
+          <article class="lp-card" data-reveal="right"><span class="lp-card__icon">🔒</span><h3>Data hanya milikmu</h3><p>Setiap akun terisolasi. Nominal disimpan sebagai bilangan bulat, tanpa pembulatan yang menggeser saldo.</p></article>
+        </div>
+      </section>
+
+      <!-- ——— Cara kerja ——— -->
+      <section class="lp-section lp-section--alt" id="cara-kerja">
+        <div class="lp-head" data-reveal>
+          <p class="eyebrow">Cara kerja</p>
+          <h2>Tiga langkah untuk mulai</h2>
+        </div>
+        <ol class="lp-steps">
+          <li data-reveal="left"><span class="lp-step__n">1</span><h3>Buat akun</h3><p>Cukup email dan password. Kategori umum sudah disiapkan.</p></li>
+          <li data-reveal="up"><span class="lp-step__n">2</span><h3>Tambah dompet</h3><p>Masukkan saldo saat ini untuk tiap rekening, e-wallet, atau uang tunai.</p></li>
+          <li data-reveal="right"><span class="lp-step__n">3</span><h3>Catat transaksi</h3><p>Saldo, budget, dan laporan ikut diperbarui seketika.</p></li>
+        </ol>
+      </section>
+
+      <!-- ——— Ajakan ——— -->
+      <section class="lp-section">
+        <div class="lp-final" data-reveal="up">
+          <h2>Mulai rapikan keuanganmu hari ini</h2>
+          <p class="lp-lead">Gratis, langsung dari browser di ponsel maupun komputer.</p>
+          <div class="lp-cta"><a class="btn btn--primary btn--lg" href="/register">Daftar gratis</a><a class="btn btn--lg" href="/login">Masuk</a></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="lp-foot">
+      <span>© Monify</span>
+      <span class="lp-foot__links"><a href="/login">Masuk</a><a href="/register">Daftar</a></span>
+    </footer>
+
+    <script src="/assets/{{V}}/js/landing.js" defer></script>
+  </body>
+</html>

@@ -196,3 +196,22 @@ test("preferensi pengguna dan hapus akun", async () => {
   assert.equal(await H.prisma.user.count({ where: { id: c.user.id } }), 0);
   await new H.Client().fail(401, "POST", "/api/auth/login", { email: c.email, password: c.password });
 });
+
+test("halaman depan publik: pengunjung melihat landing page, pengguna masuk dialihkan ke dashboard", async () => {
+  const guest = new H.Client();
+  const r = await guest.raw("GET", "/");
+  assert.equal(r.status, 200);
+  assert.match(r.text, /data-slider/);
+  assert.match(r.text, /href="\/register"/);
+  assert.doesNotMatch(r.text, /\{\{V\}\}/, "placeholder versi asset harus sudah diganti");
+  // Tanpa skrip inline (CSP script-src 'self').
+  assert.doesNotMatch(r.text, /<script(?![^>]*\bsrc=)[^>]*>/);
+  for (const m of r.text.matchAll(/(?:href|src)="(\/assets\/[^"]+)"/g)) {
+    const a = await guest.raw("GET", m[1]);
+    assert.equal(a.status, 200, m[1]);
+  }
+  const c = await H.newUser("landing");
+  const authed = await c.raw("GET", "/");
+  assert.equal(authed.status, 302);
+  assert.equal(authed.headers.get("location"), "/dashboard");
+});

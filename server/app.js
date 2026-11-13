@@ -54,15 +54,13 @@ function createApp() {
   app.get("/api/health", (req, res) => res.json({ ok: true, data: { uptime: Math.round(process.uptime()), version: currentVersion() } }));
 
   // ——— 2. Sesi ———
-  // Store memanggil $connect() saat dibuat tanpa menangani kegagalannya. Bila database
-  // sedang tidak terjangkau, itu menjadi unhandled rejection yang mematikan proses
-  // (terjadi di Vercel saat cold start). Kegagalan dicatat saja: Prisma menyambung
-  // ulang sendiri pada query berikutnya.
+  // Store memanggil $connect() saat dibuat, tanpa menunggu hasilnya. Di serverless fungsi
+  // bisa dibekukan sebelum koneksi itu selesai, sehingga muncul error koneksi palsu (dan
+  // dulu mematikan proses). Prisma menyambung sendiri pada query pertama, jadi koneksi
+  // awal ini tidak diperlukan: dijadikan tanpa-aksi.
   const storeClient = new Proxy(prisma, {
     get(target, prop) {
-      if (prop === "$connect") {
-        return () => target.$connect().catch((e) => console.error("[session] koneksi awal database gagal:", e && e.message));
-      }
+      if (prop === "$connect") return () => Promise.resolve();
       return target[prop];
     },
   });
